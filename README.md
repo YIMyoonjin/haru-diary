@@ -1,0 +1,1 @@
+# haru-diary

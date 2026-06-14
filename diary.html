@@ -260,10 +260,21 @@
   .log-card .log-edit:empty:before{content:attr(data-ph);color:var(--ink-soft)}
   .log-card .log-del{position:absolute;top:8px;right:8px;width:26px;height:26px;border:0;border-radius:50%;background:var(--surface-2);color:var(--ink-soft);cursor:pointer;display:inline-flex;align-items:center;justify-content:center} .log-card .log-del svg{width:13px;height:13px}
   /* 전날/다음날 네비 */
-  .day-nav{display:flex;align-items:center;justify-content:center;gap:10px;max-width:980px;margin:26px auto 8px}
-  .day-nav button{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer;font-family:var(--f-body);font-size:15px;padding:11px 22px;border-radius:999px}
-  .day-nav button:hover{border-color:var(--accent)}
-  .day-nav button svg{width:18px;height:18px}
+  .day-nav{display:flex;align-items:center;justify-content:center;gap:16px;max-width:980px;margin:26px auto 8px}
+  .dn-arrow{display:inline-flex;align-items:center;justify-content:center;width:48px;height:48px;border-radius:50%;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
+  .dn-arrow svg{width:20px;height:20px}
+  .dn-arrow:hover{border-color:var(--accent);color:var(--accent)}
+  .dn-label{font-family:var(--f-body);font-size:15px;color:var(--ink)}
+  .dn-plus{display:inline-flex;align-items:center;justify-content:center;width:54px;height:54px;border-radius:50%;border:0;background:var(--accent);color:var(--on-accent);cursor:pointer}
+  .dn-plus svg{width:26px;height:26px}
+  /* 날씨 선택 */
+  .weather-pop{width:236px}
+  .weather-opts{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin:8px 0}
+  .wopt{display:flex;flex-direction:column;align-items:center;gap:4px;border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:8px 2px;cursor:pointer;color:var(--ink);font-size:11px;font-family:var(--f-body)}
+  .wopt span:first-child{display:inline-flex} .wopt span:first-child svg{width:20px;height:20px}
+  .wopt.on{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
+  /* 일기 본문 글자색(테마 UI색과 분리) */
+  .editable,.log-edit{color:var(--ink-edit,var(--ink))}
   /* 토스트 */
   .toast{position:fixed;left:50%;bottom:60px;transform:translateX(-50%);background:rgba(0,0,0,.82);color:#fff;padding:12px 22px;border-radius:999px;font-size:14px;font-family:var(--f-body);z-index:90;opacity:0;transition:opacity .25s ease;pointer-events:none}
   .toast.show{opacity:1}
@@ -274,13 +285,14 @@
   body.fmt-open .fmt-backdrop{opacity:1;pointer-events:auto}
   .fmt-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
   .fmt-head h4{margin:0;font-size:16px;color:var(--ink);font-family:var(--f-body);font-weight:700}
-  .fmt-body{display:flex;flex-wrap:wrap;gap:10px 8px;align-items:center}
-  .fmt-body .tb-group{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
-  .fmt-body .tb-div{width:1px;height:22px;background:var(--line);margin:0 2px}
-  .fmt-body .sw{width:28px;height:28px}
-  .fmt-body .hl{width:32px;height:24px}
-  .fmt-body .tb-btn{padding:9px 13px;font-size:15px}
-  .fmt-body .tb-sel{padding:9px 11px;font-size:15px}
+  .fmt-body{display:flex;flex-direction:column;gap:16px;align-items:stretch}
+  .fmt-row{display:flex;flex-direction:column;gap:9px}
+  .fmt-label{font-family:var(--f-body);font-size:14px;color:var(--ink);font-weight:600}
+  .fmt-ctrls{display:flex;flex-wrap:wrap;gap:9px;align-items:center}
+  .fmt-body .sw{width:30px;height:30px}
+  .fmt-body .hl{width:34px;height:26px}
+  .fmt-body .tb-btn{padding:9px 14px;font-size:15px}
+  .fmt-body .tb-sel{padding:10px 12px;font-size:15px;width:100%;max-width:240px}
 </style>
 
 <div id="app" data-mode="morning">
@@ -332,6 +344,20 @@
       </div>
     </div>
     <div class="pop-wrap">
+      <button id="weatherBtn" class="icon-btn" data-ic="sun" title="날씨"></button>
+      <div id="weatherPop" class="pop-panel weather-pop">
+        <label>오늘 날씨</label>
+        <div class="weather-opts">
+          <button class="wopt" data-w="sun"><span data-ic="sun"></span><span>맑음</span></button>
+          <button class="wopt" data-w="cloud"><span data-ic="cloud"></span><span>흐림</span></button>
+          <button class="wopt" data-w="rain"><span data-ic="rain"></span><span>비</span></button>
+          <button class="wopt" data-w="wind"><span data-ic="wind"></span><span>바람</span></button>
+          <button class="wopt" data-w="windrain"><span data-ic="windrain"></span><span>바람·비</span></button>
+        </div>
+        <button id="weatherClear" class="clr">날씨 지우기</button>
+      </div>
+    </div>
+    <div class="pop-wrap">
       <button id="setBtn" class="icon-btn" data-ic="sliders" title="설정"></button>
       <div id="setPop" class="pop-panel set-pop">
         <div class="set-sec"><label>기본 폰트</label><div class="font-list" id="fontList"></div></div>
@@ -380,8 +406,11 @@
   <button class="log-add" id="logAdd"><span class="pc" data-ic="plus"></span><span>이 날의 일기를 추가해 보세요!</span></button>
 
   <div class="day-nav">
-    <button id="prevDay"><span data-ic="back"></span>전날</button>
-    <button id="nextDay">다음날<span data-ic="fwd"></span></button>
+    <button class="dn-arrow" id="prevDay" aria-label="전날"><span data-ic="back"></span></button>
+    <span class="dn-label" id="prevLabel">전날</span>
+    <button class="dn-plus" id="addHere" aria-label="기록 추가"><span data-ic="plus"></span></button>
+    <span class="dn-label" id="nextLabel">다음날</span>
+    <button class="dn-arrow" id="nextDay" aria-label="다음날"><span data-ic="fwd"></span></button>
   </div>
   </div>
   <!-- /에디터 -->
@@ -438,7 +467,11 @@
     bookmark:S+'<path d="M6 4h12v16l-6-4-6 4z"/></svg>',
     bookmarkfill:'<svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"><path d="M6 4h12v16l-6-4-6 4z"/></svg>',
     trash:S+'<path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></svg>',
-    plus:S+'<path d="M12 5v14M5 12h14"/></svg>'
+    plus:S+'<path d="M12 5v14M5 12h14"/></svg>',
+    cloud:S+'<path d="M7 18h9a4 4 0 0 0 .5-7.97A5.5 5.5 0 0 0 6 9.5 3.75 3.75 0 0 0 7 18z"/></svg>',
+    rain:S+'<path d="M7 15h9a4 4 0 0 0 .5-7.97A5.5 5.5 0 0 0 6 6.5 3.75 3.75 0 0 0 7 15z"/><path d="M8 18l-1 2.5M12 18l-1 2.5M16 18l-1 2.5"/></svg>',
+    wind:S+'<path d="M3 8h11a2.5 2.5 0 1 0-2.5-2.5M3 16h15a2.5 2.5 0 1 1-2.5 2.5M3 12h8.5a2.5 2.5 0 1 0-2.5-2.5"/></svg>',
+    windrain:S+'<path d="M3 7h10a2.5 2.5 0 1 0-2.5-2.5M3 11h13a2.5 2.5 0 1 1-2.5 2.5"/><path d="M8 16l-1 2.5M12 16l-1 2.5M16 16l-1 2.5"/></svg>'
   };
   function fillIcons(){document.querySelectorAll('[data-ic]').forEach(el=>{el.innerHTML=ICON[el.dataset.ic]||''});}
 
@@ -501,7 +534,7 @@
   let curFont='gaegu', curTheme='gold', curInk='', secFont={diary:'',prompt:'',memo:''}, secBg={diary:'',prompt:'',memo:''};
   function applyFont(id){const f=FONTS.find(x=>x.id===id)||FONTS[0];curFont=f.id;app.style.setProperty('--f-body',f.disp);document.querySelectorAll('#fontList button').forEach(b=>b.classList.toggle('active',b.dataset.f===f.id));}
   function applyPalette(){const t=THEMES[curTheme]||THEMES.gold;const m={'--bg':t.bg,'--surface':t.surface,'--surface-2':t.s2,'--ink':t.ink,'--ink-soft':t.inkSoft,'--line':t.line,'--accent':t.accent,'--accent-soft':t.accentSoft,'--on-accent':t.on};for(const k in m)app.style.setProperty(k,m[k]);try{document.body.style.background=t.bg;}catch(e){}}
-  function applyInk(){ if(curInk){const i=INKS.find(x=>x.id===curInk);if(i&&i.c)app.style.setProperty('--ink',i.c);} document.querySelectorAll('#inkList button').forEach(b=>b.classList.toggle('active',b.dataset.i===curInk)); }
+  function applyInk(){ const i=curInk?INKS.find(x=>x.id===curInk):null; app.style.setProperty('--ink-edit',(i&&i.c)?i.c:'var(--ink)'); document.querySelectorAll('#inkList button').forEach(b=>b.classList.toggle('active',b.dataset.i===curInk)); }
   function applyTheme(id){if(THEMES[id])curTheme=id;applyPalette();applyInk();document.querySelectorAll('#themeList button').forEach(b=>b.classList.toggle('active',b.dataset.t===curTheme));}
   function applySecFont(section,edit){const id=secFont[section];const f=FONTS.find(x=>x.id===id);edit.style.fontFamily=f?f.disp:'';}
   function cardOf(section){return document.getElementById(section==='diary'?'cardDiary':section==='prompt'?'cardPrompt':'cardMemo');}
@@ -529,7 +562,7 @@
   function ymd(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
   function mdLabel(s){const p=s.split('-');return(+p[1])+'/'+(+p[2]);}
   function mk(){return{id:'r'+Math.random().toString(36).slice(2,9),text:'',start:'',end:''};}
-  function blankDay(){return{mode:'morning',photos:[],wish:'',reflect:'',diary:'',memo:'',done:{},bookmarked:false,logs:[]};}
+  function blankDay(){return{mode:'morning',photos:[],wish:'',reflect:'',diary:'',memo:'',done:{},bookmarked:false,logs:[],weather:''};}
   function fmtDate(d){const days=['일','월','화','수','목','금','토'];return`${d.getFullYear()}년 ${d.getMonth()+1}월 ${d.getDate()}일 ${days[d.getDay()]}요일`;}
   function inRange(rt,ds){if(!rt.start&&!rt.end)return true;if(rt.start&&ds<rt.start)return false;if(rt.end&&ds>rt.end)return false;return true;}
   function rangeLabel(rt){if(!rt.start&&!rt.end)return '기간';return(rt.start?mdLabel(rt.start):'…')+' ~ '+(rt.end?mdLabel(rt.end):'…');}
@@ -542,31 +575,32 @@
   function saveSection(section,edit){ if(section==='diary')day.diary=edit.innerHTML; else if(section==='memo')day.memo=edit.innerHTML; else if(section==='prompt'){if(day.mode==='morning')day.wish=edit.innerHTML;else day.reflect=edit.innerHTML;} scheduleSaveDay(); }
   function buildToolbar(tb,edit,section){
     tb.innerHTML='';
-    const g1=document.createElement('div');g1.className='tb-group';
+    function row(labelText){const r=document.createElement('div');r.className='fmt-row';const l=document.createElement('div');l.className='fmt-label';l.textContent=labelText;const c=document.createElement('div');c.className='fmt-ctrls';r.append(l,c);tb.appendChild(r);return c;}
+    /* 글꼴 */
+    const c1=row('🔤 글꼴');
     const sel=document.createElement('select');sel.className='tb-sel';
     const od=document.createElement('option');od.value='';od.textContent='기본폰트';sel.appendChild(od);
     FONTS.forEach(f=>{const o=document.createElement('option');o.value=f.id;o.textContent=f.name;sel.appendChild(o);});
     sel.value=secFont[section]||'';
     sel.onchange=async()=>{secFont[section]=sel.value;applySecFont(section,edit);await store.set('fmt',JSON.stringify(secFont));};
-    g1.appendChild(sel);tb.appendChild(g1);tb.appendChild(divider());
-    const g2=document.createElement('div');g2.className='tb-group';
-    TEXTCOLORS.forEach(c=>{const b=document.createElement('button');b.className='sw';b.style.background=c;b.title='글자색';b.onmousedown=e=>e.preventDefault();b.onclick=()=>{edit.focus();try{document.execCommand('styleWithCSS',false,true);}catch(e){}document.execCommand('foreColor',false,c);saveSection(section,edit);};g2.appendChild(b);});
-    tb.appendChild(g2);tb.appendChild(divider());
-    const g3=document.createElement('div');g3.className='tb-group';
-    const hc=document.createElement('button');hc.className='hl hl-none';hc.title='형광펜 없음';hc.onmousedown=e=>e.preventDefault();hc.onclick=()=>{edit.focus();try{document.execCommand('styleWithCSS',false,true);}catch(e){}document.execCommand('hiliteColor',false,'transparent');saveSection(section,edit);};g3.appendChild(hc);
-    HILITES.forEach(c=>{const b=document.createElement('button');b.className='hl';b.style.background=c;b.title='형광펜';b.onmousedown=e=>e.preventDefault();b.onclick=()=>{edit.focus();try{document.execCommand('styleWithCSS',false,true);}catch(e){}document.execCommand('hiliteColor',false,c);saveSection(section,edit);};g3.appendChild(b);});
-    const er=document.createElement('button');er.className='tb-btn';er.textContent='지움';er.title='서식 지움';er.onmousedown=e=>e.preventDefault();er.onclick=()=>{edit.focus();document.execCommand('removeFormat');saveSection(section,edit);};g3.appendChild(er);
-    tb.appendChild(g3);tb.appendChild(divider());
+    c1.appendChild(sel);
+    /* 글씨 색상 */
+    const c2=row('✏️ 글씨 색상');
+    TEXTCOLORS.forEach(c=>{const b=document.createElement('button');b.className='sw';b.style.background=c;b.title='글자색';b.onmousedown=e=>e.preventDefault();b.onclick=()=>{edit.focus();try{document.execCommand('styleWithCSS',false,true);}catch(e){}document.execCommand('foreColor',false,c);saveSection(section,edit);};c2.appendChild(b);});
+    /* 형광펜 */
+    const c3=row('🖍️ 형광펜');
+    const hc=document.createElement('button');hc.className='hl hl-none';hc.title='형광펜 없음';hc.onmousedown=e=>e.preventDefault();hc.onclick=()=>{edit.focus();try{document.execCommand('styleWithCSS',false,true);}catch(e){}document.execCommand('hiliteColor',false,'transparent');saveSection(section,edit);};c3.appendChild(hc);
+    HILITES.forEach(c=>{const b=document.createElement('button');b.className='hl';b.style.background=c;b.title='형광펜';b.onmousedown=e=>e.preventDefault();b.onclick=()=>{edit.focus();try{document.execCommand('styleWithCSS',false,true);}catch(e){}document.execCommand('hiliteColor',false,c);saveSection(section,edit);};c3.appendChild(b);});
+    const er=document.createElement('button');er.className='tb-btn';er.textContent='서식 지움';er.title='서식 지움';er.onmousedown=e=>e.preventDefault();er.onclick=()=>{edit.focus();document.execCommand('removeFormat');saveSection(section,edit);};c3.appendChild(er);
     /* 칸 색상 */
-    const g5=document.createElement('div');g5.className='tb-group';
-    SECBGS.forEach(s=>{const b=document.createElement('button');b.className='sw';b.style.background=s.c||'var(--surface)';b.title='칸 색상 · '+s.n;b.onmousedown=e=>e.preventDefault();b.onclick=async()=>{secBg[section]=s.id;applySecBg(section);await store.set('secbg',JSON.stringify(secBg));};g5.appendChild(b);});
-    tb.appendChild(g5);tb.appendChild(divider());
-    /* 스티커 (오버레이) */
-    const g4=document.createElement('div');g4.className='tb-group';
-    const sBtn=document.createElement('button');sBtn.className='tb-btn';sBtn.innerHTML='스티커 '+STK_STAR;sBtn.title='스티커';
+    const c4=row('🎨 칸 색상');
+    SECBGS.forEach(s=>{const b=document.createElement('button');b.className='sw';b.style.background=s.c||'var(--surface)';b.title='칸 색상 · '+s.n;b.onmousedown=e=>e.preventDefault();b.onclick=async()=>{secBg[section]=s.id;applySecBg(section);await store.set('secbg',JSON.stringify(secBg));};c4.appendChild(b);});
+    /* 스티커 */
+    const c5=row('⭐ 스티커');
+    const sBtn=document.createElement('button');sBtn.className='tb-btn';sBtn.innerHTML='스티커 고르기 '+STK_STAR;sBtn.title='스티커';
     sBtn.onmousedown=e=>e.preventDefault();
     sBtn.onclick=(ev)=>{ev.stopPropagation();openStickers(edit,section);};
-    g4.appendChild(sBtn);tb.appendChild(g4);
+    c5.appendChild(sBtn);
   }
   /* 스티커 오버레이 */
   let stkTarget=null, stkRange=null;
@@ -646,7 +680,14 @@
     memoEdit.innerHTML=day.memo||'';
     applySecFont('diary',diaryEdit);applySecFont('prompt',promptEdit);applySecFont('memo',memoEdit);
     applySecBg('diary');applySecBg('prompt');applySecBg('memo');
-    renderPhotos();renderRoutines();renderLogs();reflectBookmark();setMode(day.mode);
+    renderPhotos();renderRoutines();renderLogs();reflectBookmark();reflectWeather();setMode(day.mode);
+  }
+  const WEATHER_IC={sun:'sun',cloud:'cloud',rain:'rain',wind:'wind',windrain:'windrain'};
+  function reflectWeather(){
+    const b=document.getElementById('weatherBtn');if(!b)return;
+    b.innerHTML=ICON[WEATHER_IC[day.weather]]||ICON.sun;
+    b.classList.toggle('set',!!day.weather);
+    document.querySelectorAll('#weatherPop .wopt').forEach(o=>o.classList.toggle('on',o.dataset.w===day.weather));
   }
   function reflectBookmark(){const b=document.getElementById('bmBtn');if(b){b.classList.toggle('on',!!day.bookmarked);b.innerHTML=day.bookmarked?ICON.bookmarkfill:ICON.bookmark;}}
   function renderLogs(){
@@ -668,7 +709,7 @@
   function scheduleSaveDay(){document.getElementById('saveState').textContent='저장 중…';clearTimeout(dayTimer);dayTimer=setTimeout(async()=>{const cur=promptEdit.innerHTML;if(day.mode==='morning')day.wish=cur;else day.reflect=cur;day.diary=diaryEdit.innerHTML;day.memo=memoEdit.innerHTML;await store.set(key(),JSON.stringify(day));flash();},450);}
   function scheduleSaveRoutines(){document.getElementById('saveState').textContent='저장 중…';clearTimeout(rtTimer);rtTimer=setTimeout(async()=>{await store.set('routines',JSON.stringify(routines));flash();},450);}
   async function loadRoutines(){const r=await store.get('routines');if(r&&r.value){routines=JSON.parse(r.value);routines.forEach(x=>{if(x.start===undefined)x.start='';if(x.end===undefined)x.end='';});}else{routines=[mk(),mk(),mk()];await store.set('routines',JSON.stringify(routines));}}
-  async function loadDay(){const r=await store.get(key());day=r&&r.value?Object.assign(blankDay(),JSON.parse(r.value)):blankDay();if(!day.done)day.done={};if(!Array.isArray(day.photos))day.photos=[];if(day.photo){if(!day.photos.length)day.photos=[day.photo];day.photo='';}if(!Array.isArray(day.logs))day.logs=[];if(typeof day.bookmarked!=='boolean')day.bookmarked=false;renderAll();}
+  async function loadDay(){const r=await store.get(key());day=r&&r.value?Object.assign(blankDay(),JSON.parse(r.value)):blankDay();if(!day.done)day.done={};if(!Array.isArray(day.photos))day.photos=[];if(day.photo){if(!day.photos.length)day.photos=[day.photo];day.photo='';}if(!Array.isArray(day.logs))day.logs=[];if(typeof day.bookmarked!=='boolean')day.bookmarked=false;if(typeof day.weather!=='string')day.weather='';renderAll();}
   async function loadReminder(){const r=await store.get('reminderTime');reminderTime=r&&r.value?r.value:'';document.getElementById('alarmTime').value=reminderTime;reflectAlarm();}
   async function loadSettings(){const f=await store.get('font');if(f&&f.value)curFont=f.value;const t=await store.get('theme');if(t&&t.value)curTheme=t.value;const i=await store.get('ink');if(i&&i.value!==undefined)curInk=i.value;const m=await store.get('fmt');if(m&&m.value){try{secFont=Object.assign(secFont,JSON.parse(m.value));}catch(e){}}const sb=await store.get('secbg');if(sb&&sb.value){try{secBg=Object.assign(secBg,JSON.parse(sb.value));}catch(e){}}}
 
@@ -825,8 +866,16 @@
 
   /* 추가 기록 / 날짜 이동 */
   document.getElementById('logAdd').onclick=()=>{day.logs.push({text:''});renderLogs();scheduleSaveDay();const cards=document.querySelectorAll('#logList .log-edit');if(cards.length)cards[cards.length-1].focus();};
+  document.getElementById('addHere').onclick=()=>{day.logs.push({text:''});renderLogs();scheduleSaveDay();const cards=document.querySelectorAll('#logList .log-edit');if(cards.length){cards[cards.length-1].focus();cards[cards.length-1].scrollIntoView({block:'center'});}};
   document.getElementById('prevDay').onclick=()=>navDay(-1);
   document.getElementById('nextDay').onclick=()=>navDay(1);
+
+  /* 날씨 */
+  const weatherPop=document.getElementById('weatherPop');
+  document.getElementById('weatherBtn').onclick=(ev)=>{ev.stopPropagation();closePops(weatherPop);weatherPop.classList.toggle('open');};
+  weatherPop.onclick=(ev)=>ev.stopPropagation();
+  document.querySelectorAll('#weatherPop .wopt').forEach(o=>{o.onclick=()=>{day.weather=o.dataset.w;reflectWeather();scheduleSaveDay();weatherPop.classList.remove('open');};});
+  document.getElementById('weatherClear').onclick=()=>{day.weather='';reflectWeather();scheduleSaveDay();weatherPop.classList.remove('open');};
 
   /* 검색 */
   function runSearch(q){

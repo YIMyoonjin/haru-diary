@@ -201,44 +201,92 @@
   .toolbar{max-width:100%}
 
   /* 홈(캘린더) 화면 */
-  #home{max-width:560px;margin:0 auto;padding:6px 2px 40px}
-  .home-top{display:flex;align-items:center;justify-content:center;padding:8px 0 18px}
-  .home-title{font-family:var(--f-body);font-size:26px;font-weight:700;color:var(--ink);letter-spacing:.02em}
-  .cal-card{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:16px 14px}
-  .cal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;padding:0 6px}
-  .cal-label{font-family:var(--f-body);font-size:19px;font-weight:700;color:var(--ink)}
-  .cal-nav{border:0;background:transparent;color:var(--ink-soft);font-size:24px;cursor:pointer;width:36px;height:36px;border-radius:10px;line-height:1}
+  #home{max-width:640px;margin:0 auto;padding:6px 4px 48px}
+  .home-top{display:flex;align-items:center;justify-content:space-between;padding:10px 6px 20px}
+  .home-title{font-family:var(--f-body);font-size:28px;font-weight:700;color:var(--ink);letter-spacing:.02em}
+  .cal-card{background:transparent;border:0;border-radius:20px;padding:4px 2px}
+  .cal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;padding:0 6px}
+  .cal-label{font-family:var(--f-body);font-size:23px;font-weight:700;color:var(--ink)}
+  .cal-nav{border:0;background:transparent;color:var(--ink-soft);font-size:28px;cursor:pointer;width:42px;height:42px;border-radius:12px;line-height:1}
   .cal-nav:hover{background:var(--surface-2);color:var(--accent)}
-  .cal-dow{display:grid;grid-template-columns:repeat(7,1fr);margin-bottom:6px}
-  .cal-dow span{text-align:center;font-size:12px;color:var(--ink-soft);font-family:var(--f-body);padding:4px 0}
+  .cal-dow{display:grid;grid-template-columns:repeat(7,1fr);margin-bottom:8px}
+  .cal-dow span{text-align:center;font-size:13px;color:var(--ink-soft);font-family:var(--f-body);padding:6px 0}
   .cal-dow span:first-child{color:#D9534F}
-  .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
-  .cal-cell{position:relative;aspect-ratio:1;border-radius:12px;border:1px solid transparent;cursor:pointer;display:flex;align-items:flex-start;justify-content:center;overflow:hidden;background:var(--surface-2)}
-  .cal-cell.empty{background:transparent;cursor:default}
-  .cal-cell .dnum{position:relative;z-index:2;font-family:var(--f-body);font-size:13px;color:var(--ink);padding-top:5px}
+  .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+  .cal-cell{position:relative;aspect-ratio:1;border-radius:14px;border:2px solid transparent;cursor:pointer;display:flex;align-items:flex-start;justify-content:center;overflow:hidden}
+  .cal-cell.empty{cursor:default}
+  .cal-cell .dnum{position:relative;z-index:2;font-family:var(--f-body);font-size:17px;color:var(--ink);padding-top:8px}
   .cal-cell.sun .dnum{color:#D9534F}
   .cal-cell.today{border-color:var(--accent)}
   .cal-cell.today .dnum{color:var(--accent);font-weight:700}
-  .cal-cell .cphoto{position:absolute;inset:0;object-fit:cover;width:100%;height:100%;z-index:1}
-  .cal-cell .cphoto+.dnum{color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.6)}
-  .cal-cell .cmark{position:absolute;left:0;right:0;bottom:3px;display:flex;justify-content:center;z-index:2}
-  .cal-cell .cmark svg{width:16px;height:16px}
-  .today-card{display:flex;align-items:center;justify-content:space-between;width:100%;margin-top:16px;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:18px 20px;cursor:pointer;font-family:var(--f-body);text-align:left}
+  .cal-cell .cphoto{position:absolute;inset:0;object-fit:cover;width:100%;height:100%;z-index:1;border-radius:11px}
+  .cal-cell .cphoto+.dnum{color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.75)}
+  .cal-cell .cmark{position:absolute;left:0;right:0;bottom:6px;display:flex;justify-content:center;z-index:2}
+  .cal-cell .cmark svg{width:20px;height:20px}
+  .cal-cell .cbm{position:absolute;top:3px;right:4px;z-index:3;color:var(--accent)}
+  .cal-cell .cbm svg{width:15px;height:15px}
+  .cal-cell .cphoto~.cbm{color:#fff}
+  .today-card{display:flex;align-items:center;justify-content:space-between;width:100%;margin-top:22px;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:18px 20px;cursor:pointer;font-family:var(--f-body);text-align:left}
   .today-card:hover{border-color:var(--accent)}
   .today-left{display:flex;flex-direction:column;gap:2px}
-  .today-label{font-size:13px;color:var(--accent)}
+  .today-label{font-size:14px;color:var(--accent)}
   .today-date{font-size:22px;font-weight:700;color:var(--ink)}
   .today-go{display:flex;align-items:center;gap:10px}
   .today-hint{font-size:13px;color:var(--ink-soft)}
   .today-plus{display:inline-flex;color:var(--accent)}
   .today-plus svg{width:22px;height:22px}
   #backBtn svg{width:18px;height:18px}
+  /* 다크 테마에서도 아이콘이 보이도록 */
+  .icon-btn svg,.seg .ic-slot svg,.sec-gear svg{stroke:currentColor}
+  .icon-btn{color:var(--ink)}
+  /* 검색바 */
+  .search-bar{display:flex;align-items:center;gap:8px;background:var(--surface-2);border:1px solid var(--line);border-radius:12px;padding:10px 14px;margin-bottom:14px}
+  .search-bar .ic{display:inline-flex;color:var(--ink-soft)} .search-bar .ic svg{width:18px;height:18px}
+  .search-bar input{flex:1;border:0;background:transparent;outline:none;font-size:15px;color:var(--ink);font-family:var(--f-body)}
+  /* 일기 하단 푸터 (책갈피/휴지통) */
+  .entry-foot{display:flex;align-items:center;justify-content:flex-end;gap:10px;margin-top:10px}
+  .foot-btn{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--surface);color:var(--ink-soft);cursor:pointer}
+  .foot-btn svg{width:19px;height:19px}
+  .foot-btn:hover{border-color:var(--accent)}
+  .foot-btn.on{color:var(--accent);border-color:var(--accent)}
+  .foot-btn.danger:hover{border-color:#D9534F;color:#D9534F}
+  /* 마지막 기록 구분선 + 추가 */
+  .log-div{display:flex;align-items:center;gap:12px;color:var(--ink-soft);font-size:13px;font-family:var(--f-body);margin:22px auto 14px;max-width:980px}
+  .log-div::before,.log-div::after{content:"";flex:1;height:1px;background:var(--line)}
+  .log-add{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;max-width:980px;margin:0 auto;padding:24px;border:1.5px dashed var(--line);border-radius:16px;color:var(--ink-soft);background:transparent;cursor:pointer;font-family:var(--f-body);font-size:14px;width:100%}
+  .log-add .pc{display:inline-flex;align-items:center;justify-content:center;width:46px;height:46px;border-radius:50%;background:var(--accent);color:var(--on-accent)} .log-add .pc svg{width:24px;height:24px}
+  .log-card{max-width:980px;margin:12px auto 0;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 16px;position:relative}
+  .log-card .log-edit{outline:none;min-height:40px;font-family:var(--f-body);font-size:16px;color:var(--ink);line-height:1.7}
+  .log-card .log-edit:empty:before{content:attr(data-ph);color:var(--ink-soft)}
+  .log-card .log-del{position:absolute;top:8px;right:8px;width:26px;height:26px;border:0;border-radius:50%;background:var(--surface-2);color:var(--ink-soft);cursor:pointer;display:inline-flex;align-items:center;justify-content:center} .log-card .log-del svg{width:13px;height:13px}
+  /* 전날/다음날 네비 */
+  .day-nav{display:flex;align-items:center;justify-content:center;gap:10px;max-width:980px;margin:26px auto 8px}
+  .day-nav button{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer;font-family:var(--f-body);font-size:15px;padding:11px 22px;border-radius:999px}
+  .day-nav button:hover{border-color:var(--accent)}
+  .day-nav button svg{width:18px;height:18px}
+  /* 토스트 */
+  .toast{position:fixed;left:50%;bottom:60px;transform:translateX(-50%);background:rgba(0,0,0,.82);color:#fff;padding:12px 22px;border-radius:999px;font-size:14px;font-family:var(--f-body);z-index:90;opacity:0;transition:opacity .25s ease;pointer-events:none}
+  .toast.show{opacity:1}
+  /* 서식 시트(오버레이) */
+  .fmt-backdrop{position:fixed;inset:0;z-index:69;background:rgba(0,0,0,.28);opacity:0;transition:opacity .22s ease;pointer-events:none}
+  .fmt-sheet{position:fixed;left:0;right:0;bottom:0;z-index:70;background:var(--surface);border-top:1px solid var(--line);border-radius:20px 20px 0 0;padding:16px 16px calc(18px + env(safe-area-inset-bottom));box-shadow:0 -8px 30px rgba(0,0,0,.2);transform:translateY(110%);transition:transform .24s ease;max-height:62vh;overflow-y:auto}
+  body.fmt-open .fmt-sheet{transform:translateY(0)}
+  body.fmt-open .fmt-backdrop{opacity:1;pointer-events:auto}
+  .fmt-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+  .fmt-head h4{margin:0;font-size:16px;color:var(--ink);font-family:var(--f-body);font-weight:700}
+  .fmt-body{display:flex;flex-wrap:wrap;gap:10px 8px;align-items:center}
+  .fmt-body .tb-group{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+  .fmt-body .tb-div{width:1px;height:22px;background:var(--line);margin:0 2px}
+  .fmt-body .sw{width:28px;height:28px}
+  .fmt-body .hl{width:32px;height:24px}
+  .fmt-body .tb-btn{padding:9px 13px;font-size:15px}
+  .fmt-body .tb-sel{padding:9px 11px;font-size:15px}
 </style>
 
 <div id="app" data-mode="morning">
   <!-- 홈(캘린더) 화면 -->
   <div id="home">
-    <div class="home-top"><div class="home-title">하루 일기</div></div>
+    <div class="home-top"><div class="home-title">하루 일기</div><button id="searchBtn" class="icon-btn" data-ic="search" title="일기 검색"></button></div>
     <div class="cal-card">
       <div class="cal-head">
         <button id="calPrev" class="cal-nav" aria-label="이전 달">‹</button>
@@ -252,6 +300,15 @@
       <span class="today-left"><span class="today-label">오늘 일기</span><span id="todayDate" class="today-date"></span></span>
       <span class="today-go"><span id="todayHint" class="today-hint">오늘을 기록해 보세요</span><span class="today-plus" data-ic="pen"></span></span>
     </button>
+  </div>
+
+  <!-- 검색 모달 -->
+  <div id="searchModal" class="modal" hidden>
+    <div class="modal-card">
+      <div class="modal-head"><h3>일기 검색</h3><button id="searchClose" data-ic="close" aria-label="닫기"></button></div>
+      <div class="search-bar"><span class="ic" data-ic="search"></span><input type="text" id="searchInput" placeholder="키워드를 입력하세요"></div>
+      <div id="searchList" class="hist-list"></div>
+    </div>
   </div>
 
   <!-- 에디터 화면 -->
@@ -293,19 +350,20 @@
           <input type="file" id="photoInput" accept="image/*" multiple hidden>
         </div>
         <div class="sec-head"><span class="field">일기</span><button class="sec-gear" id="gearDiary" data-ic="sliders" title="서식"></button></div>
-        <div class="toolbar" id="tbDiary" hidden></div>
         <div class="editable" id="diaryEdit" contenteditable="true" data-ph="오늘 하루를 적어보세요"></div>
+        <div class="entry-foot">
+          <button class="foot-btn" id="bmBtn" data-ic="bookmark" title="중요한 날 표시"></button>
+          <button class="foot-btn danger" id="trashBtn" data-ic="trash" title="이 날 일기 삭제"></button>
+        </div>
       </div>
     </section>
     <aside class="right">
       <div class="card" id="cardPrompt">
         <div class="sec-head"><span class="field" id="promptLabel">오늘 하고 싶은 일</span><button class="sec-gear" id="gearPrompt" data-ic="sliders" title="서식"></button></div>
-        <div class="toolbar" id="tbPrompt" hidden></div>
         <div class="editable" id="promptEdit" contenteditable="true" data-ph="오늘 해보고 싶은 일을 적어보세요"></div>
       </div>
       <div class="card" id="cardMemo">
         <div class="sec-head"><span class="field">메모</span><button class="sec-gear" id="gearMemo" data-ic="sliders" title="서식"></button></div>
-        <div class="toolbar" id="tbMemo" hidden></div>
         <div class="editable" id="memoEdit" contenteditable="true" data-ph="자유롭게 메모해보세요"></div>
       </div>
     </aside>
@@ -316,6 +374,15 @@
     <div id="routineList"></div>
     <button class="add" id="addRoutine">+ 루틴 추가</button>
   </section>
+
+  <div class="log-div">마지막 기록이에요</div>
+  <div id="logList"></div>
+  <button class="log-add" id="logAdd"><span class="pc" data-ic="plus"></span><span>이 날의 일기를 추가해 보세요!</span></button>
+
+  <div class="day-nav">
+    <button id="prevDay"><span data-ic="back"></span>전날</button>
+    <button id="nextDay">다음날<span data-ic="fwd"></span></button>
+  </div>
   </div>
   <!-- /에디터 -->
 
@@ -332,6 +399,13 @@
       <div id="stkGrid" class="stk-grid"></div>
     </div>
   </div>
+
+  <div id="fmtBackdrop" class="fmt-backdrop"></div>
+  <div id="fmtSheet" class="fmt-sheet">
+    <div class="fmt-head"><h4 id="fmtTitle">서식</h4><button id="fmtClose" class="icon-btn" data-ic="close" aria-label="닫기"></button></div>
+    <div id="fmtBody" class="fmt-body"></div>
+  </div>
+  <div id="toast" class="toast"></div>
 
   <div id="imgModal" class="imgmodal" hidden>
     <button class="ix" id="imgClose" data-ic="close" aria-label="닫기"></button>
@@ -358,7 +432,13 @@
     check:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.2 4.2L19 7"/></svg>',
     close:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18"/></svg>',
     back:S+'<path d="M15 5l-7 7 7 7"/></svg>',
-    nib:'<svg viewBox="0 0 24 24" fill="#CBA75F" stroke="#9C7A2B" stroke-width="1" stroke-linejoin="round"><path d="M12 3.5l4.2 4.2L13 18l-1 2-1-2L7.8 7.7z"/><circle cx="12" cy="10" r="1.4" fill="#9C7A2B" stroke="none"/></svg>'
+    fwd:S+'<path d="M9 5l7 7-7 7"/></svg>',
+    nib:'<svg viewBox="0 0 24 24" fill="#CBA75F" stroke="#9C7A2B" stroke-width="1" stroke-linejoin="round"><path d="M12 3.5l4.2 4.2L13 18l-1 2-1-2L7.8 7.7z"/><circle cx="12" cy="10" r="1.4" fill="#9C7A2B" stroke="none"/></svg>',
+    search:S+'<circle cx="11" cy="11" r="7"/><path d="M20 20l-3.2-3.2"/></svg>',
+    bookmark:S+'<path d="M6 4h12v16l-6-4-6 4z"/></svg>',
+    bookmarkfill:'<svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"><path d="M6 4h12v16l-6-4-6 4z"/></svg>',
+    trash:S+'<path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></svg>',
+    plus:S+'<path d="M12 5v14M5 12h14"/></svg>'
   };
   function fillIcons(){document.querySelectorAll('[data-ic]').forEach(el=>{el.innerHTML=ICON[el.dataset.ic]||''});}
 
@@ -449,7 +529,7 @@
   function ymd(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
   function mdLabel(s){const p=s.split('-');return(+p[1])+'/'+(+p[2]);}
   function mk(){return{id:'r'+Math.random().toString(36).slice(2,9),text:'',start:'',end:''};}
-  function blankDay(){return{mode:'morning',photos:[],wish:'',reflect:'',diary:'',memo:'',done:{}};}
+  function blankDay(){return{mode:'morning',photos:[],wish:'',reflect:'',diary:'',memo:'',done:{},bookmarked:false,logs:[]};}
   function fmtDate(d){const days=['일','월','화','수','목','금','토'];return`${d.getFullYear()}년 ${d.getMonth()+1}월 ${d.getDate()}일 ${days[d.getDay()]}요일`;}
   function inRange(rt,ds){if(!rt.start&&!rt.end)return true;if(rt.start&&ds<rt.start)return false;if(rt.end&&ds>rt.end)return false;return true;}
   function rangeLabel(rt){if(!rt.start&&!rt.end)return '기간';return(rt.start?mdLabel(rt.start):'…')+' ~ '+(rt.end?mdLabel(rt.end):'…');}
@@ -491,7 +571,7 @@
   /* 스티커 오버레이 */
   let stkTarget=null, stkRange=null;
   function saveSel(edit){const s=window.getSelection();if(s&&s.rangeCount){const r=s.getRangeAt(0);if(edit.contains(r.commonAncestorContainer))return r.cloneRange();}return null;}
-  function openStickers(edit,section){stkTarget={edit,section};stkRange=saveSel(edit);document.getElementById('stkModal').hidden=false;}
+  function openStickers(edit,section){stkTarget={edit,section};stkRange=saveSel(edit);document.body.classList.remove('fmt-open');document.getElementById('stkModal').hidden=false;}
   function insertSticker(svg){const t=stkTarget;if(!t)return;t.edit.focus();const sel=window.getSelection();if(stkRange){sel.removeAllRanges();sel.addRange(stkRange);}document.execCommand('insertHTML',false,'<span class="stk" contenteditable="false">'+svg+'</span>\u00A0');saveSection(t.section,t.edit);document.getElementById('stkModal').hidden=true;}
 
   /* 렌더 */
@@ -566,7 +646,20 @@
     memoEdit.innerHTML=day.memo||'';
     applySecFont('diary',diaryEdit);applySecFont('prompt',promptEdit);applySecFont('memo',memoEdit);
     applySecBg('diary');applySecBg('prompt');applySecBg('memo');
-    renderPhotos();renderRoutines();setMode(day.mode);
+    renderPhotos();renderRoutines();renderLogs();reflectBookmark();setMode(day.mode);
+  }
+  function reflectBookmark(){const b=document.getElementById('bmBtn');if(b){b.classList.toggle('on',!!day.bookmarked);b.innerHTML=day.bookmarked?ICON.bookmarkfill:ICON.bookmark;}}
+  function renderLogs(){
+    const wrap=document.getElementById('logList');if(!wrap)return;wrap.innerHTML='';
+    (day.logs||[]).forEach((lg,i)=>{
+      const card=document.createElement('div');card.className='log-card';
+      const ed=document.createElement('div');ed.className='log-edit';ed.contentEditable='true';ed.dataset.ph='기록을 적어보세요';ed.innerHTML=lg.text||'';
+      ed.oninput=()=>{day.logs[i].text=ed.innerHTML;scheduleSaveDay();};
+      ed.addEventListener('blur',flushSave);
+      const del=document.createElement('button');del.className='log-del';del.innerHTML=ICON.close;del.title='기록 삭제';
+      del.onclick=()=>{day.logs.splice(i,1);renderLogs();scheduleSaveDay();};
+      card.append(ed,del);wrap.appendChild(card);
+    });
   }
   function closePops(except){document.querySelectorAll('.pop.open,.pop-panel.open,.stk-pop.open').forEach(p=>{if(p!==except)p.classList.remove('open');});}
 
@@ -575,7 +668,7 @@
   function scheduleSaveDay(){document.getElementById('saveState').textContent='저장 중…';clearTimeout(dayTimer);dayTimer=setTimeout(async()=>{const cur=promptEdit.innerHTML;if(day.mode==='morning')day.wish=cur;else day.reflect=cur;day.diary=diaryEdit.innerHTML;day.memo=memoEdit.innerHTML;await store.set(key(),JSON.stringify(day));flash();},450);}
   function scheduleSaveRoutines(){document.getElementById('saveState').textContent='저장 중…';clearTimeout(rtTimer);rtTimer=setTimeout(async()=>{await store.set('routines',JSON.stringify(routines));flash();},450);}
   async function loadRoutines(){const r=await store.get('routines');if(r&&r.value){routines=JSON.parse(r.value);routines.forEach(x=>{if(x.start===undefined)x.start='';if(x.end===undefined)x.end='';});}else{routines=[mk(),mk(),mk()];await store.set('routines',JSON.stringify(routines));}}
-  async function loadDay(){const r=await store.get(key());day=r&&r.value?Object.assign(blankDay(),JSON.parse(r.value)):blankDay();if(!day.done)day.done={};if(!Array.isArray(day.photos))day.photos=[];if(day.photo){if(!day.photos.length)day.photos=[day.photo];day.photo='';}renderAll();}
+  async function loadDay(){const r=await store.get(key());day=r&&r.value?Object.assign(blankDay(),JSON.parse(r.value)):blankDay();if(!day.done)day.done={};if(!Array.isArray(day.photos))day.photos=[];if(day.photo){if(!day.photos.length)day.photos=[day.photo];day.photo='';}if(!Array.isArray(day.logs))day.logs=[];if(typeof day.bookmarked!=='boolean')day.bookmarked=false;renderAll();}
   async function loadReminder(){const r=await store.get('reminderTime');reminderTime=r&&r.value?r.value:'';document.getElementById('alarmTime').value=reminderTime;reflectAlarm();}
   async function loadSettings(){const f=await store.get('font');if(f&&f.value)curFont=f.value;const t=await store.get('theme');if(t&&t.value)curTheme=t.value;const i=await store.get('ink');if(i&&i.value!==undefined)curInk=i.value;const m=await store.get('fmt');if(m&&m.value){try{secFont=Object.assign(secFont,JSON.parse(m.value));}catch(e){}}const sb=await store.get('secbg');if(sb&&sb.value){try{secBg=Object.assign(secBg,JSON.parse(sb.value));}catch(e){}}}
 
@@ -631,8 +724,9 @@
   let calYear, calMonth;
   function entrySummary(ds){
     try{const v=localStorage.getItem('hd_diary:'+ds);if(!v)return null;const d=JSON.parse(v);
-      const hasText=!!(htmlText(d.diary)||htmlText(d.memo)||htmlText(d.wish)||htmlText(d.reflect)).trim();
-      return {photo:(d.photos&&d.photos[0])||d.photo||'', hasText};
+      const logsText=(d.logs||[]).map(l=>htmlText(l.text)).join(' ');
+      const hasText=!!(htmlText(d.diary)||htmlText(d.memo)||htmlText(d.wish)||htmlText(d.reflect)||logsText).trim();
+      return {photo:(d.photos&&d.photos[0])||d.photo||'', hasText, bookmarked:!!d.bookmarked};
     }catch(e){return null;}
   }
   function renderCalendar(){
@@ -652,6 +746,7 @@
       if(sum&&sum.photo){const img=document.createElement('img');img.className='cphoto';img.src=sum.photo;cell.appendChild(img);}
       const num=document.createElement('span');num.className='dnum';num.textContent=d;cell.appendChild(num);
       if(sum&&!sum.photo&&sum.hasText){const mk=document.createElement('span');mk.className='cmark';mk.innerHTML=ICON.nib;cell.appendChild(mk);}
+      if(sum&&sum.bookmarked){const bm=document.createElement('span');bm.className='cbm';bm.innerHTML=ICON.bookmarkfill;cell.appendChild(bm);}
       cell.onclick=()=>openEditor(dd);
       grid.appendChild(cell);
     }
@@ -674,7 +769,16 @@
     date=new Date(dObj.getFullYear(),dObj.getMonth(),dObj.getDate());
     ensureAudio();
     loadDay();
+    fillIcons();
     window.scrollTo(0,0);
+  }
+  function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._tm);t._tm=setTimeout(()=>t.classList.remove('show'),1700);}
+  function hasEntry(ds){return entrySummary(ds)!==null;}
+  function navDay(delta){
+    flushSave();
+    const t=new Date(date.getFullYear(),date.getMonth(),date.getDate()+delta);
+    if(!hasEntry(ymd(t))){toast(delta>0?'다음 일기가 없어요':'이전 일기가 없어요');return;}
+    date=t;loadDay();fillIcons();window.scrollTo(0,0);
   }
   document.getElementById('todayCard').onclick=()=>openEditor(new Date());
   document.getElementById('calPrev').onclick=()=>{calMonth--;if(calMonth<0){calMonth=11;calYear--;}renderCalendar();};
@@ -697,9 +801,64 @@
   diaryEdit.oninput=()=>{day.diary=diaryEdit.innerHTML;scheduleSaveDay();};
   promptEdit.oninput=()=>{if(day.mode==='morning')day.wish=promptEdit.innerHTML;else day.reflect=promptEdit.innerHTML;scheduleSaveDay();};
   memoEdit.oninput=()=>{day.memo=memoEdit.innerHTML;scheduleSaveDay();};
-  document.getElementById('gearDiary').onclick=(ev)=>{ev.stopPropagation();document.getElementById('tbDiary').hidden=!document.getElementById('tbDiary').hidden;};
-  document.getElementById('gearPrompt').onclick=(ev)=>{ev.stopPropagation();document.getElementById('tbPrompt').hidden=!document.getElementById('tbPrompt').hidden;};
-  document.getElementById('gearMemo').onclick=(ev)=>{ev.stopPropagation();document.getElementById('tbMemo').hidden=!document.getElementById('tbMemo').hidden;};
+  /* 서식 시트 (오버레이) */
+  function openFmt(section,edit,label){
+    buildToolbar(document.getElementById('fmtBody'),edit,section);
+    document.getElementById('fmtTitle').textContent=label+' 서식';
+    document.body.classList.add('fmt-open');
+  }
+  function closeFmt(){document.body.classList.remove('fmt-open');}
+  document.getElementById('gearDiary').onclick=(ev)=>{ev.stopPropagation();openFmt('diary',diaryEdit,'일기');};
+  document.getElementById('gearPrompt').onclick=(ev)=>{ev.stopPropagation();openFmt('prompt',promptEdit,document.getElementById('promptLabel').textContent);};
+  document.getElementById('gearMemo').onclick=(ev)=>{ev.stopPropagation();openFmt('memo',memoEdit,'메모');};
+  document.getElementById('fmtClose').onclick=closeFmt;
+  document.getElementById('fmtBackdrop').onclick=closeFmt;
+
+  /* 책갈피 / 휴지통 */
+  document.getElementById('bmBtn').onclick=()=>{day.bookmarked=!day.bookmarked;reflectBookmark();scheduleSaveDay();toast(day.bookmarked?'중요한 날로 표시했어요':'표시를 해제했어요');};
+  document.getElementById('trashBtn').onclick=()=>{
+    if(!confirm('이 날의 일기를 삭제할까요? 되돌릴 수 없어요.'))return;
+    try{localStorage.removeItem('hd_'+key());}catch(e){}
+    day=blankDay();day.mode=(new Date().getHours()>=4&&new Date().getHours()<14)?'morning':'evening';
+    toast('삭제했어요');showHome();
+  };
+
+  /* 추가 기록 / 날짜 이동 */
+  document.getElementById('logAdd').onclick=()=>{day.logs.push({text:''});renderLogs();scheduleSaveDay();const cards=document.querySelectorAll('#logList .log-edit');if(cards.length)cards[cards.length-1].focus();};
+  document.getElementById('prevDay').onclick=()=>navDay(-1);
+  document.getElementById('nextDay').onclick=()=>navDay(1);
+
+  /* 검색 */
+  function runSearch(q){
+    const list=document.getElementById('searchList');list.innerHTML='';
+    q=(q||'').trim().toLowerCase();
+    if(!q){list.innerHTML='<div class="hist-empty">키워드를 입력하면 해당 일기를 찾아드려요.</div>';return;}
+    const keys=[];for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k&&k.indexOf('hd_diary:')===0)keys.push(k.slice(3));}
+    const items=[];
+    keys.forEach(k=>{try{const d=JSON.parse(localStorage.getItem('hd_'+k));const ds=k.slice(6);
+      const text=[d.diary,d.memo,d.wish,d.reflect].map(htmlText).join(' ')+' '+(d.logs||[]).map(l=>htmlText(l.text)).join(' ');
+      if(text.toLowerCase().includes(q))items.push({ds,snip:text.replace(/\s+/g,' ').trim(),mode:d.mode});
+    }catch(e){}});
+    items.sort((a,b)=>a.ds<b.ds?1:-1);
+    if(!items.length){list.innerHTML='<div class="hist-empty">검색 결과가 없어요.</div>';return;}
+    items.forEach(it=>{
+      const row=document.createElement('div');row.className='hist-item';
+      const main=document.createElement('div');main.className='hist-main';
+      const dt=document.createElement('div');dt.className='hist-date';dt.textContent=fmtDate(new Date(it.ds+'T00:00:00'));
+      const sn=document.createElement('div');sn.className='hist-snip';
+      const idx=it.snip.toLowerCase().indexOf(q);const start=Math.max(0,idx-12);sn.textContent=(start>0?'…':'')+it.snip.slice(start,start+50);
+      main.append(dt,sn);
+      const tag=document.createElement('div');tag.className='hist-tag';tag.innerHTML=it.mode==='evening'?ICON.moon:ICON.sun;
+      row.append(main,tag);
+      row.onclick=()=>{document.getElementById('searchModal').hidden=true;openEditor(new Date(it.ds+'T00:00:00'));};
+      list.appendChild(row);
+    });
+  }
+  document.getElementById('searchBtn').onclick=()=>{document.getElementById('searchModal').hidden=false;const si=document.getElementById('searchInput');si.value='';runSearch('');setTimeout(()=>si.focus(),50);};
+  document.getElementById('searchClose').onclick=()=>{document.getElementById('searchModal').hidden=true;};
+  document.getElementById('searchModal').onclick=(ev)=>{if(ev.target.id==='searchModal')document.getElementById('searchModal').hidden=true;};
+  document.getElementById('searchInput').oninput=(e)=>runSearch(e.target.value);
+
   document.getElementById('addRoutine').onclick=()=>{routines.push(mk());renderRoutines();scheduleSaveRoutines();};
   document.getElementById('photoZone').onclick=(e)=>{if((day.photos||[]).length===0)document.getElementById('photoInput').click();};
   document.getElementById('photoInput').onchange=e=>{if(e.target.files&&e.target.files.length)readPhotos(e.target.files);e.target.value='';};
@@ -727,9 +886,6 @@
   /* 시작 */
   (async function init(){
     fillIcons();buildSettings();
-    buildToolbar(document.getElementById('tbDiary'),diaryEdit,'diary');
-    buildToolbar(document.getElementById('tbPrompt'),promptEdit,'prompt');
-    buildToolbar(document.getElementById('tbMemo'),memoEdit,'memo');
     (function(){const sg=document.getElementById('stkGrid');STICKERS.forEach(s=>{const b=document.createElement('button');b.innerHTML=s;b.onclick=()=>insertSticker(s);sg.appendChild(b);});})();
     await loadSettings();
     applyFont(curFont);applyTheme(curTheme);

@@ -240,8 +240,8 @@
   .cal-cell.today .dnum{color:var(--accent);font-weight:700}
   .cal-cell .cphoto{position:absolute;inset:0;object-fit:cover;width:100%;height:100%;z-index:1;border-radius:11px}
   .cal-cell .cphoto+.dnum{color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.75)}
-  .cal-cell .cmark{position:absolute;left:0;right:0;bottom:6px;display:flex;justify-content:center;z-index:2}
-  .cal-cell .cmark svg{width:20px;height:20px}
+  .cal-cell .cmark{position:absolute;left:0;right:0;top:50%;transform:translateY(-40%);display:flex;justify-content:center;z-index:2}
+  .cal-cell .cmark svg{width:30px;height:30px;filter:drop-shadow(0 1px 2px rgba(0,0,0,.4))}
   .cal-cell .cbm{position:absolute;top:3px;right:4px;z-index:3;color:#E23B3B}
   .cal-cell .cbm svg{width:16px;height:16px;filter:drop-shadow(0 1px 2px rgba(0,0,0,.5))}
   .cal-cell .cphoto~.cbm{color:#FF4D4D}
@@ -272,20 +272,27 @@
   /* 마지막 기록 구분선 + 추가 */
   .log-div{display:flex;align-items:center;gap:12px;color:var(--ink-soft);font-size:13px;font-family:var(--f-body);margin:22px auto 14px;max-width:980px}
   .log-div::before,.log-div::after{content:"";flex:1;height:1px;background:var(--line)}
-  .log-add{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;max-width:980px;margin:0 auto;padding:24px;border:1.5px dashed var(--line);border-radius:16px;color:var(--ink-soft);background:transparent;cursor:pointer;font-family:var(--f-body);font-size:14px;width:100%}
-  .log-add .pc{display:inline-flex;align-items:center;justify-content:center;width:46px;height:46px;border-radius:50%;background:var(--accent);color:var(--on-accent)} .log-add .pc svg{width:24px;height:24px}
-  .log-card{max-width:980px;margin:12px auto 0;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 16px;position:relative}
+  .log-add{display:flex;flex-direction:row;align-items:center;justify-content:center;gap:8px;margin:12px 0 0;padding:13px;border:1.5px dashed var(--line);border-radius:14px;color:var(--ink-soft);background:transparent;cursor:pointer;font-family:var(--f-body);font-size:14px;width:100%}
+  .log-add:hover{border-color:var(--accent);color:var(--accent)}
+  .log-add .pc{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:var(--accent);color:var(--on-accent)} .log-add .pc svg{width:16px;height:16px}
+  .log-card{margin:12px 0 0;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 16px;position:relative}
   .log-card .log-edit{outline:none;min-height:40px;font-family:var(--f-body);font-size:16px;color:var(--ink);line-height:1.7}
   .log-card .log-edit:empty:before{content:attr(data-ph);color:var(--ink-soft)}
   .log-card .log-del{position:absolute;top:8px;right:8px;width:26px;height:26px;border:0;border-radius:50%;background:var(--surface-2);color:var(--ink-soft);cursor:pointer;display:inline-flex;align-items:center;justify-content:center} .log-card .log-del svg{width:13px;height:13px}
   /* 전날/다음날 네비 */
-  .day-nav{display:flex;align-items:center;justify-content:center;gap:16px;max-width:980px;margin:26px auto 8px}
+  .day-nav{display:flex;align-items:center;justify-content:space-between;max-width:980px;margin:26px auto 8px;padding:0 8px}
+  .dn-side{display:flex;align-items:center;gap:12px}
   .dn-arrow{display:inline-flex;align-items:center;justify-content:center;width:48px;height:48px;border-radius:50%;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
   .dn-arrow svg{width:20px;height:20px}
   .dn-arrow:hover{border-color:var(--accent);color:var(--accent)}
-  .dn-label{font-family:var(--f-body);font-size:15px;color:var(--ink)}
+  .dn-label{font-family:var(--f-body);font-size:16px;color:var(--ink)}
   .dn-plus{display:inline-flex;align-items:center;justify-content:center;width:54px;height:54px;border-radius:50%;border:0;background:var(--accent);color:var(--on-accent);cursor:pointer}
   .dn-plus svg{width:26px;height:26px}
+  /* 포스트잇 제목 편집 */
+  .postit-title{outline:none;min-width:40px;border-bottom:1px dashed transparent}
+  .postit-title:focus{border-bottom-color:var(--accent)}
+  .postit-title:empty:before{content:attr(data-ph);color:var(--ink-soft)}
+  #cardPostit{margin-top:14px}
   /* 날씨 선택 */
   .weather-pop{width:236px}
   .weather-opts{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin:8px 0}
@@ -422,6 +429,8 @@
           <button class="foot-btn danger" id="trashBtn" data-ic="trash" title="이 날 일기 삭제"></button>
         </div>
       </div>
+      <div id="logList"></div>
+      <button class="log-add" id="logAdd"><span class="pc" data-ic="plus"></span><span>일기 더 추가하기</span></button>
     </section>
     <aside class="right">
       <div class="card" id="cardPrompt">
@@ -441,16 +450,14 @@
     <button class="add" id="addRoutine">+ 루틴 추가</button>
   </section>
 
-  <div class="log-div">마지막 기록이에요</div>
-  <div id="logList"></div>
-  <button class="log-add" id="logAdd"><span class="pc" data-ic="plus"></span><span>이 날의 일기를 추가해 보세요!</span></button>
+  <section class="card" id="cardPostit">
+    <div class="sec-head"><span class="field postit-title" id="postitTitle" contenteditable="true" data-ph="포스트잇"></span><button class="sec-gear" id="gearPostit" data-ic="sliders" title="서식"></button></div>
+    <div class="editable" id="postitEdit" contenteditable="true" data-ph="스스로 칭찬하기, 오늘 하루 좋았던 사람 등 마음껏 써보세요."></div>
+  </section>
 
   <div class="day-nav">
-    <button class="dn-arrow" id="prevDay" aria-label="전날"><span data-ic="back"></span></button>
-    <span class="dn-label" id="prevLabel">전날</span>
-    <button class="dn-plus" id="addHere" aria-label="기록 추가"><span data-ic="plus"></span></button>
-    <span class="dn-label" id="nextLabel">다음날</span>
-    <button class="dn-arrow" id="nextDay" aria-label="다음날"><span data-ic="fwd"></span></button>
+    <div class="dn-side"><button class="dn-arrow" id="prevDay" aria-label="전날"><span data-ic="back"></span></button><span class="dn-label">전날</span></div>
+    <div class="dn-side"><span class="dn-label">다음날</span><button class="dn-arrow" id="nextDay" aria-label="다음날"><span data-ic="fwd"></span></button></div>
   </div>
   </div>
   <!-- /에디터 -->
@@ -512,7 +519,8 @@
     rain:S+'<path d="M7 15h9a4 4 0 0 0 .5-7.97A5.5 5.5 0 0 0 6 6.5 3.75 3.75 0 0 0 7 15z"/><path d="M8 18l-1 2.5M12 18l-1 2.5M16 18l-1 2.5"/></svg>',
     wind:S+'<path d="M3 8h11a2.5 2.5 0 1 0-2.5-2.5M3 16h15a2.5 2.5 0 1 1-2.5 2.5M3 12h8.5a2.5 2.5 0 1 0-2.5-2.5"/></svg>',
     windrain:S+'<path d="M3 7h10a2.5 2.5 0 1 0-2.5-2.5M3 11h13a2.5 2.5 0 1 1-2.5 2.5"/><path d="M8 16l-1 2.5M12 16l-1 2.5M16 16l-1 2.5"/></svg>',
-    pin:S+'<path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>'
+    pin:S+'<path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>',
+    penmark:'<svg viewBox="0 0 24 24" fill="#E23B3B"><path d="M3 17.25V21h3.75L17.8 9.94l-3.75-3.75L3 17.25z"/><path d="M20.7 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>'
   };
   function fillIcons(){document.querySelectorAll('[data-ic]').forEach(el=>{el.innerHTML=ICON[el.dataset.ic]||''});}
 
@@ -578,7 +586,7 @@
   function applyInk(){ const i=curInk?INKS.find(x=>x.id===curInk):null; app.style.setProperty('--ink-edit',(i&&i.c)?i.c:'var(--ink)'); document.querySelectorAll('#inkList button').forEach(b=>b.classList.toggle('active',b.dataset.i===curInk)); }
   function applyTheme(id){if(THEMES[id])curTheme=id;applyPalette();applyInk();document.querySelectorAll('#themeList button').forEach(b=>b.classList.toggle('active',b.dataset.t===curTheme));}
   function applySecFont(section,edit){const id=secFont[section];const f=FONTS.find(x=>x.id===id);edit.style.fontFamily=f?f.disp:'';}
-  function cardOf(section){return document.getElementById(section==='diary'?'cardDiary':section==='prompt'?'cardPrompt':'cardMemo');}
+  function cardOf(section){return document.getElementById(section==='diary'?'cardDiary':section==='prompt'?'cardPrompt':section==='postit'?'cardPostit':'cardMemo');}
   function applySecBg(section){const c=SECBGS.find(x=>x.id===secBg[section]);const card=cardOf(section);if(card)card.style.background=(c&&c.c)?c.c:'';}
   function buildSettings(){
     const fl=document.getElementById('fontList');fl.innerHTML='';
@@ -603,7 +611,7 @@
   function ymd(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
   function mdLabel(s){const p=s.split('-');return(+p[1])+'/'+(+p[2]);}
   function mk(){return{id:'r'+Math.random().toString(36).slice(2,9),text:'',start:'',end:''};}
-  function blankDay(){return{mode:'morning',photos:[],wish:'',reflect:'',diary:'',memo:'',done:{},bookmarked:false,logs:[],weather:''};}
+  function blankDay(){return{mode:'morning',photos:[],wish:'',reflect:'',diary:'',memo:'',done:{},bookmarked:false,logs:[],weather:'',postit:'',postitTitle:''};}
   function fmtDate(d){const days=['일','월','화','수','목','금','토'];return`${d.getFullYear()}년 ${d.getMonth()+1}월 ${d.getDate()}일 ${days[d.getDay()]}요일`;}
   function inRange(rt,ds){if(!rt.start&&!rt.end)return true;if(rt.start&&ds<rt.start)return false;if(rt.end&&ds>rt.end)return false;return true;}
   function rangeLabel(rt){if(!rt.start&&!rt.end)return '기간';return(rt.start?mdLabel(rt.start):'…')+' ~ '+(rt.end?mdLabel(rt.end):'…');}
@@ -613,7 +621,7 @@
 
   /* 서식 툴바 */
   function divider(){const d=document.createElement('span');d.className='tb-div';return d;}
-  function saveSection(section,edit){ if(section==='diary')day.diary=edit.innerHTML; else if(section==='memo')day.memo=edit.innerHTML; else if(section==='prompt'){if(day.mode==='morning')day.wish=edit.innerHTML;else day.reflect=edit.innerHTML;} scheduleSaveDay(); }
+  function saveSection(section,edit){ if(section==='diary')day.diary=edit.innerHTML; else if(section==='memo')day.memo=edit.innerHTML; else if(section==='postit')day.postit=edit.innerHTML; else if(section==='prompt'){if(day.mode==='morning')day.wish=edit.innerHTML;else day.reflect=edit.innerHTML;} scheduleSaveDay(); }
   function buildToolbar(tb,edit,section){
     tb.innerHTML='';
     function row(labelText){const r=document.createElement('div');r.className='fmt-row';const l=document.createElement('div');l.className='fmt-label';l.textContent=labelText;const c=document.createElement('div');c.className='fmt-ctrls';r.append(l,c);tb.appendChild(r);return c;}
@@ -718,7 +726,11 @@
     memoEdit.innerHTML=day.memo||'';
     applySecFont('diary',diaryEdit);applySecFont('prompt',promptEdit);applySecFont('memo',memoEdit);
     applySecBg('diary');applySecBg('prompt');applySecBg('memo');
-    renderPhotos();renderRoutines();renderLogs();reflectBookmark();reflectWeather();setMode(day.mode);
+    renderPhotos();renderRoutines();renderLogs();reflectBookmark();reflectWeather();
+    document.getElementById('postitEdit').innerHTML=day.postit||'';
+    document.getElementById('postitTitle').textContent=day.postitTitle||'';
+    applySecFont('postit',document.getElementById('postitEdit'));applySecBg('postit');
+    setMode(day.mode);
   }
   const WEATHER_IC={sun:'sun',cloud:'cloud',rain:'rain',wind:'wind',windrain:'windrain'};
   function reflectWeather(){
@@ -746,8 +758,8 @@
   function flash(){const s=document.getElementById('saveState');s.textContent='저장됨';setTimeout(()=>{if(s.textContent==='저장됨')s.textContent='';},1600);}
   function scheduleSaveDay(){document.getElementById('saveState').textContent='저장 중…';clearTimeout(dayTimer);dayTimer=setTimeout(async()=>{const cur=promptEdit.innerHTML;if(day.mode==='morning')day.wish=cur;else day.reflect=cur;day.diary=diaryEdit.innerHTML;day.memo=memoEdit.innerHTML;await store.set(key(),JSON.stringify(day));flash();},450);}
   function scheduleSaveRoutines(){document.getElementById('saveState').textContent='저장 중…';clearTimeout(rtTimer);rtTimer=setTimeout(async()=>{await store.set('routines',JSON.stringify(routines));flash();},450);}
-  async function loadRoutines(){const r=await store.get('routines');if(r&&r.value){routines=JSON.parse(r.value);routines.forEach(x=>{if(x.start===undefined)x.start='';if(x.end===undefined)x.end='';});}else{routines=[mk(),mk(),mk()];await store.set('routines',JSON.stringify(routines));}}
-  async function loadDay(){const r=await store.get(key());day=r&&r.value?Object.assign(blankDay(),JSON.parse(r.value)):blankDay();if(!day.done)day.done={};if(!Array.isArray(day.photos))day.photos=[];if(day.photo){if(!day.photos.length)day.photos=[day.photo];day.photo='';}if(!Array.isArray(day.logs))day.logs=[];if(typeof day.bookmarked!=='boolean')day.bookmarked=false;if(typeof day.weather!=='string')day.weather='';renderAll();}
+  async function loadRoutines(){const r=await store.get('routines');if(r&&r.value){routines=JSON.parse(r.value);routines.forEach(x=>{if(x.start===undefined)x.start='';if(x.end===undefined)x.end='';});}else{routines=[mk()];await store.set('routines',JSON.stringify(routines));}}
+  async function loadDay(){const r=await store.get(key());day=r&&r.value?Object.assign(blankDay(),JSON.parse(r.value)):blankDay();if(!day.done)day.done={};if(!Array.isArray(day.photos))day.photos=[];if(day.photo){if(!day.photos.length)day.photos=[day.photo];day.photo='';}if(!Array.isArray(day.logs))day.logs=[];if(typeof day.bookmarked!=='boolean')day.bookmarked=false;if(typeof day.weather!=='string')day.weather='';if(typeof day.postit!=='string')day.postit='';if(typeof day.postitTitle!=='string')day.postitTitle='';renderAll();}
   async function loadReminder(){const r=await store.get('reminderTime');reminderTime=r&&r.value?r.value:'';document.getElementById('alarmTime').value=reminderTime;reflectAlarm();}
   async function loadSettings(){const f=await store.get('font');if(f&&f.value)curFont=f.value;const t=await store.get('theme');if(t&&t.value)curTheme=t.value;const i=await store.get('ink');if(i&&i.value!==undefined)curInk=i.value;const m=await store.get('fmt');if(m&&m.value){try{secFont=Object.assign(secFont,JSON.parse(m.value));}catch(e){}}const sb=await store.get('secbg');if(sb&&sb.value){try{secBg=Object.assign(secBg,JSON.parse(sb.value));}catch(e){}}}
 
@@ -824,7 +836,7 @@
       const sum=entrySummary(ds);
       if(sum&&sum.photo){const img=document.createElement('img');img.className='cphoto';img.src=sum.photo;cell.appendChild(img);}
       const num=document.createElement('span');num.className='dnum';num.textContent=d;cell.appendChild(num);
-      if(sum&&!sum.photo&&sum.hasText){const mk=document.createElement('span');mk.className='cmark';mk.innerHTML=ICON.nib;cell.appendChild(mk);}
+      if(sum&&!sum.photo&&sum.hasText){const mk=document.createElement('span');mk.className="cmark";mk.innerHTML=ICON.penmark;cell.appendChild(mk);}
       if(sum&&sum.bookmarked){const bm=document.createElement('span');bm.className='cbm';bm.innerHTML=ICON.bookmarkfill;cell.appendChild(bm);}
       cell.onclick=()=>openEditor(dd);
       grid.appendChild(cell);
@@ -918,6 +930,8 @@
     if(document.getElementById('editor').hidden)return;
     const cur=promptEdit.innerHTML;if(day.mode==='morning')day.wish=cur;else day.reflect=cur;
     day.diary=diaryEdit.innerHTML;day.memo=memoEdit.innerHTML;
+    const pe=document.getElementById('postitEdit'),pt=document.getElementById('postitTitle');
+    if(pe)day.postit=pe.innerHTML;if(pt)day.postitTitle=pt.textContent;
     saveNow(key(),JSON.stringify(day));saveNow('routines',JSON.stringify(routines));
   }catch(e){}}
   window.addEventListener('pagehide',flushSave);
@@ -952,8 +966,14 @@
   };
 
   /* 추가 기록 / 날짜 이동 */
-  document.getElementById('logAdd').onclick=()=>{day.logs.push({text:''});renderLogs();scheduleSaveDay();const cards=document.querySelectorAll('#logList .log-edit');if(cards.length)cards[cards.length-1].focus();};
-  document.getElementById('addHere').onclick=()=>{day.logs.push({text:''});renderLogs();scheduleSaveDay();const cards=document.querySelectorAll('#logList .log-edit');if(cards.length){cards[cards.length-1].focus();cards[cards.length-1].scrollIntoView({block:'center'});}};
+  document.getElementById('logAdd').onclick=()=>{day.logs.push({text:''});renderLogs();scheduleSaveDay();const cards=document.querySelectorAll('#logList .log-edit');if(cards.length){cards[cards.length-1].focus();cards[cards.length-1].scrollIntoView({block:'center'});}};
+  /* 포스트잇 */
+  const postitEdit=document.getElementById('postitEdit'),postitTitle=document.getElementById('postitTitle');
+  postitEdit.oninput=()=>{day.postit=postitEdit.innerHTML;scheduleSaveDay();};
+  postitEdit.addEventListener('blur',flushSave);
+  postitTitle.oninput=()=>{day.postitTitle=postitTitle.textContent;scheduleSaveDay();};
+  postitTitle.addEventListener('blur',flushSave);
+  document.getElementById('gearPostit').onclick=(ev)=>{ev.stopPropagation();openFmt('postit',postitEdit,(postitTitle.textContent||'포스트잇'));};
   document.getElementById('prevDay').onclick=()=>navDay(-1);
   document.getElementById('nextDay').onclick=()=>navDay(1);
 

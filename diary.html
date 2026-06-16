@@ -12,15 +12,8 @@
 <title>하루일기</title>
 <script>
   if('serviceWorker' in navigator){
-    let refreshing=false;
-    navigator.serviceWorker.addEventListener('controllerchange', ()=>{
-      if(refreshing) return; refreshing=true; location.reload();
-    });
     window.addEventListener('load', ()=>{
-      navigator.serviceWorker.register('sw.js').then(reg=>{
-        reg.update();
-        setInterval(()=>reg.update(), 60*60*1000);
-      }).catch(()=>{});
+      navigator.serviceWorker.register('sw.js').then(reg=>{ reg.update(); }).catch(()=>{});
     });
   }
 </script>
@@ -1179,7 +1172,9 @@
     });
   }
 
+  let __inited=false;
   (async function init(){
+    if(__inited) return; __inited=true;
     fillIcons();buildSettings();
     (function(){const sg=document.getElementById('stkGrid');STICKERS.forEach(s=>{const b=document.createElement('button');b.innerHTML=s;b.onclick=()=>insertSticker(s);sg.appendChild(b);});})();
     await loadSettings();

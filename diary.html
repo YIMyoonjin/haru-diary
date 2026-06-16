@@ -362,7 +362,7 @@
   <!-- 홈(캘린더) 화면 -->
   <div id="home">
     <div class="home-top">
-      <div class="home-title">오늘의 Diary</div>
+      <div class="home-title">Diary</div>
       <div class="home-actions">
         <div class="pop-wrap">
           <button id="alarmBtn" class="icon-btn" data-ic="clock" title="일기 쓸 시간 알람"></button>
@@ -569,7 +569,7 @@
     fwd:S+'<path d="M9 5l7 7-7 7"/></svg>',
     nib:'<svg viewBox="0 0 24 24" fill="#CBA75F" stroke="#9C7A2B" stroke-width="1" stroke-linejoin="round"><path d="M12 3.5l4.2 4.2L13 18l-1 2-1-2L7.8 7.7z"/><circle cx="12" cy="10" r="1.4" fill="#9C7A2B" stroke="none"/></svg>',
     search:S+'<circle cx="11" cy="11" r="7"/><path d="M20 20l-3.2-3.2"/></svg>',
-    cog:S+'<circle cx="12" cy="12" r="3.2"/><path d="M12 3.5v2.4M12 18.1v2.4M20.5 12h-2.4M5.9 12H3.5M18 6l-1.7 1.7M7.7 16.3 6 18M18 18l-1.7-1.7M7.7 7.7 6 6"/></svg>',
+    cog:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.43 12.98c.04-.32.07-.64.07-.98s-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46a.5.5 0 0 0-.61-.22l-2.49 1c-.52-.4-1.08-.73-1.69-.98l-.38-2.65A.488.488 0 0 0 14 2h-4a.488.488 0 0 0-.49.42l-.38 2.65c-.61.25-1.17.59-1.69.98l-2.49-1a.5.5 0 0 0-.61.22l-2 3.46c-.13.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98s.03.66.07.98l-2.11 1.65c-.19.15-.24.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1c.52.4 1.08.73 1.69.98l.38 2.65c.03.24.24.42.49.42h4c.25 0 .46-.18.49-.42l.38-2.65c.61-.25 1.17-.59 1.69-.98l2.49 1c.23.09.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.65zM12 15.5a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7z"/></svg>',
     bookmark:S+'<path d="M6 4h12v16l-6-4-6 4z"/></svg>',
     bookmarkfill:'<svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"><path d="M6 4h12v16l-6-4-6 4z"/></svg>',
     trash:S+'<path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></svg>',
@@ -579,7 +579,7 @@
     wind:S+'<path d="M3 8h11a2.5 2.5 0 1 0-2.5-2.5M3 16h15a2.5 2.5 0 1 1-2.5 2.5M3 12h8.5a2.5 2.5 0 1 0-2.5-2.5"/></svg>',
     windrain:S+'<path d="M3 7h10a2.5 2.5 0 1 0-2.5-2.5M3 11h13a2.5 2.5 0 1 1-2.5 2.5"/><path d="M8 16l-1 2.5M12 16l-1 2.5M16 16l-1 2.5"/></svg>',
     pin:S+'<path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>',
-    penmark:'<svg viewBox="0 0 24 24" fill="#E23B3B"><path d="M3 17.25V21h3.75L17.8 9.94l-3.75-3.75L3 17.25z"/><path d="M20.7 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>'
+    penmark:'<svg viewBox="0 0 512 512" fill="#E23B3B" fill-rule="evenodd"><path d="M453.6 100.6L411.3 58.4c-9.4-9.4-24.6-9.4-33.9 0l-37.1 37.1 76.2 76.2 37.1-37.1c9.4-9.4 9.4-24.6 0-33.9zM320.5 114.2L141.9 292.8c-15.5 15.5-27 34.6-33.4 55.6L73.2 408c-3.6 11.9 7.5 23 19.4 19.4l59.6-35.3c21-6.4 40.1-17.9 55.6-33.4l178.6-178.6-65.5-65.5zM200 256a24 24 0 1 1 0 48 24 24 0 0 1 0-48z"/></svg>'
   };
   function fillIcons(){document.querySelectorAll('[data-ic]').forEach(el=>{el.innerHTML=ICON[el.dataset.ic]||''});}
 

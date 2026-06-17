@@ -439,6 +439,17 @@
   #home .yday-head{ font-size:17px; } #home .yday-text{ font-size:18px; }
   #home .loc-btn, #home .wi-temp, #home .wi-time, #home .wi-place{ font-family:var(--f-hand); }
   #home .wi-temp{ font-size:26px; } #home .wi-time{ font-size:24px; }
+  /* 에디터(일기 작성 화면)도 메인과 같은 손글씨로 */
+  #editor{ --f-body:'Caveat','Nanum Pen Script','Gaegu',cursive; }
+  /* 상단 알람·검색·설정 아이콘에 손그림 느낌 */
+  #home .home-top .icon-btn svg{ filter:url(#sketch); }
+  /* 낮/밤 모드 선택 */
+  .dmode-list{ display:flex; gap:8px; }
+  .dmode-btn{ flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; border:1px solid var(--line); background:var(--surface-2); color:var(--ink); border-radius:12px; padding:12px 6px; cursor:pointer; font-family:var(--f-body); font-size:13.5px; text-align:center; }
+  .dmode-btn small{ color:var(--ink-soft); font-size:11px; line-height:1.3; }
+  .dmode-btn.active{ border-color:var(--accent); color:var(--accent); box-shadow:inset 0 0 0 1px var(--accent); }
+  .dmode-btn.active small{ color:var(--accent); }
+  .dmode-btn svg{ width:20px; height:20px; }
 
 </style>
 
@@ -505,6 +516,13 @@
       <div class="modal-head"><h3>설정</h3><button id="appSetClose" data-ic="close" aria-label="닫기"></button></div>
 
       <div class="set-modal-body">
+      <div class="set-group-label">일기 모드</div>
+      <div class="set-sec"><label>일기를 언제 쓰나요?</label>
+        <div class="dmode-list">
+          <button class="dmode-btn" data-dmode="morning"><span data-ic="sun"></span>낮에 써요<small>오늘의 작지만<br>소중한 목표</small></button>
+          <button class="dmode-btn" data-dmode="evening"><span data-ic="moon"></span>밤에 써요<small>오늘 인상<br>깊었던 일</small></button>
+        </div>
+      </div>
       <div class="set-group-label">권한</div>
       <div class="set-row" id="rowNotif">
         <div class="set-row-l"><span class="set-ic">🔔</span><div class="set-row-t"><strong>알림 허용</strong><small>일기 쓸 시간을 알려드려요</small></div></div>
@@ -532,8 +550,8 @@
   <header class="topbar">
     <button id="backBtn" class="icon-btn" data-ic="back" title="달력으로"></button>
     <div class="mode-toggle">
-      <button class="seg" data-mode-btn="morning"><span class="ic-slot" data-ic="sun"></span>오전</button>
-      <button class="seg" data-mode-btn="evening"><span class="ic-slot" data-ic="moon"></span>저녁</button>
+      <button class="seg" data-mode-btn="morning"><span class="ic-slot" data-ic="sun"></span>낮</button>
+      <button class="seg" data-mode-btn="evening"><span class="ic-slot" data-ic="moon"></span>밤</button>
     </div>
     <div class="date-wrap"><button id="dateLabel" title="날짜 선택"></button><input type="date" id="navDate"></div>
     <button id="histBtn" class="icon-btn" data-ic="book" title="일기 히스토리"></button>
@@ -762,12 +780,13 @@
   function saveNow(k,v){try{localStorage.setItem('hd_'+k,v);}catch(e){}}
 
   /* 상태 */
+  let defaultMode='evening';
   let date=new Date(),routines=[],day=blankDay(),reminderTime='',lastFired='',audioCtx=null,dayTimer=null,rtTimer=null;
   function key(){return 'diary:'+ymd(date);}
   function ymd(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
   function mdLabel(s){const p=s.split('-');return(+p[1])+'/'+(+p[2]);}
   function mk(){return{id:'r'+Math.random().toString(36).slice(2,9),text:'',start:'',end:''};}
-  function blankDay(){return{mode:'morning',photos:[],wish:'',reflect:'',diary:'',memo:'',done:{},bookmarked:false,logs:[],weather:'',postit:'',postitTitle:''};}
+  function blankDay(){return{mode:defaultMode,photos:[],wish:'',reflect:'',diary:'',memo:'',done:{},bookmarked:false,logs:[],weather:'',postit:'',postitTitle:''};}
   function fmtDate(d){const days=['일','월','화','수','목','금','토'];return`${d.getFullYear()}년 ${d.getMonth()+1}월 ${d.getDate()}일 ${days[d.getDay()]}요일`;}
   function inRange(rt,ds){if(!rt.start&&!rt.end)return true;if(rt.start&&ds<rt.start)return false;if(rt.end&&ds>rt.end)return false;return true;}
   function rangeLabel(rt){if(!rt.start&&!rt.end)return '기간';return(rt.start?mdLabel(rt.start):'…')+' ~ '+(rt.end?mdLabel(rt.end):'…');}
@@ -817,7 +836,7 @@
     day.mode=m;
     document.querySelectorAll('[data-mode-btn]').forEach(b=>b.classList.toggle('active',b.dataset.modeBtn===m));
     const pl=document.getElementById('promptLabel');
-    if(m==='morning'){pl.textContent='오늘 하고 싶은 일';promptEdit.dataset.ph='오늘 해보고 싶은 일을 적어보세요';promptEdit.innerHTML=day.wish||'';}
+    if(m==='morning'){pl.textContent='오늘의 작지만 소중한 목표';promptEdit.dataset.ph='오늘 이루고 싶은 작은 목표를 적어보세요';promptEdit.innerHTML=day.wish||'';}
     else{pl.textContent='오늘 인상 깊었던 일';promptEdit.dataset.ph='오늘 가장 기억에 남은 순간을 적어보세요';promptEdit.innerHTML=day.reflect||'';}
     scheduleSaveDay();
   }
@@ -917,7 +936,7 @@
   async function loadRoutines(){const r=await store.get('routines');if(r&&r.value){routines=JSON.parse(r.value);routines.forEach(x=>{if(x.start===undefined)x.start='';if(x.end===undefined)x.end='';});}else{routines=[mk()];await store.set('routines',JSON.stringify(routines));}}
   async function loadDay(){const r=await store.get(key());day=r&&r.value?Object.assign(blankDay(),JSON.parse(r.value)):blankDay();if(!day.done)day.done={};if(!Array.isArray(day.photos))day.photos=[];if(day.photo){if(!day.photos.length)day.photos=[day.photo];day.photo='';}if(!Array.isArray(day.logs))day.logs=[];if(typeof day.bookmarked!=='boolean')day.bookmarked=false;if(typeof day.weather!=='string')day.weather='';if(typeof day.postit!=='string')day.postit='';if(typeof day.postitTitle!=='string')day.postitTitle='';renderAll();}
   async function loadReminder(){const r=await store.get('reminderTime');reminderTime=r&&r.value?r.value:'';document.getElementById('alarmTime').value=reminderTime;reflectAlarm();}
-  async function loadSettings(){const f=await store.get('font');if(f&&f.value)curFont=f.value;const t=await store.get('theme');if(t&&t.value)curTheme=t.value;const i=await store.get('ink');if(i&&i.value!==undefined)curInk=i.value;const m=await store.get('fmt');if(m&&m.value){try{secFont=Object.assign(secFont,JSON.parse(m.value));}catch(e){}}const sb=await store.get('secbg');if(sb&&sb.value){try{secBg=Object.assign(secBg,JSON.parse(sb.value));}catch(e){}}}
+  async function loadSettings(){const f=await store.get('font');if(f&&f.value)curFont=f.value;const t=await store.get('theme');if(t&&t.value)curTheme=t.value;const i=await store.get('ink');if(i&&i.value!==undefined)curInk=i.value;const dm=await store.get('dmode');if(dm&&dm.value)defaultMode=dm.value;const m=await store.get('fmt');if(m&&m.value){try{secFont=Object.assign(secFont,JSON.parse(m.value));}catch(e){}}const sb=await store.get('secbg');if(sb&&sb.value){try{secBg=Object.assign(secBg,JSON.parse(sb.value));}catch(e){}}}
 
   /* 사진 */
   function readPhotos(files){
@@ -1158,7 +1177,7 @@
   document.getElementById('trashBtn').onclick=()=>{
     if(!confirm('이 날의 일기를 삭제할까요? 되돌릴 수 없어요.'))return;
     try{localStorage.removeItem('hd_'+key());}catch(e){}
-    day=blankDay();day.mode=(new Date().getHours()>=4&&new Date().getHours()<14)?'morning':'evening';
+    day=blankDay();
     toast('삭제했어요');showHome();
   };
 
@@ -1223,8 +1242,19 @@
   }
   document.getElementById('appSetBtn').onclick=()=>{
     document.getElementById('appSetModal').hidden=false;
-    refreshNotifStatus(); refreshCameraStatus(); refreshLockStatus();
+    refreshNotifStatus(); refreshCameraStatus(); refreshLockStatus(); refreshDmodeBtns();
   };
+  function refreshDmodeBtns(){document.querySelectorAll('[data-dmode]').forEach(b=>b.classList.toggle('active',b.dataset.dmode===defaultMode));}
+  document.querySelectorAll('[data-dmode]').forEach(b=>{
+    b.onclick=async()=>{
+      defaultMode=b.dataset.dmode;
+      await store.set('dmode',defaultMode);
+      refreshDmodeBtns();
+      const ed=document.getElementById('editor');
+      if(ed&&!ed.hidden){ setMode(defaultMode); }
+      toast(defaultMode==='morning'?'낮 모드로 설정했어요':'밤 모드로 설정했어요');
+    };
+  });
   document.getElementById('appSetClose').onclick=()=>{document.getElementById('appSetModal').hidden=true;};
   document.getElementById('rowNotif').onclick=async()=>{
     if(notifOn()){

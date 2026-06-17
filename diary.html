@@ -19,6 +19,12 @@
 </script>
 </head>
 <body style="margin:0;padding:0">
+<svg width="0" height="0" style="position:absolute;width:0;height:0;overflow:hidden" aria-hidden="true">
+  <filter id="sketch" x="-12%" y="-12%" width="124%" height="124%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.018 0.024" numOctaves="2" seed="11" result="n"/>
+    <feDisplacementMap in="SourceGraphic" in2="n" scale="2.2" xChannelSelector="R" yChannelSelector="G"/>
+  </filter>
+</svg>
 <!-- 하루 다이어리 — PWA v1 -->
 
 <!-- ===== 오프닝 ===== -->
@@ -409,6 +415,30 @@
   .lock-type-btn{padding:16px;border-radius:14px;border:1px solid #333;background:#1e1e26;color:#fff;font-size:16px;text-align:left;cursor:pointer;display:flex;align-items:center;gap:12px}
   .lock-type-btn:hover{border-color:#9C7A2B}
   .lock-type-btn .lti{font-size:22px}
+
+  /* ===== 메인(홈) 손글씨 + 손그림 달력 스타일 ===== */
+  #home{ --f-hand:'Caveat','Nanum Pen Script','Gaegu',cursive; }
+  #home .home-title{ font-family:var(--f-hand); font-weight:700; font-size:35px; letter-spacing:.01em; }
+  #home .cal-label{ font-family:var(--f-hand); font-size:28px; font-weight:700; }
+  #home .cal-nav{ font-family:var(--f-hand); }
+  #home .cal-dow{ filter:url(#sketch); margin-bottom:2px; }
+  #home .cal-dow span{ font-family:var(--f-hand); font-size:17px; font-weight:700; color:var(--ink); }
+  #home .cal-dow span:first-child{ color:#D9534F; }
+  /* 손으로 그은 듯한 얇은 격자 */
+  #home .cal-card{ position:relative; padding:14px 12px 16px; }
+  #home .cal-grid{ gap:0; border-top:1.4px solid var(--ink); border-left:1.4px solid var(--ink); filter:url(#sketch); }
+  #home .cal-cell{ border:0; border-right:1.4px solid var(--ink); border-bottom:1.4px solid var(--ink); border-radius:0; }
+  #home .cal-cell .dnum{ font-family:var(--f-hand); font-size:20px; font-weight:700; padding-top:5px; }
+  #home .cal-cell .cphoto{ border-radius:0; }
+  #home .cal-cell.today .dnum{ color:var(--accent); position:relative; }
+  #home .cal-cell.today .dnum::before{ content:""; position:absolute; left:50%; top:0; width:31px; height:27px; transform:translateX(-50%); border:1.7px solid var(--accent); border-radius:49% 51% 48% 52%/52% 48% 52% 48%; filter:url(#sketch); z-index:-1; }
+  /* 카드 글씨체 */
+  #home .today-card, #home .today-label, #home .today-date, #home .today-hint{ font-family:var(--f-hand); }
+  #home .today-label{ font-size:16px; } #home .today-date{ font-size:21px; }
+  #home .yday-head, #home .yday-text{ font-family:var(--f-hand); }
+  #home .yday-head{ font-size:17px; } #home .yday-text{ font-size:18px; }
+  #home .loc-btn, #home .wi-temp, #home .wi-time, #home .wi-place{ font-family:var(--f-hand); }
+  #home .wi-temp{ font-size:26px; } #home .wi-time{ font-size:24px; }
 
 </style>
 
@@ -967,6 +997,8 @@
       cell.onclick=()=>openEditor(dd);
       grid.appendChild(cell);
     }
+    const trail=(7-((startDow+daysIn)%7))%7;
+    for(let i=0;i<trail;i++){const c=document.createElement('div');c.className='cal-cell empty';grid.appendChild(c);}
   }
   function refreshTodayCard(){
     const t=new Date();document.getElementById('todayDate').textContent=fmtDate(t);
@@ -1013,21 +1045,42 @@
   }
   /* 어제 일기 미리보기 */
   function showYesterday(){
-    const y=new Date();y.setDate(y.getDate()-1);const ds=ymd(y);
-    const card=document.getElementById('ydayCard');const sum=entrySummary(ds);
-    if(!sum||(!sum.hasText&&!sum.photo)){card.hidden=true;return;}
-    const body=document.getElementById('ydayBody');body.innerHTML='';
-    if(sum.photo){const img=document.createElement('img');img.src=sum.photo;img.alt='어제 사진';body.appendChild(img);}
-    let snip='';try{const d=JSON.parse(localStorage.getItem('hd_diary:'+ds));snip=(htmlText(d.diary)||htmlText(d.reflect)||htmlText(d.wish)||htmlText(d.memo)||(d.logs||[]).map(l=>htmlText(l.text)).join(' ')).trim();}catch(e){}
+    const card=document.getElementById('ydayCard');
+    const head=card.querySelector('.yday-head');
+    const body=document.getElementById('ydayBody');
+    const todayS=ymd(new Date());
+    // 오늘 이전, 내용이 있는 가장 최근 날짜 찾기
+    let best=null;
+    try{
+      for(let i=0;i<localStorage.length;i++){
+        const k=localStorage.key(i);
+        if(!k||k.indexOf('hd_diary:')!==0)continue;
+        const ds=k.slice(9);
+        if(ds>=todayS)continue;
+        const sum=entrySummary(ds);
+        if(sum&&(sum.hasText||sum.photo)){ if(!best||ds>best)best=ds; }
+      }
+    }catch(e){}
+    if(!best){card.hidden=true;return;}
+    const sum=entrySummary(best);
+    body.innerHTML='';
+    if(sum&&sum.photo){const img=document.createElement('img');img.src=sum.photo;img.alt='지난 일기 사진';body.appendChild(img);}
+    let snip='';try{const d=JSON.parse(localStorage.getItem('hd_diary:'+best));snip=(htmlText(d.diary)||htmlText(d.reflect)||htmlText(d.wish)||htmlText(d.memo)||(d.logs||[]).map(l=>htmlText(l.text)).join(' ')).trim();}catch(e){}
     const t=document.createElement('div');t.className='yday-text';t.textContent=snip||'사진 기록 보기';body.appendChild(t);
-    card.hidden=false;card.onclick=()=>openEditor(y);
+    const yest=new Date();yest.setDate(yest.getDate()-1);
+    if(head){ head.textContent=(best===ymd(yest))?'어제의 일기':(Number(best.slice(5,7))+'월 '+Number(best.slice(8,10))+'일 일기'); }
+    card.hidden=false;
+    const bd=new Date(best+'T00:00:00');
+    card.onclick=()=>openEditor(bd);
   }
+  function saveViewState(v, ds){ try{localStorage.setItem('hd_view', JSON.stringify(v==='editor'?{v:'editor',date:ds}:{v:'home'}));}catch(e){} }
   function showHome(){
     flushSave();
     document.getElementById('editor').hidden=true;
     document.getElementById('home').style.display='';
     renderCalendar();refreshTodayCard();showYesterday();tickClock();
     window.scrollTo(0,0);
+    saveViewState('home');
   }
   function openEditor(dObj){
     document.getElementById('home').style.display='none';
@@ -1037,6 +1090,21 @@
     loadDay();
     fillIcons();
     window.scrollTo(0,0);
+    saveViewState('editor', ymd(date));
+    try{ if(!history.state||history.state.hd!=='editor'){ history.pushState({hd:'editor'}, ''); } }catch(e){}
+  }
+  // 폰/브라우저 뒤로가기 → 에디터면 홈으로 (페이지를 벗어나지 않음)
+  window.addEventListener('popstate', ()=>{
+    const ed=document.getElementById('editor');
+    if(ed&&!ed.hidden){ showHome(); }
+  });
+  // 새로고침/복귀 시 마지막 화면 복원
+  function restoreView(){
+    enterApp();
+    let st=null; try{st=JSON.parse(localStorage.getItem('hd_view'));}catch(e){}
+    if(st&&st.v==='editor'&&st.date){ openEditor(new Date(st.date+'T00:00:00')); }
+    else { showHome(); }
+    try{sessionStorage.setItem('hd_live','1');}catch(e){}
   }
   function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._tm);t._tm=setTimeout(()=>t.classList.remove('show'),1700);}
   function hasEntry(ds){return entrySummary(ds)!==null;}
@@ -1049,7 +1117,10 @@
   document.getElementById('todayCard').onclick=()=>openEditor(new Date());
   document.getElementById('calPrev').onclick=()=>{calMonth--;if(calMonth<0){calMonth=11;calYear--;}renderCalendar();};
   document.getElementById('calNext').onclick=()=>{calMonth++;if(calMonth>11){calMonth=0;calYear++;}renderCalendar();};
-  document.getElementById('backBtn').onclick=()=>showHome();
+  document.getElementById('backBtn').onclick=()=>{
+    try{ if(history.state&&history.state.hd==='editor'){ history.back(); return; } }catch(e){}
+    showHome();
+  };
 
   /* 자동저장 보강: 화면 이탈 시 즉시 저장 */
   function flushSave(){try{
@@ -1208,7 +1279,7 @@
     return {reset:()=>{entered='';drawDots();}};
   }
   function hideLockScreens(){['pwAsk','pwSet','pwLock','lkInfo'].forEach(id=>{const el=document.getElementById(id);if(el)el.hidden=true;});}
-  function enterApp(){document.getElementById('splashScreen').style.display='none';hideLockScreens();}
+  function enterApp(){document.getElementById('splashScreen').style.display='none';hideLockScreens();try{sessionStorage.setItem('hd_live','1');}catch(e){}}
   function refreshLockStatus(){const s=document.getElementById('lockStatus');if(s)s.textContent=LS.get('pwCode')?'✅ 허용됨':'허용 안됨';}
 
   // 잠금 설정 여부 묻기 (오프닝 후)
@@ -1240,7 +1311,7 @@
     document.getElementById('pwSetCancel').onclick=()=>{scr.hidden=true;if(done)done();};
   }
   // 잠금 화면 (접속 시)
-  function showLock(){
+  function showLock(onDone){
     const scr=document.getElementById('pwLock');
     const dots=document.getElementById('pwLockDots');
     const pad=document.getElementById('pwLockPad');
@@ -1249,7 +1320,7 @@
     document.getElementById('splashScreen').style.display='none';
     scr.hidden=false; err.textContent='';
     buildKeypad(pad,dots,(code,reset)=>{
-      if(code===stored){scr.hidden=true;}
+      if(code===stored){scr.hidden=true;if(onDone)onDone();}
       else{err.textContent='암호가 틀렸어요';reset();}
     });
   }
@@ -1307,15 +1378,22 @@
     document.getElementById('locBtn').onclick=requestLocation;
     initWeather();showYesterday();
     renderCalendar();refreshTodayCard();
-    // 오프닝: 페이드인 → 페이드아웃 → (잠금있음→잠금화면 / 처음→설정묻기 / 그외→메인)
+    // 오프닝: 콜드 스타트면 연출, 새로고침/복귀면 스플래시 없이 이전 화면 유지
     const splash = document.getElementById('splashScreen');
-    requestAnimationFrame(()=>{ splash.style.opacity='1'; });   // 천천히 페이드인
-    setTimeout(()=>{ splash.style.opacity='0'; }, 2600);        // 2.6초에 페이드아웃 시작
-    setTimeout(()=>{
-      if(LS.get('pwCode')){ showLock(); }
-      else if(!LS.get('asked')){ splash.style.display='none'; askLock(); }
-      else { enterApp(); }
-    }, 3700);
+    let resuming=false; try{resuming=sessionStorage.getItem('hd_live')==='1';}catch(e){}
+    if(resuming){
+      splash.style.display='none';
+      if(LS.get('pwCode')){ showLock(restoreView); }
+      else { restoreView(); }
+    } else {
+      requestAnimationFrame(()=>{ splash.style.opacity='1'; });   // 천천히 페이드인
+      setTimeout(()=>{ splash.style.opacity='0'; }, 2600);        // 2.6초에 페이드아웃 시작
+      setTimeout(()=>{
+        if(LS.get('pwCode')){ showLock(restoreView); }
+        else if(!LS.get('asked')){ splash.style.display='none'; askLock(); }
+        else { restoreView(); }
+      }, 3700);
+    }
   })();
 })();
 </script>

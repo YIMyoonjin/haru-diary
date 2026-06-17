@@ -277,8 +277,8 @@
   .cal-cell.today .dnum{color:var(--accent);font-weight:700}
   .cal-cell .cphoto{position:absolute;inset:0;object-fit:cover;width:100%;height:100%;z-index:1;border-radius:11px}
   .cal-cell .cphoto+.dnum{color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.75)}
-  .cal-cell .cmark{position:absolute;left:0;right:0;top:50%;transform:translateY(-40%);display:flex;justify-content:center;z-index:2}
-  .cal-cell .cmark svg,.cal-cell .cmark img{width:30px;height:30px;filter:drop-shadow(0 1px 2px rgba(0,0,0,.4))}
+  .cal-cell .cmark{position:absolute;left:0;right:0;bottom:5px;display:flex;justify-content:center;z-index:1}
+  .cal-cell .cmark svg,.cal-cell .cmark img{width:23px;height:23px;filter:drop-shadow(0 1px 2px rgba(0,0,0,.4))}
   .cal-cell .cbm{position:absolute;top:3px;right:4px;z-index:3;color:#E23B3B}
   .cal-cell .cbm svg{width:16px;height:16px;filter:drop-shadow(0 1px 2px rgba(0,0,0,.5))}
   .cal-cell .cphoto~.cbm{color:#FF4D4D}
@@ -374,6 +374,8 @@
   .pin-dot.filled{background:#9C7A2B}
   /* ===== 잠금/암호 화면 (아이폰 스타일) ===== */
   .lk-screen{position:fixed;inset:0;z-index:9998;background:#0c0c0e;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;gap:0;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}
+  .lk-screen[hidden]{display:none!important}
+  #lkInfo[hidden]{display:none!important}
   .lk-brand{font-family:'Gowun Batang',serif;font-size:26px;font-weight:700;color:#fff;margin-bottom:18px}
   .lk-title{font-size:18px;color:#fff;text-align:center;line-height:1.5;margin-bottom:40px}
   .lk-title2{font-size:18px;color:#fff;text-align:center;margin-bottom:26px}
@@ -401,6 +403,8 @@
   .set-row-t strong{font-size:15px;color:var(--ink)}
   .set-row-t small{font-size:13px;color:var(--ink-soft)}
   .set-row-s{font-size:13px;color:var(--accent);font-weight:600;white-space:nowrap}
+  .set-modal-body{padding:6px 18px 20px;overflow-y:auto;-webkit-overflow-scrolling:touch}
+  .set-modal-body .set-sec{margin-top:6px}
   .lock-type-btns{display:flex;flex-direction:column;gap:10px;width:100%}
   .lock-type-btn{padding:16px;border-radius:14px;border:1px solid #333;background:#1e1e26;color:#fff;font-size:16px;text-align:left;cursor:pointer;display:flex;align-items:center;gap:12px}
   .lock-type-btn:hover{border-color:#9C7A2B}
@@ -470,6 +474,7 @@
     <div class="modal-card">
       <div class="modal-head"><h3>설정</h3><button id="appSetClose" data-ic="close" aria-label="닫기"></button></div>
 
+      <div class="set-modal-body">
       <div class="set-group-label">권한</div>
       <div class="set-row" id="rowNotif">
         <div class="set-row-l"><span class="set-ic">🔔</span><div class="set-row-t"><strong>알림 허용</strong><small>일기 쓸 시간을 알려드려요</small></div></div>
@@ -483,12 +488,12 @@
         <div class="set-row-l"><span class="set-ic">🔒</span><div class="set-row-t"><strong>잠금 설정</strong><small>나만 볼 수 있게 암호로 보호해요</small></div></div>
         <div class="set-row-s" id="lockStatus">설정</div>
       </div>
-      </div>
 
       <div class="set-group-label">꾸미기</div>
       <div class="set-sec"><label>기본 폰트</label><div class="font-list" id="fontListHome"></div></div>
       <div class="set-sec"><label>일기장 색상</label><div class="sw-list" id="themeListHome"></div></div>
       <div class="set-sec"><label>기본 글자 색상</label><div class="sw-list" id="inkListHome"></div></div>
+      </div>
     </div>
   </div>
 

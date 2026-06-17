@@ -478,15 +478,15 @@
       <div class="set-group-label">권한</div>
       <div class="set-row" id="rowNotif">
         <div class="set-row-l"><span class="set-ic">🔔</span><div class="set-row-t"><strong>알림 허용</strong><small>일기 쓸 시간을 알려드려요</small></div></div>
-        <div class="set-row-s" id="notifStatus">설정</div>
+        <div class="set-row-s" id="notifStatus">허용 안됨</div>
       </div>
       <div class="set-row" id="rowCamera">
         <div class="set-row-l"><span class="set-ic">📷</span><div class="set-row-t"><strong>카메라 · 갤러리</strong><small>사진을 일기에 추가할 수 있어요</small></div></div>
-        <div class="set-row-s" id="cameraStatus">설정</div>
+        <div class="set-row-s" id="cameraStatus">허용 안됨</div>
       </div>
       <div class="set-row" id="rowLock">
         <div class="set-row-l"><span class="set-ic">🔒</span><div class="set-row-t"><strong>잠금 설정</strong><small>나만 볼 수 있게 암호로 보호해요</small></div></div>
-        <div class="set-row-s" id="lockStatus">설정</div>
+        <div class="set-row-s" id="lockStatus">허용 안됨</div>
       </div>
 
       <div class="set-group-label">꾸미기</div>
@@ -912,7 +912,7 @@
   function ensureAudio(){try{if(!audioCtx){const AC=window.AudioContext||window.webkitAudioContext;if(AC)audioCtx=new AC();}if(audioCtx&&audioCtx.state==='suspended')audioCtx.resume();}catch(e){}}
   function beep(){try{if(!audioCtx)return;const t=audioCtx.currentTime;[0,0.55].forEach(off=>{const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.connect(g);g.connect(audioCtx.destination);o.type='sine';o.frequency.value=880;g.gain.setValueAtTime(0.0001,t+off);g.gain.exponentialRampToValueAtTime(0.22,t+off+0.02);g.gain.exponentialRampToValueAtTime(0.0001,t+off+0.4);o.start(t+off);o.stop(t+off+0.42);});}catch(e){}}
   function fireAlarm(){const b=document.getElementById('alarmBanner');b.hidden=false;setTimeout(()=>{b.hidden=true;},30000);beep();try{if('Notification' in window&&Notification.permission==='granted')new Notification('하루 다이어리',{body:'일기 쓸 시간이에요'});}catch(e){}}
-  setInterval(()=>{if(!reminderTime)return;const n=new Date();const hhmm=String(n.getHours()).padStart(2,'0')+':'+String(n.getMinutes()).padStart(2,'0');const today=ymd(n);if(hhmm===reminderTime&&lastFired!==today){lastFired=today;fireAlarm();}},15000);
+  setInterval(()=>{if(!reminderTime||(typeof notifOn==='function'&&!notifOn()))return;const n=new Date();const hhmm=String(n.getHours()).padStart(2,'0')+':'+String(n.getMinutes()).padStart(2,'0');const today=ymd(n);if(hhmm===reminderTime&&lastFired!==today){lastFired=today;fireAlarm();}},15000);
 
   /* 히스토리 */
   async function openHistory(){
@@ -1140,34 +1140,50 @@
   document.getElementById('searchClose').onclick=()=>{document.getElementById('searchModal').hidden=true;};
 
   // 앱 설정창
+  function notifOn(){ return LS.get('notifOn')!=='0'; }   // 기본값: 켜짐
   function refreshNotifStatus(){
     const s=document.getElementById('notifStatus'); if(!s) return;
-    if(!('Notification' in window)){ s.textContent='미지원'; return; }
-    if(Notification.permission==='granted'){ s.textContent='✅ 허용됨'; }
-    else if(Notification.permission==='denied'){ s.textContent='❌ 거부됨'; }
-    else { s.textContent='설정'; }
+    s.textContent = notifOn() ? '✅ 허용됨' : '허용 안됨';
+  }
+  function camOn(){ return LS.get('camOn')==='1'; }        // 기본값: 꺼짐
+  function refreshCameraStatus(){
+    const s=document.getElementById('cameraStatus'); if(!s) return;
+    s.textContent = camOn() ? '✅ 허용됨' : '허용 안됨';
   }
   document.getElementById('appSetBtn').onclick=()=>{
     document.getElementById('appSetModal').hidden=false;
-    refreshNotifStatus(); refreshLockStatus();
+    refreshNotifStatus(); refreshCameraStatus(); refreshLockStatus();
   };
   document.getElementById('appSetClose').onclick=()=>{document.getElementById('appSetModal').hidden=true;};
   document.getElementById('rowNotif').onclick=async()=>{
-    if(!('Notification' in window)) return;
-    if(Notification.permission==='granted'){ toast('이미 알림이 허용되어 있어요'); return; }
-    const s=document.getElementById('notifStatus'); s.textContent='요청 중…';
-    const r=await Notification.requestPermission().catch(()=>'denied');
+    if(notifOn()){
+      LS.set('notifOn','0'); refreshNotifStatus(); toast('일기 알림을 껐어요');
+      return;
+    }
+    LS.set('notifOn','1');
+    if('Notification' in window && Notification.permission==='default'){
+      try{ await Notification.requestPermission(); }catch(e){}
+    }
     refreshNotifStatus();
-    if(r==='granted') toast('알림이 허용되었어요');
+    if('Notification' in window && Notification.permission==='denied'){
+      toast('브라우저 설정에서 알림을 허용해야 팝업이 떠요');
+    } else {
+      toast('일기 알림을 켰어요');
+    }
   };
   document.getElementById('rowCamera').onclick=async()=>{
+    if(camOn()){
+      LS.set('camOn','0'); refreshCameraStatus(); toast('카메라·갤러리 사용 안 함');
+      return;
+    }
     const s=document.getElementById('cameraStatus'); s.textContent='요청 중…';
     try{
       const stream=await navigator.mediaDevices.getUserMedia({video:true});
       stream.getTracks().forEach(t=>t.stop());
-      s.textContent='✅ 허용됨'; toast('카메라가 허용되었어요');
+      LS.set('camOn','1'); refreshCameraStatus(); toast('카메라가 허용되었어요');
     }catch(e){
-      s.textContent = e&&e.name==='NotAllowedError' ? '❌ 거부됨' : '사진 추가 시 허용';
+      LS.set('camOn','0'); refreshCameraStatus();
+      toast(e&&e.name==='NotAllowedError' ? '브라우저 설정에서 카메라를 허용해 주세요' : '사진 추가 시 다시 시도해 주세요');
     }
   };
 
@@ -1193,7 +1209,7 @@
   }
   function hideLockScreens(){['pwAsk','pwSet','pwLock','lkInfo'].forEach(id=>{const el=document.getElementById(id);if(el)el.hidden=true;});}
   function enterApp(){document.getElementById('splashScreen').style.display='none';hideLockScreens();}
-  function refreshLockStatus(){const s=document.getElementById('lockStatus');if(s)s.textContent=LS.get('pwCode')?'✅ 설정됨':'설정';}
+  function refreshLockStatus(){const s=document.getElementById('lockStatus');if(s)s.textContent=LS.get('pwCode')?'✅ 허용됨':'허용 안됨';}
 
   // 잠금 설정 여부 묻기 (오프닝 후)
   function askLock(){

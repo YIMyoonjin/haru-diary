@@ -673,10 +673,8 @@ var SPLASHES=[
         <div class="sec-head"><span class="field">메모</span><button class="sec-gear" id="gearMemo" data-ic="sliders" title="서식"></button></div>
         <div class="editable" id="memoEdit" contenteditable="true" data-ph="자유롭게 메모해보세요"></div>
       </div>
-      <div class="card" id="cardPostit">
-        <div class="sec-head"><span class="field postit-title" id="postitTitle" contenteditable="true" data-ph="포스트잇"></span><button class="sec-gear" id="gearPostit" data-ic="sliders" title="서식"></button></div>
-        <div class="editable" id="postitEdit" contenteditable="true" data-ph="스스로 칭찬하기, 오늘 하루 좋았던 사람 등 마음껏 써보세요."></div>
-      </div>
+      <div id="postitContainer"></div>
+      <button id="postitAddBtn" style="width:100%;margin-top:6px;padding:10px;border:1.5px dashed var(--line);border-radius:14px;background:none;color:var(--ink-soft);font-family:var(--f-body);font-size:14px;cursor:pointer">+ 포스트잇 추가</button>
     </aside>
   </main>
 
@@ -871,7 +869,7 @@ var SPLASHES=[
   function ymd(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
   function mdLabel(s){const p=s.split('-');return(+p[1])+'/'+(+p[2]);}
   function mk(){return{id:'r'+Math.random().toString(36).slice(2,9),text:'',start:'',end:''};}
-  function blankDay(){return{mode:defaultMode,photos:[],wish:'',reflect:'',diary:'',memo:'',done:{},bookmarked:false,logs:[],weather:'',postit:'',postitTitle:''};}
+  function blankDay(){return{mode:defaultMode,photos:[],wish:'',reflect:'',diary:'',memo:'',done:{},bookmarked:false,logs:[],weather:'',postit:'',postitTitle:'',postits:[]};}
   function fmtDate(d){const days=['일','월','화','수','목','금','토'];return`${d.getFullYear()}년 ${d.getMonth()+1}월 ${d.getDate()}일 ${days[d.getDay()]}요일`;}
   function inRange(rt,ds){if(!rt.start&&!rt.end)return true;if(rt.start&&ds<rt.start)return false;if(rt.end&&ds>rt.end)return false;return true;}
   function rangeLabel(rt){if(!rt.start&&!rt.end)return '기간';return(rt.start?mdLabel(rt.start):'…')+' ~ '+(rt.end?mdLabel(rt.end):'…');}
@@ -881,7 +879,34 @@ var SPLASHES=[
 
   /* 서식 툴바 */
   function divider(){const d=document.createElement('span');d.className='tb-div';return d;}
-  function saveSection(section,edit){ if(section==='diary')day.diary=edit.innerHTML; else if(section==='memo')day.memo=edit.innerHTML; else if(section==='postit')day.postit=edit.innerHTML; else if(section==='prompt'){if(day.mode==='morning')day.wish=edit.innerHTML;else day.reflect=edit.innerHTML;} scheduleSaveDay(); }
+  function renderPostits(){
+    const con=document.getElementById('postitContainer');
+    const addBtn=document.getElementById('postitAddBtn');
+    if(!con)return;
+    // 기존 데이터 마이그레이션: 옛날 단일 postit → postits 배열
+    if(!Array.isArray(day.postits)){
+      day.postits=day.postit?[{title:day.postitTitle||'',text:day.postit}]:[];
+    }
+    con.innerHTML='';
+    day.postits.forEach((p,i)=>{
+      const card=document.createElement('div');card.className='card';card.style.marginTop='8px';
+      card.innerHTML=`<div class="sec-head"><span class="field postit-title" contenteditable="true" data-ph="포스트잇" style="outline:none;min-width:40px;border-bottom:1px dashed transparent">${p.title||''}</span><button class="sec-gear" data-ic="sliders" title="서식" style="margin-left:auto"></button><button style="background:none;border:none;cursor:pointer;color:var(--ink-soft);font-size:18px;padding:0 4px" data-del="${i}">✕</button></div><div class="editable" contenteditable="true" data-ph="스스로 칭찬하기, 오늘 하루 좋았던 사람 등 마음껏 써보세요.">${p.text||''}</div>`;
+      const titleEl=card.querySelector('[contenteditable][data-ph="포스트잇"]');
+      const editEl=card.querySelector('.editable');
+      const delBtn=card.querySelector(`[data-del="${i}"]`);
+      const gearBtn=card.querySelector('.sec-gear');
+      titleEl.oninput=()=>{day.postits[i].title=titleEl.textContent;scheduleSaveDay();};
+      editEl.oninput=()=>{day.postits[i].text=editEl.innerHTML;scheduleSaveDay();};
+      editEl.addEventListener('blur',flushSave);
+      delBtn.onclick=()=>{day.postits.splice(i,1);renderPostits();scheduleSaveDay();};
+      gearBtn.onclick=(ev)=>{ev.stopPropagation();openFmt('postit',editEl,titleEl.textContent||'포스트잇');};
+      applySecBg('postit');
+      con.appendChild(card);
+    });
+    if(addBtn)addBtn.style.display=day.postits.length>=3?'none':'';
+  }
+
+  function saveSection(section,edit){ if(section==='diary')day.diary=edit.innerHTML; else if(section==='memo')day.memo=edit.innerHTML; else if(section==='postit'){/* 개별 처리 */} else if(section==='prompt'){if(day.mode==='morning')day.wish=edit.innerHTML;else day.reflect=edit.innerHTML;} scheduleSaveDay(); }
   function buildToolbar(tb,edit,section){
     tb.innerHTML='';
     function row(labelText){const r=document.createElement('div');r.className='fmt-row';const l=document.createElement('div');l.className='fmt-label';l.textContent=labelText;const c=document.createElement('div');c.className='fmt-ctrls';r.append(l,c);tb.appendChild(r);return c;}
@@ -1005,9 +1030,10 @@ var SPLASHES=[
     applySecFont('diary',diaryEdit);applySecFont('prompt',promptEdit);applySecFont('memo',memoEdit);
     applySecBg('diary');applySecBg('prompt');applySecBg('memo');
     renderPhotos();renderRoutines();renderLogs();reflectBookmark();reflectWeather();
-    document.getElementById('postitEdit').innerHTML=day.postit||'';
-    document.getElementById('postitTitle').textContent=day.postitTitle||'';
+    document.getElementById('postitEdit')&&(document.getElementById('postitEdit').innerHTML=day.postit||'');
+    document.getElementById('postitTitle')&&(document.getElementById('postitTitle').textContent=day.postitTitle||'');
     applySecFont('postit',document.getElementById('postitEdit'));applySecBg('postit');
+    renderPostits();
     setMode(day.mode);
   }
   const WEATHER_IC={sun:'sun',cloud:'cloud',rain:'rain',wind:'wind',windrain:'windrain'};
@@ -1034,7 +1060,7 @@ var SPLASHES=[
 
   /* 저장 */
   function flash(){const s=document.getElementById('saveState');s.textContent='저장됨';setTimeout(()=>{if(s.textContent==='저장됨')s.textContent='';},1600);}
-  function scheduleSaveDay(){document.getElementById('saveState').textContent='저장 중…';clearTimeout(dayTimer);dayTimer=setTimeout(async()=>{const cur=promptEdit.innerHTML;if(day.mode==='morning')day.wish=cur;else day.reflect=cur;day.diary=diaryEdit.innerHTML;day.memo=memoEdit.innerHTML;await store.set(key(),JSON.stringify(day));flash();},450);}
+  function scheduleSaveDay(){document.getElementById('saveState').textContent='저장 중…';clearTimeout(dayTimer);dayTimer=setTimeout(async()=>{const cur=promptEdit.innerHTML;if(day.mode==='morning')day.wish=cur;else day.reflect=cur;day.diary=diaryEdit.innerHTML;day.memo=memoEdit.innerHTML;const ds=ymd(date);_dayCache['diary:'+ds]=JSON.parse(JSON.stringify(day));await store.set(key(),JSON.stringify(day));flash();},450);}
   function scheduleSaveRoutines(){document.getElementById('saveState').textContent='저장 중…';clearTimeout(rtTimer);rtTimer=setTimeout(async()=>{await store.set('routines',JSON.stringify(routines));flash();},450);}
   async function loadRoutines(){const r=await store.get('routines');if(r&&r.value){routines=JSON.parse(r.value);routines.forEach(x=>{if(x.start===undefined)x.start='';if(x.end===undefined)x.end='';});}else{routines=[mk()];await store.set('routines',JSON.stringify(routines));}}
   async function loadDay(){const r=await store.get(key());day=r&&r.value?Object.assign(blankDay(),JSON.parse(r.value)):blankDay();if(!day.done)day.done={};if(!Array.isArray(day.photos))day.photos=[];if(day.photo){if(!day.photos.length)day.photos=[day.photo];day.photo='';}if(!Array.isArray(day.logs))day.logs=[];if(typeof day.bookmarked!=='boolean')day.bookmarked=false;if(typeof day.weather!=='string')day.weather='';if(typeof day.postit!=='string')day.postit='';if(typeof day.postitTitle!=='string')day.postitTitle='';renderAll();}
@@ -1109,12 +1135,30 @@ var SPLASHES=[
   /* 이벤트 */
   /* ===== 홈(캘린더) / 에디터 전환 ===== */
   let calYear, calMonth;
+  // Firebase 데이터 로컬 캐시 (달력 표시용)
+  const _dayCache = {};
+  async function warmCalendarCache(){
+    if(!_fbUid) return;
+    try{
+      const keys = await store.list('diary:');
+      for(const k of keys){
+        const r = await store.get(k);
+        if(r&&r.value){ try{_dayCache[k]=JSON.parse(r.value);}catch(e){} }
+      }
+    }catch(e){}
+  }
+
   function entrySummary(ds){
-    try{const v=localStorage.getItem('hd_diary:'+ds);if(!v)return null;const d=JSON.parse(v);
-      const logsText=(d.logs||[]).map(l=>htmlText(l.text)).join(' ');
-      const hasText=!!(htmlText(d.diary)||htmlText(d.memo)||htmlText(d.wish)||htmlText(d.reflect)||logsText).trim();
-      return {photo:(d.photos&&d.photos[0])||d.photo||'', hasText, bookmarked:!!d.bookmarked};
-    }catch(e){return null;}
+    // Firebase 캐시 우선, 없으면 localStorage fallback
+    let d = _dayCache['diary:'+ds];
+    if(!d){
+      try{const v=localStorage.getItem('hd_diary:'+ds);if(!v)return null;d=JSON.parse(v);}
+      catch(e){return null;}
+    }
+    if(!d) return null;
+    const logsText=(d.logs||[]).map(l=>htmlText(l.text)).join(' ');
+    const hasText=!!(htmlText(d.diary)||htmlText(d.memo)||htmlText(d.wish)||htmlText(d.reflect)||logsText).trim();
+    return {photo:(d.photos&&d.photos[0])||d.photo||'', hasText, bookmarked:!!d.bookmarked};
   }
   function renderCalendar(){
     const grid=document.getElementById('calGrid');grid.innerHTML='';
@@ -1257,8 +1301,8 @@ var SPLASHES=[
     date=t;loadDay();fillIcons();window.scrollTo(0,0);
   }
   document.getElementById('todayCard').onclick=()=>openEditor(new Date());
-  document.getElementById('calPrev').onclick=()=>{calMonth--;if(calMonth<0){calMonth=11;calYear--;}renderCalendar();};
-  document.getElementById('calNext').onclick=()=>{calMonth++;if(calMonth>11){calMonth=0;calYear++;}renderCalendar();};
+  document.getElementById('calPrev').onclick=async()=>{calMonth--;if(calMonth<0){calMonth=11;calYear--;}await warmCalendarCache();renderCalendar();};
+  document.getElementById('calNext').onclick=async()=>{calMonth++;if(calMonth>11){calMonth=0;calYear++;}await warmCalendarCache();renderCalendar();};
   document.getElementById('backBtn').onclick=()=>{
     try{ if(history.state&&history.state.hd==='editor'){ history.back(); return; } }catch(e){}
     showHome();
@@ -1271,6 +1315,11 @@ var SPLASHES=[
     day.diary=diaryEdit.innerHTML;day.memo=memoEdit.innerHTML;
     const pe=document.getElementById('postitEdit'),pt=document.getElementById('postitTitle');
     if(pe)day.postit=pe.innerHTML;if(pt)day.postitTitle=pt.textContent;
+    // 새 포스트잇 배열 저장
+    if(Array.isArray(day.postits)){
+      const con=document.getElementById('postitContainer');
+      if(con){con.querySelectorAll('.editable').forEach((el,i)=>{if(day.postits[i])day.postits[i].text=el.innerHTML;});}
+    }
     saveNow(key(),JSON.stringify(day));saveNow('routines',JSON.stringify(routines));
   }catch(e){}}
   window.addEventListener('pagehide',flushSave);
@@ -1307,12 +1356,12 @@ var SPLASHES=[
   /* 추가 기록 / 날짜 이동 */
   document.getElementById('logAdd').onclick=()=>{day.logs.push({text:''});renderLogs();scheduleSaveDay();const cards=document.querySelectorAll('#logList .log-edit');if(cards.length){cards[cards.length-1].focus();cards[cards.length-1].scrollIntoView({block:'center'});}};
   /* 포스트잇 */
-  const postitEdit=document.getElementById('postitEdit'),postitTitle=document.getElementById('postitTitle');
-  postitEdit.oninput=()=>{day.postit=postitEdit.innerHTML;scheduleSaveDay();};
-  postitEdit.addEventListener('blur',flushSave);
-  postitTitle.oninput=()=>{day.postitTitle=postitTitle.textContent;scheduleSaveDay();};
-  postitTitle.addEventListener('blur',flushSave);
-  document.getElementById('gearPostit').onclick=(ev)=>{ev.stopPropagation();openFmt('postit',postitEdit,(postitTitle.textContent||'포스트잇'));};
+  document.getElementById('postitAddBtn').onclick=()=>{
+    if(!Array.isArray(day.postits))day.postits=[];
+    if(day.postits.length>=3)return;
+    day.postits.push({title:'',text:''});
+    renderPostits();scheduleSaveDay();
+  };
   document.getElementById('prevDay').onclick=()=>navDay(-1);
   document.getElementById('nextDay').onclick=()=>navDay(1);
 
@@ -1582,6 +1631,7 @@ var SPLASHES=[
         loginScreen.style.display='none';
         await loadSettings(); applyFont(curFont); applyTheme(curTheme); applyPalette(); applyInk();
         await loadRoutines(); await loadReminder(); renderRoutines();
+        await warmCalendarCache();
         initWeather(); showYesterday(); renderCalendar(); refreshTodayCard();
         // 오프닝: 처음 방문에만, 새로고침은 바로 진입
         const _isFirstVisit = !sessionStorage.getItem('hd_live');

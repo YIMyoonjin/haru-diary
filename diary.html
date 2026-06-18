@@ -17,8 +17,47 @@
     });
   }
 </script>
+<!-- Firebase SDK -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
+import { getFirestore, doc, getDoc, setDoc, deleteDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
+import { getStorage, ref, uploadString, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-storage.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAR0FRkNxUb3gzrmJiUGgoEpgs0wl4IiC4",
+  authDomain: "haru-diary-a269f.firebaseapp.com",
+  projectId: "haru-diary-a269f",
+  storageBucket: "haru-diary-a269f.firebasestorage.app",
+  messagingSenderId: "544993236898",
+  appId: "1:544993236898:web:9146aeac7f203db4fcc4fb",
+  measurementId: "G-738KKQSRTK"
+};
+
+const _fbApp = initializeApp(firebaseConfig);
+const _auth = getAuth(_fbApp);
+const _db = getFirestore(_fbApp);
+const _storage = getStorage(_fbApp);
+const _provider = new GoogleAuthProvider();
+
+// 전역으로 노출 (메인 스크립트에서 사용)
+window._FB = { auth:_auth, db:_db, storage:_storage, provider:_provider,
+  signInWithPopup, signOut, onAuthStateChanged,
+  doc, getDoc, setDoc, deleteDoc, collection, getDocs,
+  ref, uploadString, getDownloadURL, deleteObject };
+</script>
 </head>
 <body style="margin:0;padding:0">
+<!-- 로그인 화면 -->
+<div id="loginScreen" style="position:fixed;inset:0;z-index:99999;background:var(--bg,#F4F1EA);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:24px;font-family:'Caveat','Nanum Pen Script',cursive;">
+  <div style="font-size:32px;font-weight:700;color:var(--ink,#2A2722)">오늘의 Diary</div>
+  <div style="font-size:16px;color:var(--ink-soft,#8a7f74);text-align:center;line-height:1.6">하루를 기록해보세요<br>구글 계정으로 로그인하면<br>어디서든 일기를 볼 수 있어요</div>
+  <button id="googleLoginBtn" style="display:flex;align-items:center;gap:10px;padding:14px 28px;border-radius:50px;border:1.5px solid #ddd;background:#fff;font-size:16px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.1)">
+    <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.08 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-3.59-13.46-8.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+    Google로 로그인
+  </button>
+  <div id="loginMsg" style="font-size:13px;color:#c0392b;min-height:20px"></div>
+</div>
 <svg width="0" height="0" style="position:absolute;width:0;height:0;overflow:hidden" aria-hidden="true">
   <filter id="sketch" x="-12%" y="-12%" width="124%" height="124%">
     <feTurbulence type="fractalNoise" baseFrequency="0.018 0.024" numOctaves="2" seed="11" result="n"/>
@@ -563,6 +602,11 @@ var SPLASHES=[
       <div class="set-sec"><label>기본 폰트</label><div class="font-list" id="fontListHome"></div></div>
       <div class="set-sec"><label>일기장 색상</label><div class="sw-list" id="themeListHome"></div></div>
       <div class="set-sec"><label>기본 글자 색상</label><div class="sw-list" id="inkListHome"></div></div>
+      <div class="set-group-label">계정</div>
+      <div class="set-row" id="rowAccount">
+        <div class="set-row-l"><span class="set-ic">👤</span><div class="set-row-t"><strong id="accountEmail">로그인 중...</strong><small>구글 계정으로 연결됨</small></div></div>
+        <button id="logoutBtn" style="font-size:13px;color:#c0392b;background:none;border:1px solid #c0392b;border-radius:8px;padding:4px 10px;cursor:pointer">로그아웃</button>
+      </div>
       </div>
     </div>
   </div>
@@ -794,12 +838,31 @@ var SPLASHES=[
   }
 
   /* 저장소 */
+  let _fbUid=null;
+
   const store={
-    async get(k){try{const v=localStorage.getItem('hd_'+k);return v!==null?{value:v}:null;}catch(e){return null;}},
-    async set(k,v){try{localStorage.setItem('hd_'+k,v);}catch(e){}return{value:v};},
-    async list(p){try{const out=[];for(let i=0;i<localStorage.length;i++){const key=localStorage.key(i);if(key&&key.indexOf('hd_'+p)===0)out.push(key.slice(3));}return out;}catch(e){return[];}}
+    _ref(k){const {db,doc}=window._FB;return doc(db,`users/${_fbUid}/data`,k);},
+    async get(k){
+      if(!_fbUid){try{const v=localStorage.getItem('hd_'+k);return v!==null?{value:v}:null;}catch(e){return null;}}
+      try{const {getDoc}=window._FB;const snap=await getDoc(this._ref(k));return snap.exists()?{value:snap.data().v}:null;}catch(e){return null;}
+    },
+    async set(k,v){
+      if(!_fbUid){try{localStorage.setItem('hd_'+k,String(v));}catch(e){}return{value:v};}
+      try{const {setDoc}=window._FB;await setDoc(this._ref(k),{v:String(v)});}catch(e){}return{value:v};
+    },
+    async del(k){
+      if(!_fbUid){try{localStorage.removeItem('hd_'+k);}catch(e){}return;}
+      try{const {deleteDoc}=window._FB;await deleteDoc(this._ref(k));}catch(e){}
+    },
+    async list(p){
+      if(!_fbUid){try{const out=[];for(let i=0;i<localStorage.length;i++){const key=localStorage.key(i);if(key&&key.indexOf('hd_'+p)===0)out.push(key.slice(3));}return out;}catch(e){return[];}}
+      try{const {collection,getDocs,db}=window._FB;const snap=await getDocs(collection(db,`users/${_fbUid}/data`));const out=[];snap.forEach(d=>{if(d.id.startsWith(p))out.push(d.id);});return out;}catch(e){return[];}
+    }
   };
-  function saveNow(k,v){try{localStorage.setItem('hd_'+k,v);}catch(e){}}
+  function saveNow(k,v){
+    if(_fbUid){store.set(k,v);}
+    else{try{localStorage.setItem('hd_'+k,v);}catch(e){}}
+  }
 
   /* 상태 */
   let defaultMode='evening';
@@ -986,13 +1049,31 @@ var SPLASHES=[
     let pending=list.length;if(!pending)return;
     list.forEach(file=>{
       const fr=new FileReader();
-      fr.onload=()=>{const img=new Image();img.onload=()=>{
-        const max=1200,sc=Math.min(1,max/Math.max(img.width,img.height));
-        const c=document.createElement('canvas');c.width=img.width*sc;c.height=img.height*sc;
-        c.getContext('2d').drawImage(img,0,0,c.width,c.height);
-        day.photos.push(c.toDataURL('image/jpeg',0.82));
-        pending--;if(pending<=0){renderPhotos();scheduleSaveDay();}
-      };img.onerror=()=>{pending--;if(pending<=0){renderPhotos();scheduleSaveDay();}};img.src=fr.result;};
+      fr.onload=async()=>{
+        const img=new Image();
+        img.onload=async()=>{
+          const max=1200,sc=Math.min(1,max/Math.max(img.width,img.height));
+          const c=document.createElement('canvas');c.width=img.width*sc;c.height=img.height*sc;
+          c.getContext('2d').drawImage(img,0,0,c.width,c.height);
+          const b64=c.toDataURL('image/jpeg',0.82);
+          if(_fbUid){
+            try{
+              const {storage,ref,uploadString,getDownloadURL}=window._FB;
+              const ds=`${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
+              const path=`users/${_fbUid}/photos/${ds}/${Date.now()}_${Math.random().toString(36).slice(2)}.jpg`;
+              const storageRef=ref(storage,path);
+              await uploadString(storageRef,b64,'data_url');
+              const url=await getDownloadURL(storageRef);
+              day.photos.push(url);
+            }catch(e){day.photos.push(b64);}
+          } else {
+            day.photos.push(b64);
+          }
+          pending--;if(pending<=0){renderPhotos();scheduleSaveDay();}
+        };
+        img.onerror=()=>{pending--;if(pending<=0){renderPhotos();scheduleSaveDay();}};
+        img.src=fr.result;
+      };
       fr.readAsDataURL(file);
     });
   }
@@ -1217,9 +1298,9 @@ var SPLASHES=[
 
   /* 책갈피 / 휴지통 */
   document.getElementById('bmBtn').onclick=()=>{day.bookmarked=!day.bookmarked;reflectBookmark();scheduleSaveDay();toast(day.bookmarked?'중요한 날로 표시했어요':'표시를 해제했어요');};
-  document.getElementById('trashBtn').onclick=()=>{
+  document.getElementById('trashBtn').onclick=async()=>{
     if(!confirm('이 날의 일기를 삭제할까요? 되돌릴 수 없어요.'))return;
-    try{localStorage.removeItem('hd_'+key());}catch(e){}
+    try{await store.del(key());}catch(e){}
     day=blankDay();
     toast('삭제했어요');showHome();
   };
@@ -1286,6 +1367,17 @@ var SPLASHES=[
   document.getElementById('appSetBtn').onclick=()=>{
     document.getElementById('appSetModal').hidden=false;
     refreshNotifStatus(); refreshCameraStatus(); refreshLockStatus(); refreshDmodeBtns();
+    // 계정 이메일 표시
+    const {auth}=window._FB;
+    const u=auth.currentUser;
+    if(u){document.getElementById('accountEmail').textContent=u.displayName||u.email||'로그인됨';}
+  };
+  // 로그아웃
+  document.getElementById('logoutBtn').onclick=async()=>{
+    if(!confirm('로그아웃 할까요?'))return;
+    const {auth,signOut}=window._FB;
+    await signOut(auth);
+    document.getElementById('appSetModal').hidden=true;
   };
   function refreshDmodeBtns(){document.querySelectorAll('[data-dmode]').forEach(b=>b.classList.toggle('active',b.dataset.dmode===defaultMode));}
   document.querySelectorAll('[data-dmode]').forEach(b=>{
@@ -1457,26 +1549,49 @@ var SPLASHES=[
     if(__inited) return; __inited=true;
     fillIcons();buildSettings();
     (function(){const sg=document.getElementById('stkGrid');STICKERS.forEach(s=>{const b=document.createElement('button');b.innerHTML=s;b.onclick=()=>insertSticker(s);sg.appendChild(b);});})();
-    await loadSettings();
-    applyFont(curFont);applyTheme(curTheme);
-    await loadRoutines();await loadReminder();
     const now=new Date();calYear=now.getFullYear();calMonth=now.getMonth();
     day.mode=(now.getHours()>=4&&now.getHours()<14)?'morning':'evening';
     document.getElementById('editor').hidden=true;
     document.getElementById('locBtn').onclick=requestLocation;
-    initWeather();showYesterday();
-    renderCalendar();refreshTodayCard();
-    // 오프닝: 앱을 열 때마다 오프닝 이미지를 보여준 뒤, 마지막에 보던 화면으로 복원
-    const splash = document.getElementById('splashScreen');
-    splash.style.display='flex';
-    try{ const _si=document.getElementById('splashImg'); if(window.SPLASHES&&SPLASHES.length){ _si.src=SPLASHES[Math.floor(Math.random()*SPLASHES.length)]; } }catch(e){}
-    requestAnimationFrame(()=>{ splash.style.opacity='1'; });   // 천천히 페이드인
-    setTimeout(()=>{ splash.style.opacity='0'; }, 2600);        // 2.6초에 페이드아웃 시작
-    setTimeout(()=>{
-      if(LS.get('pwCode')){ showLock(restoreView); }
-      else if(!LS.get('asked')){ splash.style.display='none'; askLock(); }
-      else { restoreView(); }
-    }, 3700);
+
+    // 구글 로그인 버튼
+    document.getElementById('googleLoginBtn').onclick=async()=>{
+      const msg=document.getElementById('loginMsg');
+      msg.textContent='로그인 중...';
+      try{
+        const {auth,provider,signInWithPopup}=window._FB;
+        await signInWithPopup(auth,provider);
+      }catch(e){
+        msg.textContent='로그인에 실패했어요. 다시 시도해주세요.';
+      }
+    };
+
+    // Firebase 인증 상태 감지 → 로그인되면 앱 진입
+    const {auth,onAuthStateChanged}=window._FB;
+    onAuthStateChanged(auth,async(user)=>{
+      const loginScreen=document.getElementById('loginScreen');
+      if(user){
+        _fbUid=user.uid;
+        loginScreen.style.display='none';
+        await loadSettings(); applyFont(curFont); applyTheme(curTheme); applyPalette(); applyInk();
+        await loadRoutines(); await loadReminder(); buildRoutineEditor();
+        initWeather(); showYesterday(); renderCalendar(); refreshTodayCard();
+        // 오프닝 이미지
+        const splash=document.getElementById('splashScreen');
+        splash.style.display='flex';
+        try{const _si=document.getElementById('splashImg');if(window.SPLASHES&&SPLASHES.length){_si.src=SPLASHES[Math.floor(Math.random()*SPLASHES.length)];}}catch(e){}
+        requestAnimationFrame(()=>{splash.style.opacity='1';});
+        setTimeout(()=>{splash.style.opacity='0';},2600);
+        setTimeout(()=>{
+          if(LS.get('pwCode')){showLock(restoreView);}
+          else if(!LS.get('asked')){splash.style.display='none';askLock();}
+          else{restoreView();}
+        },3700);
+      } else {
+        _fbUid=null;
+        loginScreen.style.display='flex';
+      }
+    });
   })();
 })();
 </script>

@@ -1444,22 +1444,16 @@
     document.getElementById('locBtn').onclick=requestLocation;
     initWeather();showYesterday();
     renderCalendar();refreshTodayCard();
-    // 오프닝: 콜드 스타트면 연출, 새로고침/복귀면 스플래시 없이 이전 화면 유지
+    // 오프닝: 앱을 열 때마다 오프닝 이미지를 보여준 뒤, 마지막에 보던 화면으로 복원
     const splash = document.getElementById('splashScreen');
-    let resuming=false; try{resuming=sessionStorage.getItem('hd_live')==='1';}catch(e){}
-    if(resuming){
-      splash.style.display='none';
+    splash.style.display='flex';
+    requestAnimationFrame(()=>{ splash.style.opacity='1'; });   // 천천히 페이드인
+    setTimeout(()=>{ splash.style.opacity='0'; }, 2600);        // 2.6초에 페이드아웃 시작
+    setTimeout(()=>{
       if(LS.get('pwCode')){ showLock(restoreView); }
+      else if(!LS.get('asked')){ splash.style.display='none'; askLock(); }
       else { restoreView(); }
-    } else {
-      requestAnimationFrame(()=>{ splash.style.opacity='1'; });   // 천천히 페이드인
-      setTimeout(()=>{ splash.style.opacity='0'; }, 2600);        // 2.6초에 페이드아웃 시작
-      setTimeout(()=>{
-        if(LS.get('pwCode')){ showLock(restoreView); }
-        else if(!LS.get('asked')){ splash.style.display='none'; askLock(); }
-        else { restoreView(); }
-      }, 3700);
-    }
+    }, 3700);
   })();
 })();
 </script>

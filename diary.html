@@ -346,6 +346,7 @@ var SPLASHES=[
   .cal-cell .cphoto+.dnum{color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.75)}
   .cal-cell .cmark{position:absolute;left:0;right:0;bottom:5px;display:flex;justify-content:center;z-index:1}
   .cal-cell .cmark svg,.cal-cell .cmark img{width:23px;height:23px;filter:drop-shadow(0 1px 2px rgba(0,0,0,.4))}
+  .cal-cell .cbm{position:absolute;top:3px;right:3px;font-size:13px;z-index:2;line-height:1}
   .cal-cell .cbm{position:absolute;top:3px;right:4px;z-index:3;color:#E23B3B}
   .cal-cell .cbm svg{width:16px;height:16px;filter:drop-shadow(0 1px 2px rgba(0,0,0,.5))}
   .cal-cell .cphoto~.cbm{color:#FF4D4D}
@@ -676,15 +677,15 @@ var SPLASHES=[
     </aside>
   </main>
 
+  <section class="card" id="cardPostit">
+    <div class="sec-head"><span class="field postit-title" id="postitTitle" contenteditable="true" data-ph="포스트잇"></span><button class="sec-gear" id="gearPostit" data-ic="sliders" title="서식"></button></div>
+    <div class="editable" id="postitEdit" contenteditable="true" data-ph="스스로 칭찬하기, 오늘 하루 좋았던 사람 등 마음껏 써보세요."></div>
+  </section>
+
   <section class="routines card">
     <div class="routines-head"><span class="field">루틴</span></div>
     <div id="routineList"></div>
     <button class="add" id="addRoutine">+ 루틴 추가</button>
-  </section>
-
-  <section class="card" id="cardPostit">
-    <div class="sec-head"><span class="field postit-title" id="postitTitle" contenteditable="true" data-ph="포스트잇"></span><button class="sec-gear" id="gearPostit" data-ic="sliders" title="서식"></button></div>
-    <div class="editable" id="postitEdit" contenteditable="true" data-ph="스스로 칭찬하기, 오늘 하루 좋았던 사람 등 마음껏 써보세요."></div>
   </section>
 
   <div class="day-nav">
@@ -1133,8 +1134,8 @@ var SPLASHES=[
       const sum=entrySummary(ds);
       if(sum&&sum.photo){const img=document.createElement('img');img.className='cphoto';img.src=sum.photo;cell.appendChild(img);}
       const num=document.createElement('span');num.className='dnum';num.textContent=d;cell.appendChild(num);
-      if(sum&&!sum.photo&&sum.hasText){const mk=document.createElement('span');mk.className="cmark";mk.innerHTML=ICON.penmark;cell.appendChild(mk);}
-      if(sum&&sum.bookmarked){const bm=document.createElement('span');bm.className='cbm';bm.innerHTML=ICON.bookmarkfill;cell.appendChild(bm);}
+      if(sum){const mk=document.createElement('span');mk.className="cmark";mk.innerHTML=ICON.penmark;cell.appendChild(mk);}
+      if(sum&&sum.bookmarked){const bm=document.createElement('span');bm.className='cbm';bm.textContent='⭐';cell.appendChild(bm);}
       cell.onclick=()=>openEditor(dd);
       grid.appendChild(cell);
     }
@@ -1584,17 +1585,23 @@ var SPLASHES=[
         await loadSettings(); applyFont(curFont); applyTheme(curTheme); applyPalette(); applyInk();
         await loadRoutines(); await loadReminder(); renderRoutines();
         initWeather(); showYesterday(); renderCalendar(); refreshTodayCard();
-        // 오프닝 이미지
-        const splash=document.getElementById('splashScreen');
-        splash.style.display='flex';
-        try{const _si=document.getElementById('splashImg');if(window.SPLASHES&&SPLASHES.length){_si.src=SPLASHES[Math.floor(Math.random()*SPLASHES.length)];}}catch(e){}
-        requestAnimationFrame(()=>{splash.style.opacity='1';});
-        setTimeout(()=>{splash.style.opacity='0';},2600);
-        setTimeout(()=>{
+        // 오프닝: 처음 방문에만, 새로고침은 바로 진입
+        const _isFirstVisit = !sessionStorage.getItem('hd_live');
+        if(_isFirstVisit){
+          const splash=document.getElementById('splashScreen');
+          splash.style.display='flex';
+          try{const _si=document.getElementById('splashImg');if(window.SPLASHES&&SPLASHES.length){_si.src=SPLASHES[Math.floor(Math.random()*SPLASHES.length)];}}catch(e){}
+          requestAnimationFrame(()=>{splash.style.opacity='1';});
+          setTimeout(()=>{splash.style.opacity='0';},2600);
+          setTimeout(()=>{
+            if(LS.get('pwCode')){showLock(restoreView);}
+            else if(!LS.get('asked')){splash.style.display='none';askLock();}
+            else{restoreView();}
+          },3700);
+        } else {
           if(LS.get('pwCode')){showLock(restoreView);}
-          else if(!LS.get('asked')){splash.style.display='none';askLock();}
           else{restoreView();}
-        },3700);
+        }
       } else {
         _fbUid=null;
         loginScreen.style.display='flex';

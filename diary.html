@@ -1582,7 +1582,7 @@ var SPLASHES=[
         _fbUid=user.uid;
         loginScreen.style.display='none';
         await loadSettings(); applyFont(curFont); applyTheme(curTheme); applyPalette(); applyInk();
-        await loadRoutines(); await loadReminder(); buildRoutineEditor();
+        await loadRoutines(); await loadReminder(); renderRoutines();
         initWeather(); showYesterday(); renderCalendar(); refreshTodayCard();
         // 오프닝 이미지
         const splash=document.getElementById('splashScreen');

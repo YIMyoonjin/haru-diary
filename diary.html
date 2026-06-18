@@ -1554,6 +1554,13 @@ var SPLASHES=[
     document.getElementById('editor').hidden=true;
     document.getElementById('locBtn').onclick=requestLocation;
 
+    // Firebase 모듈이 로드될 때까지 대기
+    await new Promise(resolve=>{
+      if(window._FB){resolve();return;}
+      const t=setInterval(()=>{if(window._FB){clearInterval(t);resolve();}},50);
+      setTimeout(()=>{clearInterval(t);resolve();},5000);
+    });
+
     // 구글 로그인 버튼
     document.getElementById('googleLoginBtn').onclick=async()=>{
       const msg=document.getElementById('loginMsg');
@@ -1562,6 +1569,7 @@ var SPLASHES=[
         const {auth,provider,signInWithPopup}=window._FB;
         await signInWithPopup(auth,provider);
       }catch(e){
+        console.error('login error:',e);
         msg.textContent='로그인에 실패했어요. 다시 시도해주세요.';
       }
     };

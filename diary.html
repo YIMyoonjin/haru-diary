@@ -344,12 +344,11 @@ var SPLASHES=[
   .cal-cell.today .dnum{color:var(--accent);font-weight:700}
   .cal-cell .cphoto{position:absolute;inset:0;object-fit:cover;width:100%;height:100%;z-index:1;border-radius:11px}
   .cal-cell .cphoto+.dnum{color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.75)}
-  .cal-cell .cmark{position:absolute;left:0;right:0;bottom:5px;display:flex;justify-content:center;z-index:1}
-  .cal-cell .cmark svg,.cal-cell .cmark img{width:23px;height:23px;filter:drop-shadow(0 1px 2px rgba(0,0,0,.4))}
-  .cal-cell .cbm{position:absolute;top:3px;right:3px;font-size:13px;z-index:2;line-height:1}
-  .cal-cell .cbm{position:absolute;top:3px;right:4px;z-index:3;color:#E23B3B}
-  .cal-cell .cbm svg{width:16px;height:16px;filter:drop-shadow(0 1px 2px rgba(0,0,0,.5))}
-  .cal-cell .cphoto~.cbm{color:#FF4D4D}
+  /* 만년필: 테두리만 빨간색, 내부는 투명 */
+  .cal-cell .cmark{position:absolute;left:0;right:0;bottom:4px;display:flex;justify-content:center;z-index:2}
+  .cal-cell .cmark img{width:22px;height:22px;filter:drop-shadow(0 0 0 #E23B3B) saturate(0) brightness(10) drop-shadow(0 0 1.5px #E23B3B)}
+  .cal-cell .cbm{position:absolute;top:3px;right:3px;font-size:12px;z-index:3;line-height:1}
+  #home .cal-cell .cphoto{ border-radius:0; }
   .today-card{display:flex;align-items:center;justify-content:space-between;width:100%;margin-top:22px;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:18px 20px;cursor:pointer;font-family:var(--f-body);text-align:left}
   .today-card:hover{border-color:var(--accent)}
   .today-left{display:flex;flex-direction:column;gap:2px}
@@ -397,7 +396,7 @@ var SPLASHES=[
   .postit-title{outline:none;min-width:40px;border-bottom:1px dashed transparent}
   .postit-title:focus{border-bottom-color:var(--accent)}
   .postit-title:empty:before{content:attr(data-ph);color:var(--ink-soft)}
-  #cardPostit{margin-top:14px}
+  #cardPostit{}
   /* 날씨 선택 */
   .weather-pop{width:236px}
   .weather-opts{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin:8px 0}
@@ -674,13 +673,12 @@ var SPLASHES=[
         <div class="sec-head"><span class="field">메모</span><button class="sec-gear" id="gearMemo" data-ic="sliders" title="서식"></button></div>
         <div class="editable" id="memoEdit" contenteditable="true" data-ph="자유롭게 메모해보세요"></div>
       </div>
+      <div class="card" id="cardPostit">
+        <div class="sec-head"><span class="field postit-title" id="postitTitle" contenteditable="true" data-ph="포스트잇"></span><button class="sec-gear" id="gearPostit" data-ic="sliders" title="서식"></button></div>
+        <div class="editable" id="postitEdit" contenteditable="true" data-ph="스스로 칭찬하기, 오늘 하루 좋았던 사람 등 마음껏 써보세요."></div>
+      </div>
     </aside>
   </main>
-
-  <section class="card" id="cardPostit">
-    <div class="sec-head"><span class="field postit-title" id="postitTitle" contenteditable="true" data-ph="포스트잇"></span><button class="sec-gear" id="gearPostit" data-ic="sliders" title="서식"></button></div>
-    <div class="editable" id="postitEdit" contenteditable="true" data-ph="스스로 칭찬하기, 오늘 하루 좋았던 사람 등 마음껏 써보세요."></div>
-  </section>
 
   <section class="routines card">
     <div class="routines-head"><span class="field">루틴</span></div>
@@ -1134,7 +1132,7 @@ var SPLASHES=[
       const sum=entrySummary(ds);
       if(sum&&sum.photo){const img=document.createElement('img');img.className='cphoto';img.src=sum.photo;cell.appendChild(img);}
       const num=document.createElement('span');num.className='dnum';num.textContent=d;cell.appendChild(num);
-      if(sum){const mk=document.createElement('span');mk.className="cmark";mk.innerHTML=ICON.penmark;cell.appendChild(mk);}
+      if(sum&&!sum.photo){const mk=document.createElement('span');mk.className="cmark";mk.innerHTML=ICON.penmark;cell.appendChild(mk);}
       if(sum&&sum.bookmarked){const bm=document.createElement('span');bm.className='cbm';bm.textContent='⭐';cell.appendChild(bm);}
       cell.onclick=()=>openEditor(dd);
       grid.appendChild(cell);

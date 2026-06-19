@@ -1662,27 +1662,31 @@ var SPLASHES=[
       if(user){
         _fbUid=user.uid;
         loginScreen.style.display='none';
-        try{const _mn=await migrateLocalToCloud(); if(_mn>0)toast('이 기기 기록 '+_mn+'개를 클라우드로 동기화했어요');}catch(e){}
-        await loadSettings(); applyFont(curFont); applyTheme(curTheme); applyPalette(); applyInk();
-        await loadRoutines(); await loadReminder(); renderRoutines();
-        await warmCalendarCache();
-        initWeather(); showYesterday(); renderCalendar(); refreshTodayCard();
-        // 오프닝: 처음 방문에만, 새로고침은 바로 진입
+        // 오프닝: 처음 방문에만 — 먼저 띄우고 그 뒤에서 데이터 로딩(이미지가 로딩 동안 확실히 보이도록)
         const _isFirstVisit = !sessionStorage.getItem('hd_live');
+        const splash=document.getElementById('splashScreen');
+        const _t0=Date.now();
         if(_isFirstVisit){
-          const splash=document.getElementById('splashScreen');
-          splash.style.display='flex';
           try{const _si=document.getElementById('splashImg');if(window.SPLASHES&&SPLASHES.length){_si.src=SPLASHES[Math.floor(Math.random()*SPLASHES.length)];}}catch(e){}
+          splash.style.display='flex';
           requestAnimationFrame(()=>{splash.style.opacity='1';});
-          setTimeout(()=>{splash.style.opacity='0';},2600);
-          setTimeout(()=>{
-            if(LS.get('pwCode')){showLock(restoreView);}
-            else if(!LS.get('asked')){splash.style.display='none';askLock();}
-            else{restoreView();}
-          },3700);
-        } else {
+        }
+        try{const _mn=await migrateLocalToCloud(); if(_mn>0)toast('이 기기 기록 '+_mn+'개를 클라우드로 동기화했어요');}catch(e){}
+        try{ await loadSettings(); }catch(e){} applyFont(curFont); applyTheme(curTheme); applyPalette(); applyInk();
+        try{ await loadRoutines(); await loadReminder(); }catch(e){} renderRoutines();
+        try{ await warmCalendarCache(); }catch(e){}
+        initWeather(); showYesterday(); renderCalendar(); refreshTodayCard();
+        const _proceed=()=>{
+          splash.style.display='none';
           if(LS.get('pwCode')){showLock(restoreView);}
+          else if(_isFirstVisit && !LS.get('asked')){askLock();}
           else{restoreView();}
+        };
+        if(_isFirstVisit){
+          const _wait=Math.max(0, 2400-(Date.now()-_t0));
+          setTimeout(()=>{ splash.style.opacity='0'; setTimeout(_proceed, 900); }, _wait);
+        } else {
+          _proceed();
         }
       } else {
         _fbUid=null;

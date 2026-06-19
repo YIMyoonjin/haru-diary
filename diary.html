@@ -750,7 +750,7 @@ var SPLASHES=[
     wind:S+'<path d="M3 8h11a2.5 2.5 0 1 0-2.5-2.5M3 16h15a2.5 2.5 0 1 1-2.5 2.5M3 12h8.5a2.5 2.5 0 1 0-2.5-2.5"/></svg>',
     windrain:S+'<path d="M3 7h10a2.5 2.5 0 1 0-2.5-2.5M3 11h13a2.5 2.5 0 1 1-2.5 2.5"/><path d="M8 16l-1 2.5M12 16l-1 2.5M16 16l-1 2.5"/></svg>',
     pin:S+'<path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>',
-    penmark:'<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><rect x="13.6" y="2.0" width="8.6" height="4.4" rx="2.2" transform="rotate(45 17.9 4.2)" fill="#E53935" stroke="#B71C1C" stroke-width="1.1"/><rect x="10.0" y="9.6" width="3.2" height="5.6" rx="1.5" transform="rotate(45 11.6 12.4)" fill="#EF5350" stroke="#B71C1C" stroke-width="1.1"/><path d="M3.2 20.8 L7.0 11.6 L12.4 17.0 Z" fill="#E53935" stroke="#B71C1C" stroke-width="1.1" stroke-linejoin="round"/><line x1="3.2" y1="20.8" x2="6.6" y2="17.4" stroke="#B71C1C" stroke-width="1.0" stroke-linecap="round"/><circle cx="7.0" cy="16.9" r="1.05" fill="#B71C1C"/></svg>'
+    penmark:'<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg"><rect x="35.5" y="6.2" width="23" height="21" rx="8.5" transform="rotate(-45 47 16.7)" fill="#E8342B" stroke="#8E1B14" stroke-width="2.6"/><rect x="23" y="23.6" width="27" height="8.4" rx="4.2" transform="rotate(45 36.5 27.8)" fill="#E8342B" stroke="#8E1B14" stroke-width="2.6"/><path d="M10 54 L19.4 27.2 L34.2 30.6 L37 45.2 Z" fill="#E8342B" stroke="#8E1B14" stroke-width="2.6" stroke-linejoin="round"/><line x1="13.6" y1="50.4" x2="23.4" y2="40.6" stroke="#8E1B14" stroke-width="2.4" stroke-linecap="round"/><circle cx="24.6" cy="39.4" r="3.1" fill="#8E1B14"/></svg>'
   };
   function fillIcons(){document.querySelectorAll('[data-ic]').forEach(el=>{el.innerHTML=ICON[el.dataset.ic]||''});}
 
@@ -1156,8 +1156,9 @@ var SPLASHES=[
       catch(e){return null;}
     }
     if(!d) return null;
-    const logsText=(d.logs||[]).map(l=>htmlText(l.text)).join(' ');
-    const hasText=!!(htmlText(d.diary)||htmlText(d.memo)||htmlText(d.wish)||htmlText(d.reflect)||logsText).trim();
+    // 만년필 표시는 '본문 일기'를 쓴 날에만 (메모/목표/회고/추가기록 제외)
+    const diaryTxt=htmlText(d.diary).replace(/[ ​\s]+/g,' ').trim();
+    const hasText=diaryTxt.length>0;
     return {photo:(d.photos&&d.photos[0])||d.photo||'', hasText, bookmarked:!!d.bookmarked};
   }
   function renderCalendar(){
@@ -1176,7 +1177,7 @@ var SPLASHES=[
       const sum=entrySummary(ds);
       if(sum&&sum.photo){const img=document.createElement('img');img.className='cphoto';img.src=sum.photo;cell.appendChild(img);}
       const num=document.createElement('span');num.className='dnum';num.textContent=d;cell.appendChild(num);
-      if(sum&&!sum.photo){const mk=document.createElement('span');mk.className="cmark";mk.innerHTML=ICON.penmark;cell.appendChild(mk);}
+      if(sum&&!sum.photo&&sum.hasText){const mk=document.createElement('span');mk.className="cmark";mk.innerHTML=ICON.penmark;cell.appendChild(mk);}
       if(sum&&sum.bookmarked){const bm=document.createElement('span');bm.className='cbm';bm.textContent='⭐';cell.appendChild(bm);}
       cell.onclick=()=>openEditor(dd);
       grid.appendChild(cell);
@@ -1235,21 +1236,16 @@ var SPLASHES=[
     const todayS=ymd(new Date());
     // 오늘 이전, 내용이 있는 가장 최근 날짜 찾기
     let best=null;
-    try{
-      for(let i=0;i<localStorage.length;i++){
-        const k=localStorage.key(i);
-        if(!k||k.indexOf('hd_diary:')!==0)continue;
-        const ds=k.slice(9);
-        if(ds>=todayS)continue;
-        const sum=entrySummary(ds);
-        if(sum&&(sum.hasText||sum.photo)){ if(!best||ds>best)best=ds; }
-      }
-    }catch(e){}
+    // Firebase 캐시(_dayCache) + localStorage 모두에서 후보 날짜 수집
+    const _cand=new Set();
+    try{for(const k in _dayCache){if(k.indexOf('diary:')===0)_cand.add(k.slice(6));}}catch(e){}
+    try{for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k&&k.indexOf('hd_diary:')===0)_cand.add(k.slice(9));}}catch(e){}
+    _cand.forEach(ds=>{ if(ds>=todayS)return; const s=entrySummary(ds); if(s&&(s.hasText||s.photo)){ if(!best||ds>best)best=ds; } });
     if(!best){card.hidden=true;return;}
     const sum=entrySummary(best);
     body.innerHTML='';
     if(sum&&sum.photo){const img=document.createElement('img');img.src=sum.photo;img.alt='지난 일기 사진';body.appendChild(img);}
-    let snip='';try{const d=JSON.parse(localStorage.getItem('hd_diary:'+best));snip=(htmlText(d.diary)||htmlText(d.reflect)||htmlText(d.wish)||htmlText(d.memo)||(d.logs||[]).map(l=>htmlText(l.text)).join(' ')).trim();}catch(e){}
+    let snip='';try{let d=_dayCache['diary:'+best];if(!d){d=JSON.parse(localStorage.getItem('hd_diary:'+best));}if(d)snip=(htmlText(d.diary)||htmlText(d.reflect)||htmlText(d.wish)||htmlText(d.memo)||(d.logs||[]).map(l=>htmlText(l.text)).join(' ')).trim();}catch(e){}
     const t=document.createElement('div');t.className='yday-text';t.textContent=snip||'사진 기록 보기';body.appendChild(t);
     const yest=new Date();yest.setDate(yest.getDate()-1);
     if(head){ head.textContent=(best===ymd(yest))?'어제의 일기':(Number(best.slice(5,7))+'월 '+Number(best.slice(8,10))+'일 일기'); }

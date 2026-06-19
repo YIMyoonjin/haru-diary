@@ -1605,32 +1605,38 @@ var SPLASHES=[
       setTimeout(()=>{clearInterval(t);resolve();},5000);
     });
 
-    // 구글 로그인 버튼 (팝업 우선, 팝업이 막히면 리디렉트로 자동 재시도)
+    // 구글 로그인 버튼 (폰=리다이렉트 / PC=팝업, 실패 시 리다이렉트 폴백)
     document.getElementById('googleLoginBtn').onclick=async()=>{
       const msg=document.getElementById('loginMsg');
-      msg.textContent='로그인 중...';
+      const fb=window._FB||{};
+      if(!fb.auth){ msg.textContent='로그인 모듈 로딩 실패 — 새로고침(Ctrl+Shift+R) 해주세요.'; return; }
+      msg.style.color='#8a7f74'; msg.textContent='로그인 중...';
+      const {auth,provider,signInWithPopup,signInWithRedirect}=fb;
+      const isMobile=/Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
       try{
-        const {auth,provider,signInWithPopup,signInWithRedirect}=window._FB;
-        try{
-          await signInWithPopup(auth,provider);
-        }catch(e){
-          // 팝업 차단/미지원(주로 설치형 PWA)일 때만 리디렉트로 전환
-          const code=(e&&e.code)||'';
-          if(code.indexOf('popup')>=0||code.indexOf('operation-not-supported')>=0||code.indexOf('cancelled')>=0){
-            await signInWithRedirect(auth,provider);
-          }else{ throw e; }
-        }
+        if(isMobile){ await signInWithRedirect(auth,provider); return; }
+        await signInWithPopup(auth,provider);
       }catch(e){
         console.error('login error:',e);
-        msg.textContent='로그인에 실패했어요. 다시 시도해주세요.';
+        const popupIssue=['auth/popup-blocked','auth/popup-closed-by-user','auth/cancelled-popup-request','auth/operation-not-supported-in-this-environment','auth/web-storage-unsupported'].includes(e&&e.code);
+        if(popupIssue){
+          try{ await signInWithRedirect(auth,provider); return; }
+          catch(e2){ console.error(e2); msg.style.color='#c0392b'; msg.textContent='로그인 실패: '+(e2&&(e2.code||e2.message)); return; }
+        }
+        msg.style.color='#c0392b';
+        msg.textContent='로그인 실패: '+(e&&(e.code||e.message));
       }
     };
 
-    // 리디렉트 로그인 결과 처리 (리디렉트로 돌아온 경우)
+    // 리다이렉트 로그인 복귀 결과 확인(에러 표면화)
     try{
-      const {auth,getRedirectResult}=window._FB;
-      await getRedirectResult(auth);
-    }catch(e){console.warn('redirect result:',e);}
+      const {auth:_a,getRedirectResult}=window._FB||{};
+      if(_a&&getRedirectResult){ await getRedirectResult(_a); }
+    }catch(e){
+      console.error('redirect result error:',e);
+      const _m=document.getElementById('loginMsg');
+      if(_m){ _m.style.color='#c0392b'; _m.textContent='로그인 실패: '+(e&&(e.code||e.message)); }
+    }
 
     // Firebase 인증 상태 감지 → 로그인되면 앱 진입
     const {auth,onAuthStateChanged}=window._FB;

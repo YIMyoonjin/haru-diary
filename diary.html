@@ -860,6 +860,25 @@ var SPLASHES=[
     if(_fbUid){store.set(k,v);}
     else{try{localStorage.setItem('hd_'+k,v);}catch(e){}}
   }
+  // 로그인 시: 이 기기의 로컬 전용 기록(hd_*)을 클라우드에 없으면 올려서 기기 간 통일
+  async function migrateLocalToCloud(){
+    if(!_fbUid) return 0;
+    let n=0;
+    try{
+      const keys=[];
+      for(let i=0;i<localStorage.length;i++){const lk=localStorage.key(i);
+        if(lk&&lk.indexOf('hd_')===0&&lk.indexOf('hd_sys_')!==0)keys.push(lk);}
+      for(const lk of keys){
+        const k=lk.slice(3);
+        if(k==='view') continue;          // 화면 상태(기기별)
+        const lv=localStorage.getItem(lk);
+        if(lv==null) continue;
+        let cloud=null; try{cloud=await store.get(k);}catch(e){cloud=null;}
+        if(!cloud){ try{await store.set(k,lv); n++;}catch(e){} }
+      }
+    }catch(e){console.warn('migrate error',e);}
+    return n;
+  }
 
   /* 상태 */
   let defaultMode='evening';
@@ -1643,6 +1662,7 @@ var SPLASHES=[
       if(user){
         _fbUid=user.uid;
         loginScreen.style.display='none';
+        try{const _mn=await migrateLocalToCloud(); if(_mn>0)toast('이 기기 기록 '+_mn+'개를 클라우드로 동기화했어요');}catch(e){}
         await loadSettings(); applyFont(curFont); applyTheme(curTheme); applyPalette(); applyInk();
         await loadRoutines(); await loadReminder(); renderRoutines();
         await warmCalendarCache();

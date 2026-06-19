@@ -1605,16 +1605,14 @@ var SPLASHES=[
       setTimeout(()=>{clearInterval(t);resolve();},5000);
     });
 
-    // 구글 로그인 버튼 (폰=리다이렉트 / PC=팝업, 실패 시 리다이렉트 폴백)
+    // 구글 로그인 버튼 (팝업 우선 — PC·폰 브라우저 모두. 팝업이 막힐 때만 리디렉트)
     document.getElementById('googleLoginBtn').onclick=async()=>{
       const msg=document.getElementById('loginMsg');
       const fb=window._FB||{};
-      if(!fb.auth){ msg.textContent='로그인 모듈 로딩 실패 — 새로고침(Ctrl+Shift+R) 해주세요.'; return; }
+      if(!fb.auth){ msg.style.color='#c0392b'; msg.textContent='로그인 모듈 로딩 실패 — 새로고침(Ctrl+Shift+R) 해주세요.'; return; }
       msg.style.color='#8a7f74'; msg.textContent='로그인 중...';
       const {auth,provider,signInWithPopup,signInWithRedirect}=fb;
-      const isMobile=/Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
       try{
-        if(isMobile){ await signInWithRedirect(auth,provider); return; }
         await signInWithPopup(auth,provider);
       }catch(e){
         console.error('login error:',e);
@@ -1664,4 +1662,14 @@ var SPLASHES=[
           },3700);
         } else {
           if(LS.get('pwCode')){showLock(restoreView);}
-       
+          else{restoreView();}
+        }
+      } else {
+        _fbUid=null;
+        loginScreen.style.display='flex';
+      }
+    });
+  })();
+})();
+</script>
+</body></html>

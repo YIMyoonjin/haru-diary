@@ -859,10 +859,12 @@ var SPLASHES=[
   function saveNow(k,v){
     if(_fbUid){store.set(k,v);}
     else{try{localStorage.setItem('hd_'+k,v);}catch(e){}}
+    if(k.indexOf('diary:')===0){ try{_dayCache[k]=JSON.parse(v);}catch(e){} }
   }
   // 로그인 시: 이 기기의 로컬 전용 기록(hd_*)을 클라우드에 없으면 올려서 기기 간 통일
   async function migrateLocalToCloud(){
     if(!_fbUid) return 0;
+    if(LS.get('migdone')) return 0;
     let n=0;
     try{
       const keys=[];
@@ -877,6 +879,7 @@ var SPLASHES=[
         if(!cloud){ try{await store.set(k,lv); n++;}catch(e){} }
       }
     }catch(e){console.warn('migrate error',e);}
+    try{LS.set('migdone','1');}catch(e){}
     return n;
   }
 
@@ -1159,11 +1162,9 @@ var SPLASHES=[
   async function warmCalendarCache(){
     if(!_fbUid) return;
     try{
-      const keys = await store.list('diary:');
-      for(const k of keys){
-        const r = await store.get(k);
-        if(r&&r.value){ try{_dayCache[k]=JSON.parse(r.value);}catch(e){} }
-      }
+      const {collection,getDocs,db}=window._FB;
+      const snap=await getDocs(collection(db,`users/${_fbUid}/data`));
+      snap.forEach(d=>{ if(d.id.indexOf('diary:')===0){ const v=d.data().v; if(v){ try{_dayCache[d.id]=JSON.parse(v);}catch(e){} } } });
     }catch(e){}
   }
 
@@ -1316,8 +1317,8 @@ var SPLASHES=[
     date=t;loadDay();fillIcons();window.scrollTo(0,0);
   }
   document.getElementById('todayCard').onclick=()=>openEditor(new Date());
-  document.getElementById('calPrev').onclick=async()=>{calMonth--;if(calMonth<0){calMonth=11;calYear--;}await warmCalendarCache();renderCalendar();};
-  document.getElementById('calNext').onclick=async()=>{calMonth++;if(calMonth>11){calMonth=0;calYear++;}await warmCalendarCache();renderCalendar();};
+  document.getElementById('calPrev').onclick=()=>{calMonth--;if(calMonth<0){calMonth=11;calYear--;}renderCalendar();};
+  document.getElementById('calNext').onclick=()=>{calMonth++;if(calMonth>11){calMonth=0;calYear++;}renderCalendar();};
   document.getElementById('backBtn').onclick=()=>{
     try{ if(history.state&&history.state.hd==='editor'){ history.back(); return; } }catch(e){}
     showHome();
@@ -1683,8 +1684,8 @@ var SPLASHES=[
           else{restoreView();}
         };
         if(_isFirstVisit){
-          const _wait=Math.max(0, 2400-(Date.now()-_t0));
-          setTimeout(()=>{ splash.style.opacity='0'; setTimeout(_proceed, 900); }, _wait);
+          const _wait=Math.max(0, 1200-(Date.now()-_t0));
+          setTimeout(()=>{ splash.style.opacity='0'; setTimeout(_proceed, 500); }, _wait);
         } else {
           _proceed();
         }

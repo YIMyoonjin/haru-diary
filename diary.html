@@ -815,9 +815,9 @@ var SPLASHES=[
   function applyPalette(){const t=THEMES[curTheme]||THEMES.gold;const m={'--bg':t.bg,'--surface':t.surface,'--surface-2':t.s2,'--ink':t.ink,'--ink-soft':t.inkSoft,'--line':t.line,'--accent':t.accent,'--accent-soft':t.accentSoft,'--on-accent':t.on};for(const k in m)app.style.setProperty(k,m[k]);try{document.body.style.background=t.bg;}catch(e){}}
   function applyInk(){ const i=curInk?INKS.find(x=>x.id===curInk):null; app.style.setProperty('--ink-edit',(i&&i.c)?i.c:'var(--ink)'); document.querySelectorAll('#inkList button').forEach(b=>b.classList.toggle('active',b.dataset.i===curInk)); }
   function applyTheme(id){if(THEMES[id])curTheme=id;applyPalette();applyInk();document.querySelectorAll('#themeList button').forEach(b=>b.classList.toggle('active',b.dataset.t===curTheme));}
-  function applySecFont(section,edit){const id=secFont[section];const f=FONTS.find(x=>x.id===id);edit.style.fontFamily=f?f.disp:'';}
+  function applySecFont(section,edit){if(section==='postit'){const pf=FONTS.find(x=>x.id===secFont['postit']);document.querySelectorAll('#postitContainer .editable').forEach(el=>{el.style.fontFamily=pf?pf.disp:'';});return;}const id=secFont[section];const f=FONTS.find(x=>x.id===id);edit.style.fontFamily=f?f.disp:'';}
   function cardOf(section){return document.getElementById(section==='diary'?'cardDiary':section==='prompt'?'cardPrompt':section==='postit'?'cardPostit':'cardMemo');}
-  function applySecBg(section){const c=SECBGS.find(x=>x.id===secBg[section]);const col=(c&&c.c)?c.c:'';const card=cardOf(section);if(card)card.style.background=col;if(section==='diary'){const pz=document.getElementById('photoZone');if(pz)pz.style.background=col;}}
+  function applySecBg(section){const c=SECBGS.find(x=>x.id===secBg[section]);const col=(c&&c.c)?c.c:'';if(section==='postit'){document.querySelectorAll('#postitContainer .card').forEach(card=>{card.style.background=col;});return;}const card=cardOf(section);if(card)card.style.background=col;if(section==='diary'){const pz=document.getElementById('photoZone');if(pz)pz.style.background=col;}}
   function buildSettings(){
     const fl=document.getElementById('fontList');fl.innerHTML='';
     FONTS.forEach(f=>{const b=document.createElement('button');b.dataset.f=f.id;b.style.fontFamily=f.disp;b.textContent='가나다 '+f.name;b.onclick=async()=>{applyFont(f.id);await store.set('font',f.id);};fl.appendChild(b);});
@@ -917,14 +917,15 @@ var SPLASHES=[
       const editEl=card.querySelector('.editable');
       const delBtn=card.querySelector(`[data-del="${i}"]`);
       const gearBtn=card.querySelector('.sec-gear');
+      gearBtn.innerHTML=ICON.sliders;
       titleEl.oninput=()=>{day.postits[i].title=titleEl.textContent;scheduleSaveDay();};
       editEl.oninput=()=>{day.postits[i].text=editEl.innerHTML;scheduleSaveDay();};
       editEl.addEventListener('blur',flushSave);
       delBtn.onclick=()=>{day.postits.splice(i,1);renderPostits();scheduleSaveDay();};
       gearBtn.onclick=(ev)=>{ev.stopPropagation();openFmt('postit',editEl,titleEl.textContent||'포스트잇');};
-      applySecBg('postit');
       con.appendChild(card);
     });
+    applySecFont('postit',null); applySecBg('postit');
     if(addBtn)addBtn.style.display=day.postits.length>=3?'none':'';
   }
 

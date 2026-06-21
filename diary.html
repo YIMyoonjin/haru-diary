@@ -336,19 +336,19 @@ var SPLASHES=[
   .cal-dow span{text-align:center;font-size:13px;color:var(--ink-soft);font-family:var(--f-body);padding:6px 0}
   .cal-dow span:first-child{color:#D9534F}
   .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
-  .cal-cell{position:relative;aspect-ratio:0.72;border-radius:14px;border:2px solid transparent;cursor:pointer;display:flex;flex-direction:column;align-items:stretch;overflow:hidden;padding:2px;gap:2px}
+  .cal-cell{position:relative;min-height:82px;border-radius:14px;border:2px solid transparent;cursor:pointer;display:flex;flex-direction:column;align-items:stretch;overflow:hidden;padding:2px;gap:2px}
   .cal-cell.empty{cursor:default}
   .cal-cell .dnum{flex:0 0 auto;font-family:var(--f-body);font-size:15px;color:var(--ink);padding:1px 0 0 3px;line-height:1.1}
   .cal-cell.sun .dnum{color:#D9534F}
   .cal-cell.today .dnum{display:inline-flex;align-items:center;justify-content:center;width:21px;height:21px;border-radius:50%;background:var(--accent);color:var(--on-accent);font-weight:700;padding:0}
   .cal-cell .clabels{flex:0 0 auto;display:flex;flex-direction:column;gap:1.5px;padding:0 1px}
   .cal-cell .clabel{font-size:9px;line-height:1.3;border-radius:4px;padding:1px 4px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:var(--f-body)}
-  .cal-cell .cphoto{flex:1 1 auto;min-height:0;width:100%;object-fit:cover;border-radius:6px}
-  /* 만년필 마커(달력): icon-2 이미지, 테마 글자색 자동 — 남은 공간에 맞춰 크기 조절 */
-  .cal-cell .cmark{flex:1 1 auto;min-height:0;display:flex;align-items:center;justify-content:center;color:var(--ink)}
-  .cal-cell .cmark span{width:58% !important;max-width:46px;height:auto !important;aspect-ratio:361/403}
+  .cal-cell .cphoto{flex:0 0 auto;align-self:center;width:64%;aspect-ratio:1;object-fit:cover;border-radius:6px;border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,.3);margin-top:-8px;margin-bottom:3px}
+  /* 만년필 마커(달력): icon-2 이미지, 테마 글자색 자동 */
+  .cal-cell .cmark{flex:0 0 auto;align-self:center;display:flex;justify-content:center;color:var(--ink);margin-top:-2px;margin-bottom:3px}
+  .cal-cell .cmark span{width:44px !important;max-width:64% !important;height:auto !important;aspect-ratio:361/403}
   .cal-cell .cbm{position:absolute;top:2px;right:3px;font-size:11px;z-index:3;line-height:1}
-  #home .cal-cell .cphoto{ border-radius:4px; }
+  #home .cal-cell .cphoto{ border-radius:6px; }
   /* 일정 입력(에디터) */
   .sched-row{display:flex;align-items:center;gap:8px;margin:6px 0}
   .sched-sw{width:22px;height:22px;border-radius:7px;border:1px solid var(--line);flex:0 0 auto;cursor:pointer;padding:0}
@@ -1225,7 +1225,7 @@ var SPLASHES=[
       const sum=entrySummary(ds);
       const num=document.createElement('span');num.className='dnum';num.textContent=d;cell.appendChild(num);
       if(sum&&sum.schedules&&sum.schedules.length){const lab=document.createElement('div');lab.className='clabels';sum.schedules.forEach(s=>{const t=document.createElement('span');t.className='clabel';t.style.background=s.color||'#5AA9E6';t.textContent=s.text;lab.appendChild(t);});cell.appendChild(lab);}
-      if(sum&&sum.photo){const img=document.createElement('img');img.className='cphoto';img.src=sum.photo;cell.appendChild(img);}
+      if(sum&&sum.photo){const img=document.createElement('img');img.className='cphoto';img.src=sum.photo;img.style.transform='rotate('+((d%2===0)?7:-7)+'deg)';cell.appendChild(img);}
       else if(sum&&sum.hasText){const mk=document.createElement('span');mk.className="cmark";mk.innerHTML=ICON.penmark;cell.appendChild(mk);}
       if(sum&&sum.bookmarked){const bm=document.createElement('span');bm.className='cbm';bm.textContent='⭐';cell.appendChild(bm);}
       cell.onclick=()=>openEditor(dd);

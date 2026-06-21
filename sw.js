@@ -1,4 +1,4 @@
-const CACHE = 'haru-diary-v47';
+const CACHE = 'haru-diary-v48';
 const ASSETS = [
   '/haru-diary/diary.html',
   '/haru-diary/manifest.json'

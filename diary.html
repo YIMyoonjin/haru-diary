@@ -321,6 +321,31 @@ var SPLASHES=[
   .wi-place{font-size:13px;color:var(--ink-soft)}
   .wi-time{font-family:var(--f-body);font-size:22px;font-weight:700;color:var(--accent)}
   /* 어제 일기 카드 */
+  /* === 메인 통계 패널 === */
+  .stats-wrap{margin-top:18px;display:flex;flex-direction:column;gap:14px}
+  .stat-card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px 18px}
+  .stat-title{font-family:var(--f-body);font-size:16px;font-weight:700;color:var(--ink)}
+  .stat-sub{font-size:13px;color:var(--ink-soft);font-family:var(--f-body);margin-top:2px}
+  .streak-week{display:flex;justify-content:space-between;gap:4px;margin-top:12px}
+  .streak-day{display:flex;flex-direction:column;align-items:center;gap:5px;flex:1}
+  .streak-dow{font-size:12px;color:var(--ink-soft);font-family:var(--f-body)}
+  .streak-dot{width:30px;height:30px;border-radius:50%;border:1.5px solid var(--line);display:flex;align-items:center;justify-content:center;color:var(--accent);font-family:var(--f-hand);font-size:22px;line-height:1}
+  .streak-dot.on{border-color:var(--accent);background:var(--accent-soft)}
+  .streak-dot.today{box-shadow:0 0 0 2px var(--accent)}
+  .streak-count{margin-top:14px;font-family:var(--f-body);font-size:15px;color:var(--ink)}
+  .streak-count b{color:var(--accent);font-size:22px;margin:0 2px}
+  .stat-row{display:flex;align-items:center;gap:16px;margin-top:12px}
+  .stat-ring{flex:0 0 auto}
+  .stat-bars{flex:1;display:flex;align-items:flex-end;gap:3px;height:56px}
+  .stat-bar{flex:1;background:var(--accent);border-radius:3px 3px 0 0;min-height:2px;opacity:.85}
+  .tag-row{display:flex;align-items:center;gap:10px;margin-top:10px}
+  .tag-rank{width:18px;color:var(--ink-soft);font-family:var(--f-body);font-size:14px;text-align:center}
+  .tag-name{flex:0 0 auto;font-family:var(--f-body);font-size:14px;color:var(--ink);width:72px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .tag-bar{flex:1;height:10px;background:var(--surface-2);border-radius:6px;overflow:hidden}
+  .tag-bar>span{display:block;height:100%;border-radius:6px}
+  .tag-pct{width:42px;text-align:right;font-size:13px;color:var(--ink-soft);font-family:var(--f-body)}
+  .stat-empty{font-size:13px;color:var(--ink-soft);font-family:var(--f-body);margin-top:8px}
+  #home .stat-title,#home .stat-sub,#home .streak-count,#home .tag-name{font-family:var(--f-hand)}
   .yday-card{margin-top:14px;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px 18px;cursor:pointer}
   .yday-card[hidden]{display:none}
   .yday-head{font-size:13px;color:var(--accent);font-family:var(--f-body);margin-bottom:8px}
@@ -564,6 +589,29 @@ var SPLASHES=[
     <div id="ydayCard" class="yday-card" hidden>
       <div class="yday-head">어제의 일기</div>
       <div class="yday-body" id="ydayBody"></div>
+    </div>
+    <div class="stats-wrap">
+      <div class="stat-card">
+        <div class="stat-title">🔥 연속 기록</div>
+        <div class="stat-sub">이번 주 일기 쓴 날</div>
+        <div class="streak-week" id="streakWeek"></div>
+        <div class="streak-count" id="streakCount"></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-title">월간 통계</div>
+        <div class="stat-sub" id="monthStatSub"></div>
+        <div class="stat-row"><div class="stat-ring" id="monthRing"></div><div class="stat-bars" id="monthBars"></div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-title">연간 통계</div>
+        <div class="stat-sub" id="yearStatSub"></div>
+        <div class="stat-row"><div class="stat-ring" id="yearRing"></div><div class="stat-bars" id="yearBars"></div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-title"># 태그 순위</div>
+        <div class="stat-sub">일정(태그)을 많이 쓴 순서예요</div>
+        <div id="tagRank"></div>
+      </div>
     </div>
   </div>
 
@@ -1105,6 +1153,31 @@ var SPLASHES=[
       row.append(sw,inp,del);wrap.appendChild(row);
     });
   }
+  function _esc(s){return (s+'').replace(/[&<>\"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[c];});}
+  function _recordedOn(ds){const s=entrySummary(ds);return !!(s&&(s.hasText||s.photo));}
+  function _allDiaryDates(){const set=new Set();try{for(const k in _dayCache){if(k.indexOf('diary:')===0)set.add(k.slice(6));}}catch(e){}try{for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k&&k.indexOf('hd_diary:')===0)set.add(k.slice(9));}}catch(e){}return set;}
+  function _drawRing(id,pct){const el=document.getElementById(id);if(!el)return;const r=22,c=2*Math.PI*r,off=c*(1-pct/100);el.innerHTML='<svg width="58" height="58" viewBox="0 0 58 58"><circle cx="29" cy="29" r="'+r+'" fill="none" stroke="var(--surface-2)" stroke-width="6"/><circle cx="29" cy="29" r="'+r+'" fill="none" stroke="var(--accent)" stroke-width="6" stroke-linecap="round" stroke-dasharray="'+c.toFixed(1)+'" stroke-dashoffset="'+off.toFixed(1)+'" transform="rotate(-90 29 29)"/><text x="29" y="33" text-anchor="middle" font-size="13" font-weight="700" fill="var(--ink)">'+pct+'%</text></svg>';}
+  function _drawBars(id,arr,maxv){const el=document.getElementById(id);if(!el)return;el.innerHTML='';let mx=maxv||1;arr.forEach(v=>{if(v>mx)mx=v;});mx=mx||1;arr.forEach(v=>{const b=document.createElement('div');b.className='stat-bar';b.style.height=Math.max(2,Math.round(v/mx*100))+'%';el.appendChild(b);});}
+  function renderStats(){
+    const today=new Date(),todayS=ymd(today);
+    const wk=document.getElementById('streakWeek');
+    if(wk){wk.innerHTML='';const dow=['월','화','수','목','금','토','일'];const mon=new Date(today);const wd=(mon.getDay()+6)%7;mon.setDate(mon.getDate()-wd);
+      for(let i=0;i<7;i++){const dd=new Date(mon);dd.setDate(mon.getDate()+i);const ds=ymd(dd);const cell=document.createElement('div');cell.className='streak-day';const lab=document.createElement('div');lab.className='streak-dow';lab.textContent=dow[i];const dot=document.createElement('div');dot.className='streak-dot';if(_recordedOn(ds)){dot.classList.add('on');dot.textContent='✓';}if(ds===todayS)dot.classList.add('today');cell.append(lab,dot);wk.appendChild(cell);}}
+    let streak=0;const cur=new Date(today);if(!_recordedOn(ymd(cur)))cur.setDate(cur.getDate()-1);while(_recordedOn(ymd(cur))){streak++;cur.setDate(cur.getDate()-1);}
+    const sc=document.getElementById('streakCount');if(sc)sc.innerHTML='지금 <b>'+streak+'</b>일 연속 기록 중!';
+    const daysIn=new Date(calYear,calMonth+1,0).getDate();let mRec=0;const wkB=[0,0,0,0,0,0];
+    for(let d=1;d<=daysIn;d++){if(_recordedOn(ymd(new Date(calYear,calMonth,d)))){mRec++;wkB[Math.floor((d-1)/7)]++;}}
+    const mPct=Math.round(mRec/daysIn*100);const ms=document.getElementById('monthStatSub');if(ms)ms.textContent=calYear+'년 '+(calMonth+1)+'월 · '+mRec+'/'+daysIn+'일 기록';
+    _drawRing('monthRing',mPct);_drawBars('monthBars',wkB.slice(0,Math.ceil(daysIn/7)),7);
+    const mc=[];let yRec=0,yTot=0;for(let m=0;m<12;m++){const di=new Date(calYear,m+1,0).getDate();let c=0;for(let d=1;d<=di;d++){if(_recordedOn(ymd(new Date(calYear,m,d))))c++;}mc.push(c);yRec+=c;yTot+=di;}
+    const yPct=Math.round(yRec/yTot*100);const ys=document.getElementById('yearStatSub');if(ys)ys.textContent=calYear+'년 · '+yRec+'/'+yTot+'일 기록';
+    _drawRing('yearRing',yPct);_drawBars('yearBars',mc,31);
+    const tc={};let tt=0;_allDiaryDates().forEach(ds=>{const s=entrySummary(ds);if(s&&s.schedules)s.schedules.forEach(x=>{const t=(x.text||'').trim();if(t){tc[t]=(tc[t]||0)+1;tt++;}});});
+    const ranked=Object.keys(tc).map(k=>[k,tc[k]]).sort((a,b)=>b[1]-a[1]).slice(0,5);
+    const tr=document.getElementById('tagRank');
+    if(tr){tr.innerHTML='';if(!ranked.length){tr.innerHTML='<div class="stat-empty">아직 일정(태그)이 없어요. 일기에서 일정을 추가해 보세요.</div>';}
+      else ranked.forEach((p,i)=>{const pct=Math.round(p[1]/tt*100);const color=SCHED_COLORS[i%SCHED_COLORS.length];const row=document.createElement('div');row.className='tag-row';row.innerHTML='<span class="tag-rank">'+(i+1)+'</span><span class="tag-name">'+_esc(p[0])+'</span><span class="tag-bar"><span style="width:'+pct+'%;background:'+color+'"></span></span><span class="tag-pct">'+pct+'%</span>';tr.appendChild(row);});}
+  }
   function closePops(except){document.querySelectorAll('.pop.open,.pop-panel.open,.stk-pop.open').forEach(p=>{if(p!==except)p.classList.remove('open');});}
 
   /* 저장 */
@@ -1307,7 +1380,7 @@ var SPLASHES=[
     flushSave();
     document.getElementById('editor').hidden=true;
     document.getElementById('home').style.display='';
-    renderCalendar();refreshTodayCard();showYesterday();tickClock();
+    renderCalendar();refreshTodayCard();showYesterday();renderStats();tickClock();
     window.scrollTo(0,0);
     saveViewState('home');
   }
@@ -1346,8 +1419,14 @@ var SPLASHES=[
     date=t;loadDay();fillIcons();window.scrollTo(0,0);
   }
   document.getElementById('todayCard').onclick=()=>openEditor(new Date());
-  document.getElementById('calPrev').onclick=()=>{calMonth--;if(calMonth<0){calMonth=11;calYear--;}renderCalendar();};
-  document.getElementById('calNext').onclick=()=>{calMonth++;if(calMonth>11){calMonth=0;calYear++;}renderCalendar();};
+  function _gotoPrevMonth(){calMonth--;if(calMonth<0){calMonth=11;calYear--;}renderCalendar();renderStats();}
+  function _gotoNextMonth(){calMonth++;if(calMonth>11){calMonth=0;calYear++;}renderCalendar();renderStats();}
+  document.getElementById('calPrev').onclick=_gotoPrevMonth;
+  document.getElementById('calNext').onclick=_gotoNextMonth;
+  (function(){const cc=document.querySelector('.cal-card');if(!cc)return;let sx=0,sy=0,on=false;
+    cc.addEventListener('touchstart',e=>{const t=e.touches[0];sx=t.clientX;sy=t.clientY;on=true;},{passive:true});
+    cc.addEventListener('touchend',e=>{if(!on)return;on=false;const t=e.changedTouches[0];const dx=t.clientX-sx,dy=t.clientY-sy;if(Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy)+10){if(dx>0)_gotoPrevMonth();else _gotoNextMonth();}},{passive:true});
+  })();
   document.getElementById('backBtn').onclick=()=>{
     try{ if(history.state&&history.state.hd==='editor'){ history.back(); return; } }catch(e){}
     showHome();

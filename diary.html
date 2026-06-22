@@ -172,6 +172,25 @@ var SPLASHES=[
   .alarm-pop input[type=time]{width:100%;border:1px solid var(--line);border-radius:9px;padding:7px 8px;font-family:var(--f-body);font-size:15px;background:var(--surface-2);color:var(--ink)}
   .alarm-pop .clr{border:0;background:transparent;color:var(--accent);cursor:pointer;font-size:13px;font-family:var(--f-body);padding:8px 0 0}
   .alarm-note{font-size:11.5px;color:var(--ink-soft);margin:8px 0 0;line-height:1.55}
+  .alarm-body{padding:18px 20px}
+  .alarm-lab{display:block;font-size:13px;color:var(--ink-soft);margin-bottom:8px;font-family:var(--f-body)}
+  .alarm-input{width:100%;border:1px solid var(--line);border-radius:9px;padding:10px;font-family:var(--f-body);font-size:16px;background:var(--surface-2);color:var(--ink)}
+  .bottom-bar{display:none}
+  .alarm-pill{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:10px 22px;font-family:var(--f-body);font-size:15px;cursor:pointer}
+  .alarm-pill.on{border-color:var(--accent);color:var(--accent)}
+  .alarm-pill svg{width:18px;height:18px}
+  .bnav-row{display:flex;align-items:center;gap:10px;width:100%;max-width:460px;justify-content:center}
+  .bnav{flex:1;display:flex;align-items:center;justify-content:space-around;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:6px 4px;box-shadow:0 6px 20px rgba(0,0,0,.18)}
+  .bnav-btn{display:flex;flex-direction:column;align-items:center;gap:2px;border:0;background:transparent;color:var(--ink-soft);cursor:pointer;font-family:var(--f-body);font-size:11px;padding:4px 12px;flex:1}
+  .bnav-btn svg{width:22px;height:22px}
+  .bnav-btn.active{color:var(--accent)}
+  .bnav-add{width:50px;height:50px;border-radius:50%;border:0;background:var(--accent);color:var(--on-accent);display:flex;align-items:center;justify-content:center;cursor:pointer;flex:0 0 auto;box-shadow:0 6px 20px rgba(0,0,0,.25)}
+  .bnav-add svg{width:26px;height:26px}
+  @media (max-width:768px){
+    .bottom-bar{display:flex;flex-direction:column;align-items:center;gap:10px;position:fixed;left:0;right:0;bottom:0;z-index:90;padding:10px 14px calc(12px + env(safe-area-inset-bottom));background:linear-gradient(to top,var(--bg) 62%,transparent)}
+    #home{padding-bottom:165px}
+    #editor{padding-bottom:120px}
+  }
   .set-pop{width:260px;max-height:70vh;overflow-y:auto}
   .set-sec{margin-bottom:14px} .set-sec:last-child{margin-bottom:0}
   .font-list{display:flex;flex-direction:column;gap:6px}
@@ -554,15 +573,6 @@ var SPLASHES=[
     <div class="home-top">
       <div class="home-title">오늘의 Diary</div>
       <div class="home-actions">
-        <div class="pop-wrap">
-          <button id="alarmBtn" class="icon-btn" data-ic="clock" title="일기 쓸 시간 알람"></button>
-          <div id="alarmPop" class="pop-panel alarm-pop">
-            <label>일기 쓸 시간</label>
-            <input type="time" id="alarmTime">
-            <button id="alarmClear" class="clr">알람 끄기</button>
-            <p class="alarm-note">설정한 시간에 알려드려요. (앱이 열려 있을 때)</p>
-          </div>
-        </div>
         <button id="searchBtn" class="icon-btn" data-ic="search" title="일기 검색"></button>
         <button id="noticeBtn" class="icon-btn" data-ic="bell" title="공지사항"></button>
         <button id="appSetBtn" class="icon-btn" data-ic="cog" title="설정"></button>
@@ -630,6 +640,28 @@ var SPLASHES=[
   </div>
 
   <!-- 앱 설정 -->
+  <div id="alarmModal" class="modal" hidden>
+    <div class="modal-card">
+      <div class="modal-head"><h3>일기 알람 설정</h3><button id="alarmClose" data-ic="close" aria-label="닫기"></button></div>
+      <div class="alarm-body">
+        <label class="alarm-lab">일기 쓸 시간</label>
+        <input type="time" id="alarmTime" class="alarm-input">
+        <button id="alarmClear" class="clr">알람 끄기</button>
+        <p class="alarm-note">설정한 시간에 알려드려요. (앱이 열려 있을 때)</p>
+      </div>
+    </div>
+  </div>
+  <div id="bottomBar" class="bottom-bar">
+    <button id="alarmSetBtn" class="alarm-pill"><span data-ic="bell"></span><span>일기 알람 설정하기</span></button>
+    <div class="bnav-row">
+      <nav class="bnav">
+        <button class="bnav-btn active" id="navHome"><span data-ic="home"></span><span>홈</span></button>
+        <button class="bnav-btn" id="navGallery"><span data-ic="image"></span><span>갤러리</span></button>
+        <button class="bnav-btn" id="navProfile"><span data-ic="user"></span><span>프로필</span></button>
+      </nav>
+      <button class="bnav-add" id="navAdd"><span data-ic="plus"></span></button>
+    </div>
+  </div>
   <div id="noticeModal" class="modal" hidden>
     <div class="modal-card">
       <div class="modal-head"><h3>공지사항</h3><button id="noticeClose" data-ic="close" aria-label="닫기"></button></div>
@@ -802,6 +834,8 @@ var SPLASHES=[
     book:S+'<path d="M5 4.5A1.5 1.5 0 0 1 6.5 3H18a1 1 0 0 1 1 1v15a1 1 0 0 1-1 1H6.5A1.5 1.5 0 0 1 5 18.5z"/><path d="M5 16.5A1.5 1.5 0 0 1 6.5 15H19"/><path d="M9 3v8l2.2-1.5L13.4 11V3"/></svg>',
     clock:S+'<circle cx="12" cy="13" r="7.3"/><path d="M12 9.3v3.7l2.4 1.4"/><path d="M4.8 4 7.2 6M19.2 4l-2.4 2"/></svg>',
     bell:S+'<path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>',
+    home:S+'<path d="M3 11.5 12 4l9 7.5"/><path d="M5.6 10v9.4h12.8V10"/></svg>',
+    user:S+'<circle cx="12" cy="8" r="3.6"/><path d="M5 20c0-3.8 3.1-6 7-6s7 2.2 7 6"/></svg>',
     calendar:S+'<rect x="4" y="5.5" width="16" height="14.5" rx="2"/><path d="M4 9.5h16M8.5 3.5v3M15.5 3.5v3"/></svg>',
     sliders:S+'<path d="M4 7h9M17 7h3M4 12h3M11 12h9M4 17h6M14 17h6"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="12" cy="17" r="2"/></svg>',
     check:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.2 4.2L19 7"/></svg>',
@@ -1238,7 +1272,7 @@ var SPLASHES=[
   }
 
   /* 알람 */
-  function reflectAlarm(){const b=document.getElementById('alarmBtn');b.classList.toggle('set',!!reminderTime);b.title=reminderTime?('알람 '+reminderTime):'알람 설정';}
+  function reflectAlarm(){const b=document.getElementById('alarmBtn');if(b){b.classList.toggle('set',!!reminderTime);b.title=reminderTime?('알람 '+reminderTime):'알람 설정';}const p=document.getElementById('alarmSetBtn');if(p)p.classList.toggle('on',!!reminderTime);}
   function ensureAudio(){try{if(!audioCtx){const AC=window.AudioContext||window.webkitAudioContext;if(AC)audioCtx=new AC();}if(audioCtx&&audioCtx.state==='suspended')audioCtx.resume();}catch(e){}}
   function beep(){try{if(!audioCtx)return;const t=audioCtx.currentTime;[0,0.55].forEach(off=>{const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.connect(g);g.connect(audioCtx.destination);o.type='sine';o.frequency.value=880;g.gain.setValueAtTime(0.0001,t+off);g.gain.exponentialRampToValueAtTime(0.22,t+off+0.02);g.gain.exponentialRampToValueAtTime(0.0001,t+off+0.4);o.start(t+off);o.stop(t+off+0.42);});}catch(e){}}
   function fireAlarm(){const b=document.getElementById('alarmBanner');b.hidden=false;setTimeout(()=>{b.hidden=true;},30000);beep();try{if('Notification' in window&&Notification.permission==='granted')new Notification('하루 다이어리',{body:'일기 쓸 시간이에요'});}catch(e){}}
@@ -1719,9 +1753,13 @@ var SPLASHES=[
   document.getElementById('histModal').onclick=(ev)=>{if(ev.target.id==='histModal')document.getElementById('histModal').hidden=true;};
   document.getElementById('stkClose').onclick=()=>{document.getElementById('stkModal').hidden=true;};
   document.getElementById('stkModal').onclick=(ev)=>{if(ev.target.id==='stkModal')document.getElementById('stkModal').hidden=true;};
-  const alarmPop=document.getElementById('alarmPop');
-  document.getElementById('alarmBtn').onclick=(ev)=>{ev.stopPropagation();ensureAudio();closePops(alarmPop);alarmPop.classList.toggle('open');};
-  alarmPop.onclick=(ev)=>ev.stopPropagation();
+  document.getElementById('alarmSetBtn').onclick=()=>{ensureAudio();document.getElementById('alarmModal').hidden=false;};
+  document.getElementById('alarmClose').onclick=()=>{document.getElementById('alarmModal').hidden=true;};
+  document.getElementById('alarmModal').onclick=(ev)=>{if(ev.target.id==='alarmModal')document.getElementById('alarmModal').hidden=true;};
+  document.getElementById('navHome').onclick=()=>{showHome();};
+  document.getElementById('navAdd').onclick=()=>{openEditor(new Date());};
+  document.getElementById('navGallery').onclick=()=>{toast('갤러리는 곧 추가됩니다 🙂');};
+  document.getElementById('navProfile').onclick=()=>{toast('프로필은 곧 추가됩니다 🙂');};
   document.getElementById('alarmTime').onchange=async(e)=>{reminderTime=e.target.value;await store.set('reminderTime',reminderTime);reflectAlarm();ensureAudio();try{if('Notification' in window&&Notification.permission==='default')Notification.requestPermission();}catch(e){}};
   document.getElementById('alarmClear').onclick=async()=>{reminderTime='';document.getElementById('alarmTime').value='';await store.set('reminderTime','');reflectAlarm();};
   document.getElementById('alarmBannerClose').onclick=()=>{document.getElementById('alarmBanner').hidden=true;};

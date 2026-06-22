@@ -1761,7 +1761,7 @@ var SPLASHES=[
   document.getElementById('alarmSetBtn').onclick=()=>{ensureAudio();document.getElementById('alarmModal').hidden=false;};
   document.getElementById('alarmClose').onclick=()=>{document.getElementById('alarmModal').hidden=true;};
   document.getElementById('alarmModal').onclick=(ev)=>{if(ev.target.id==='alarmModal')document.getElementById('alarmModal').hidden=true;};
-  document.getElementById('navHome').onclick=()=>{showHome();};
+  document.getElementById('navHome').onclick=()=>{['searchModal','noticeModal','bookmarkModal','alarmModal','appSetModal'].forEach(id=>{const m=document.getElementById(id);if(m)m.hidden=true;});showHome();};
   document.getElementById('navAdd').onclick=()=>{openEditor(new Date());};
   document.getElementById('navGallery').onclick=()=>{toast('갤러리는 곧 추가됩니다 🙂');};
   document.getElementById('navProfile').onclick=()=>{toast('프로필은 곧 추가됩니다 🙂');};

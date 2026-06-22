@@ -187,6 +187,31 @@ var SPLASHES=[
   .bnav-btn.active{color:var(--accent);background:var(--accent-soft);border-radius:999px}
   .bnav-add{width:56px;height:56px;border-radius:50%;border:0;background:var(--accent);color:var(--on-accent);display:flex;align-items:center;justify-content:center;cursor:pointer;flex:0 0 auto;box-shadow:0 6px 20px rgba(0,0,0,.25)}
   .bnav-add svg{width:30px;height:30px}
+  #editor .grid{display:block}
+  #editor .right,#editor #cardSched,#editor #logList,#editor #logAdd,#editor .routines,#editor .day-nav,#editor #photoEmpty,#editor #cardDiary .sec-head,#editor #cardDiary .entry-foot{display:none}
+  #editor #cardDiary{background:transparent;border:0;padding:0}
+  #editor #photoZone{border:0;background:transparent;min-height:0;padding:0}
+  #editor{padding-bottom:96px}
+  .ed-info{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:2px 4px 14px;color:var(--ink-soft);font-family:var(--f-ui);font-size:14px}
+  .ed-info svg{width:16px;height:16px}
+  .edi-w,.edi-p{display:inline-flex;align-items:center;gap:4px}
+  .edi-add{display:inline-flex;align-items:center;gap:4px;border:0;background:transparent;color:var(--accent);cursor:pointer;font-family:var(--f-ui);font-size:14px}
+  .tag-wrap{display:flex;flex-wrap:wrap;gap:8px;margin:16px 4px;align-items:center}
+  .tag-chip{display:inline-flex;align-items:center;gap:5px;background:var(--surface-2);color:var(--ink);border-radius:999px;padding:6px 12px;font-family:var(--f-ui);font-size:14px}
+  .tag-chip b,.tag-add b{color:#3bb37e}
+  .tag-chip .x{cursor:pointer;color:var(--ink-soft);font-size:12px}
+  .tag-add{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--surface);color:var(--ink-soft);border-radius:999px;padding:6px 14px;font-family:var(--f-ui);font-size:14px;cursor:pointer}
+  .ed-toolbar{position:fixed;left:0;right:0;bottom:0;z-index:97;display:flex;align-items:center;gap:20px;padding:12px 18px calc(12px + env(safe-area-inset-bottom));background:var(--bg);border-top:1px solid var(--line)}
+  .ed-tool{border:0;background:transparent;color:var(--ink-soft);cursor:pointer;display:inline-flex;padding:4px}
+  .ed-tool svg{width:26px;height:26px}
+  .ed-save{margin-left:auto;background:var(--accent);color:var(--on-accent);border:0;border-radius:999px;padding:9px 22px;font-family:var(--f-ui);font-size:15px;cursor:pointer}
+  .tag-bar{position:fixed;left:0;right:0;bottom:0;z-index:99;background:var(--surface);border-top:1px solid var(--line);padding:10px 12px calc(10px + env(safe-area-inset-bottom));display:none;flex-direction:column;gap:10px}
+  .tag-bar.open{display:flex}
+  .tag-bar-row{display:flex;align-items:center;gap:8px}
+  .tag-bar-row input{flex:1;border:1px solid var(--line);border-radius:999px;padding:10px 14px;font-family:var(--f-ui);font-size:15px;background:var(--surface-2);color:var(--ink)}
+  .tag-sugg{display:flex;gap:8px;overflow-x:auto}
+  .tag-sugg button{flex:0 0 auto;border:0;background:var(--surface-2);color:var(--ink);border-radius:999px;padding:7px 13px;font-family:var(--f-ui);font-size:13px;cursor:pointer}
+  .tag-sugg button b{color:#3bb37e}
   #home{padding-bottom:170px}
   #editor{padding-bottom:120px}
   .set-pop{width:260px;max-height:70vh;overflow-y:auto}
@@ -813,6 +838,7 @@ var SPLASHES=[
 
   <main class="grid">
     <section class="left">
+      <div id="edInfo" class="ed-info"></div>
       <div class="card entry" id="cardDiary">
         <div class="photo empty-mode" id="photoZone">
           <div class="empty" id="photoEmpty"><span class="ic" data-ic="camera"></span><span>사진 추가 (최대 4장)</span></div>
@@ -820,7 +846,8 @@ var SPLASHES=[
           <input type="file" id="photoInput" accept="image/*" multiple hidden>
         </div>
         <div class="sec-head"><span class="field">일기</span><button class="sec-gear" id="gearDiary" data-ic="sliders" title="서식"></button></div>
-        <div class="editable" id="diaryEdit" contenteditable="true" data-ph="오늘 하루를 적어보세요"></div>
+        <div class="editable" id="diaryEdit" contenteditable="true" data-ph="무슨 일이 있었나요?"></div>
+        <div id="tagWrap" class="tag-wrap"></div>
         <div class="entry-foot">
           <button class="foot-btn" id="bmBtn" data-ic="bookmark" title="중요한 날 표시"></button>
           <button class="foot-btn danger" id="trashBtn" data-ic="trash" title="이 날 일기 삭제"></button>
@@ -857,6 +884,16 @@ var SPLASHES=[
   <div class="day-nav">
     <div class="dn-side"><button class="dn-arrow" id="prevDay" aria-label="전날"><span data-ic="back"></span></button><span class="dn-label">전날</span></div>
     <div class="dn-side"><span class="dn-label">다음날</span><button class="dn-arrow" id="nextDay" aria-label="다음날"><span data-ic="fwd"></span></button></div>
+  </div>
+  <div class="ed-toolbar">
+    <button class="ed-tool" id="edCam" title="카메라"><span data-ic="camera"></span></button>
+    <button class="ed-tool" id="edGal" title="갤러리"><span data-ic="gallery"></span></button>
+    <button class="ed-tool" id="edSet" title="설정"><span data-ic="cog"></span></button>
+    <button class="ed-save" id="edSave">저장</button>
+  </div>
+  <div class="tag-bar" id="tagBar">
+    <div class="tag-bar-row"><input type="text" id="tagInput" placeholder="# 추가할 태그를 입력하세요!"><button class="ed-tool" id="tagBarClose"><span data-ic="close"></span></button></div>
+    <div class="tag-sugg" id="tagSugg"></div>
   </div>
   </div>
   <!-- /에디터 -->
@@ -1067,7 +1104,7 @@ var SPLASHES=[
   function ymd(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
   function mdLabel(s){const p=s.split('-');return(+p[1])+'/'+(+p[2]);}
   function mk(){return{id:'r'+Math.random().toString(36).slice(2,9),text:'',start:'',end:''};}
-  function blankDay(){return{mode:defaultMode,photos:[],wish:'',reflect:'',diary:'',memo:'',done:{},bookmarked:false,logs:[],weather:'',postit:'',postitTitle:'',postits:[],schedules:[]};}
+  function blankDay(){return{mode:defaultMode,photos:[],wish:'',reflect:'',diary:'',memo:'',done:{},bookmarked:false,logs:[],weather:'',postit:'',postitTitle:'',postits:[],schedules:[],tags:[]};}
   function fmtDate(d){const days=['일','월','화','수','목','금','토'];return`${d.getFullYear()}년 ${d.getMonth()+1}월 ${d.getDate()}일 ${days[d.getDay()]}요일`;}
   function inRange(rt,ds){if(!rt.start&&!rt.end)return true;if(rt.start&&ds<rt.start)return false;if(rt.end&&ds>rt.end)return false;return true;}
   function rangeLabel(rt){if(!rt.start&&!rt.end)return '기간';return(rt.start?mdLabel(rt.start):'…')+' ~ '+(rt.end?mdLabel(rt.end):'…');}
@@ -1228,7 +1265,7 @@ var SPLASHES=[
     memoEdit.innerHTML=day.memo||'';
     applySecFont('diary',diaryEdit);applySecFont('prompt',promptEdit);applySecFont('memo',memoEdit);
     applySecBg('diary');applySecBg('prompt');applySecBg('memo');
-    renderPhotos();renderRoutines();renderLogs();renderSchedules();reflectBookmark();reflectWeather();
+    renderPhotos();renderRoutines();renderLogs();renderSchedules();reflectBookmark();reflectWeather();fillEdInfo();renderTags();
     document.getElementById('postitEdit')&&(document.getElementById('postitEdit').innerHTML=day.postit||'');
     document.getElementById('postitTitle')&&(document.getElementById('postitTitle').textContent=day.postitTitle||'');
     applySecFont('postit',document.getElementById('postitEdit'));applySecBg('postit');
@@ -1498,6 +1535,7 @@ var SPLASHES=[
     flushSave();
     document.getElementById('editor').hidden=true;
     document.getElementById('home').style.display='';
+    {const _bb=document.getElementById('bottomBar');if(_bb)_bb.style.display='';}
     renderCalendar();refreshTodayCard();showYesterday();renderStats();tickClock();
     window.scrollTo(0,0);
     saveViewState('home');
@@ -1505,6 +1543,7 @@ var SPLASHES=[
   function openEditor(dObj){
     document.getElementById('home').style.display='none';
     document.getElementById('editor').hidden=false;
+    {const _bb=document.getElementById('bottomBar');if(_bb)_bb.style.display='none';}
     date=new Date(dObj.getFullYear(),dObj.getMonth(),dObj.getDate());
     ensureAudio();
     loadDay();
@@ -1597,6 +1636,32 @@ var SPLASHES=[
 
   /* 추가 기록 / 날짜 이동 */
   document.getElementById('logAdd').onclick=()=>{day.logs.push({text:''});renderLogs();scheduleSaveDay();const cards=document.querySelectorAll('#logList .log-edit');if(cards.length){cards[cards.length-1].focus();cards[cards.length-1].scrollIntoView({block:'center'});}};
+  function fillEdInfo(){
+    const el=document.getElementById('edInfo');if(!el)return;
+    const now=new Date();let h=now.getHours();const ap=h<12?'오전':'오후';let hh=h%12;if(hh===0)hh=12;const mm=String(now.getMinutes()).padStart(2,'0');
+    let wx=null;try{wx=JSON.parse(localStorage.getItem('hd_wx')||'null');}catch(e){}
+    let wIcon=ICON.cloud,place='';
+    if(wx){try{const w=wcode(wx.code||0);wIcon=ICON[w.ic];}catch(e){}place=wx.place||'';}
+    el.innerHTML='<span class="edi-w">'+wIcon+'</span><span class="edi-t">'+ap+' '+hh+':'+mm+'</span>'+(place?('<span class="edi-p"><span class="edi-pin"></span>'+place+'</span>'):('<button class="edi-add" id="edLocAdd"><span class="edi-pin"></span>위치 추가</button>'));
+    el.querySelectorAll('.edi-pin').forEach(s=>s.innerHTML=ICON.pin);
+    const add=document.getElementById('edLocAdd');
+    if(add)add.onclick=()=>{if(!navigator.geolocation){toast('위치를 지원하지 않는 기기예요');return;}add.textContent='위치 확인 중…';navigator.geolocation.getCurrentPosition(async(pos)=>{const lat=pos.coords.latitude,lon=pos.coords.longitude;const place=await reverseGeo(lat,lon);try{fetchWeather(lat,lon,place);}catch(e){}setTimeout(fillEdInfo,900);},()=>{fillEdInfo();toast('위치 권한이 필요해요');},{enableHighAccuracy:false,timeout:10000,maximumAge:600000});};
+  }
+  const TAG_SUGG=['메모','식사','아침','점심','저녁','여행','운동','공부','약속','휴식'];
+  function renderTags(){
+    const w=document.getElementById('tagWrap');if(!w)return;w.innerHTML='';
+    if(!Array.isArray(day.tags))day.tags=[];
+    day.tags.forEach((t,i)=>{const c=document.createElement('span');c.className='tag-chip';c.innerHTML='<b>#</b>'+_esc(t)+' <span class="x">✕</span>';c.querySelector('.x').onclick=()=>{day.tags.splice(i,1);renderTags();scheduleSaveDay();};w.appendChild(c);});
+    if(day.tags.length<5){const b=document.createElement('button');b.className='tag-add';b.innerHTML='<b>#</b> 태그 추가 <span style="color:var(--ink-soft)">'+day.tags.length+'/5</span>';b.onclick=openTagBar;w.appendChild(b);}
+  }
+  function openTagBar(){const bar=document.getElementById('tagBar');const sg=document.getElementById('tagSugg');if(!bar)return;sg.innerHTML='';TAG_SUGG.forEach(t=>{const b=document.createElement('button');b.innerHTML='<b>#</b>'+t;b.onclick=()=>addTag(t);sg.appendChild(b);});bar.classList.add('open');const inp=document.getElementById('tagInput');inp.value='';setTimeout(()=>inp.focus(),50);}
+  function addTag(t){t=(t||'').replace(/#/g,'').trim();if(!t)return;if(!Array.isArray(day.tags))day.tags=[];if(day.tags.length>=5){toast('태그는 최대 5개예요');return;}if(!day.tags.includes(t)){day.tags.push(t);renderTags();scheduleSaveDay();}const inp=document.getElementById('tagInput');if(inp)inp.value='';}
+  document.getElementById('tagBarClose').onclick=()=>document.getElementById('tagBar').classList.remove('open');
+  document.getElementById('tagInput').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();addTag(e.target.value);}});
+  document.getElementById('edCam').onclick=()=>{const pi=document.getElementById('photoInput');pi.setAttribute('capture','environment');pi.click();};
+  document.getElementById('edGal').onclick=()=>{const pi=document.getElementById('photoInput');pi.removeAttribute('capture');pi.click();};
+  document.getElementById('edSave').onclick=()=>{flushSave();toast('저장됐어요');document.getElementById('editor').hidden=true;{const _bb=document.getElementById('bottomBar');if(_bb)_bb.style.display='';}showHome();};
+  document.getElementById('edSet').onclick=()=>{flushSave();document.getElementById('editor').hidden=true;{const _bb=document.getElementById('bottomBar');if(_bb)_bb.style.display='';}document.querySelectorAll('.modal').forEach(m=>m.hidden=true);document.getElementById('home').style.display='none';document.getElementById('profileModal').hidden=false;renderProfile();};
   document.getElementById('schedAdd').onclick=()=>{if(!Array.isArray(day.schedules))day.schedules=[];const c=SCHED_COLORS[day.schedules.length%SCHED_COLORS.length];day.schedules.push({text:'',color:c});renderSchedules();scheduleSaveDay();const ins=document.querySelectorAll('#schedList .sched-inp');if(ins.length)ins[ins.length-1].focus();};
   /* 포스트잇 */
   document.getElementById('postitAddBtn').onclick=()=>{

@@ -1740,10 +1740,16 @@ var SPLASHES=[
       navigator.permissions.query({name:'geolocation'}).then(p=>{s.textContent=p.state==='granted'?'✅ 허용됨':(p.state==='denied'?'차단됨':'허용 안됨');}).catch(()=>{});
     }
   }
-  document.getElementById('rowLocation').onclick=()=>{
+  document.getElementById('rowLocation').onclick=async()=>{
     if(!navigator.geolocation){toast('위치를 지원하지 않는 기기예요');return;}
+    let st='prompt';
+    try{if(navigator.permissions&&navigator.permissions.query){const p=await navigator.permissions.query({name:'geolocation'});st=p.state;}}catch(e){}
+    if(st==='denied'){
+      alert('브라우저에서 위치가 차단되어 있어요.\n\n[켜는 방법]\n1) 주소창 왼쪽의 자물쇠(또는 ⓘ) 아이콘을 누르세요\n2) 권한 → 위치 → 허용\n( 또는 브라우저 설정 → 사이트 권한 → 위치 )\n\n허용한 뒤 다시 눌러주세요.');
+      refreshLocationStatus();return;
+    }
     toast('위치 확인 중…');
-    navigator.geolocation.getCurrentPosition(async(pos)=>{const lat=pos.coords.latitude,lon=pos.coords.longitude;const place=await reverseGeo(lat,lon);try{fetchWeather(lat,lon,place);}catch(e){}try{fillEdInfo();}catch(e){}refreshLocationStatus();toast('위치가 허용됐어요');},()=>{refreshLocationStatus();toast('차단됨: 주소창 자물쇠 → 권한 → 위치에서 허용하세요');},{enableHighAccuracy:false,timeout:10000,maximumAge:600000});
+    navigator.geolocation.getCurrentPosition(async(pos)=>{const lat=pos.coords.latitude,lon=pos.coords.longitude;const place=await reverseGeo(lat,lon);try{fetchWeather(lat,lon,place);}catch(e){}try{fillEdInfo();}catch(e){}refreshLocationStatus();toast('위치가 허용됐어요');},(err)=>{refreshLocationStatus();if(err&&err.code===1){alert('위치 권한이 거부됐어요.\n주소창 왼쪽 자물쇠 → 권한 → 위치 → 허용 후 다시 시도해 주세요.');}else{toast('위치를 가져오지 못했어요');}},{enableHighAccuracy:false,timeout:10000,maximumAge:600000});
   };
   document.getElementById('profileSetBtn').onclick=()=>{document.getElementById('appSetModal').hidden=false;};
   document.getElementById('nameEditBtn').onclick=()=>{const cur=_nick||_fbName||'';const v=prompt('닉네임을 입력하세요',cur);if(v!=null){_nick=v.trim();store.set('nick',_nick);renderProfile();}};

@@ -560,6 +560,7 @@ var SPLASHES=[
           </div>
         </div>
         <button id="searchBtn" class="icon-btn" data-ic="search" title="일기 검색"></button>
+        <button id="noticeBtn" class="icon-btn" data-ic="bell" title="공지사항"></button>
         <button id="appSetBtn" class="icon-btn" data-ic="cog" title="설정"></button>
       </div>
     </div>
@@ -625,6 +626,12 @@ var SPLASHES=[
   </div>
 
   <!-- 앱 설정 -->
+  <div id="noticeModal" class="modal" hidden>
+    <div class="modal-card">
+      <div class="modal-head"><h3>공지사항</h3><button id="noticeClose" data-ic="close" aria-label="닫기"></button></div>
+      <div id="noticeList" class="hist-list"><div class="hist-empty">등록된 공지가 없어요.</div></div>
+    </div>
+  </div>
   <div id="appSetModal" class="modal" hidden>
     <div class="modal-card">
       <div class="modal-head"><h3>설정</h3><button id="appSetClose" data-ic="close" aria-label="닫기"></button></div>
@@ -790,6 +797,7 @@ var SPLASHES=[
     camera:S+'<path d="M3.5 8.5A1.5 1.5 0 0 1 5 7h1.6l1-1.6A1 1 0 0 1 9.4 5h5.2a1 1 0 0 1 .8.4L16.4 7H19a1.5 1.5 0 0 1 1.5 1.5v8A1.5 1.5 0 0 1 19 18H5a1.5 1.5 0 0 1-1.5-1.5z"/><circle cx="12" cy="12.5" r="3.2"/></svg>',
     book:S+'<path d="M5 4.5A1.5 1.5 0 0 1 6.5 3H18a1 1 0 0 1 1 1v15a1 1 0 0 1-1 1H6.5A1.5 1.5 0 0 1 5 18.5z"/><path d="M5 16.5A1.5 1.5 0 0 1 6.5 15H19"/><path d="M9 3v8l2.2-1.5L13.4 11V3"/></svg>',
     clock:S+'<circle cx="12" cy="13" r="7.3"/><path d="M12 9.3v3.7l2.4 1.4"/><path d="M4.8 4 7.2 6M19.2 4l-2.4 2"/></svg>',
+    bell:S+'<path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>',
     calendar:S+'<rect x="4" y="5.5" width="16" height="14.5" rx="2"/><path d="M4 9.5h16M8.5 3.5v3M15.5 3.5v3"/></svg>',
     sliders:S+'<path d="M4 7h9M17 7h3M4 12h3M11 12h9M4 17h6M14 17h6"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="12" cy="17" r="2"/></svg>',
     check:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.2 4.2L19 7"/></svg>',
@@ -1525,6 +1533,9 @@ var SPLASHES=[
   }
   document.getElementById('searchBtn').onclick=()=>{document.getElementById('searchModal').hidden=false;const si=document.getElementById('searchInput');si.value='';runSearch('');setTimeout(()=>si.focus(),50);};
   document.getElementById('searchClose').onclick=()=>{document.getElementById('searchModal').hidden=true;};
+  document.getElementById('noticeBtn').onclick=()=>{document.getElementById('noticeModal').hidden=false;};
+  document.getElementById('noticeClose').onclick=()=>{document.getElementById('noticeModal').hidden=true;};
+  document.getElementById('noticeModal').onclick=(ev)=>{if(ev.target.id==='noticeModal')document.getElementById('noticeModal').hidden=true;};
 
   // 앱 설정창
   function notifOn(){ return LS.get('notifOn')!=='0'; }   // 기본값: 켜짐

@@ -277,6 +277,10 @@ var SPLASHES=[
   .modal{position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;background:rgba(18,16,13,.5);padding:20px}
   .modal[hidden]{display:none}
   .modal-card{background:var(--surface);border:1px solid var(--line);border-radius:20px;width:100%;max-width:440px;max-height:80vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.35)}
+  /* 검색/공지: 떠있는 팝업이 아니라 전체 화면 페이지로 이동 */
+  #searchModal, #noticeModal{background:var(--bg);padding:0;align-items:stretch;justify-content:flex-start;z-index:80}
+  #searchModal .modal-card, #noticeModal .modal-card{max-width:none;width:100%;max-height:none;height:100%;border:0;border-radius:0;box-shadow:none}
+  #searchModal .hist-list, #noticeModal .hist-list{flex:1}
   .modal-head{display:flex;align-items:center;justify-content:space-between;padding:18px 20px;border-bottom:1px solid var(--line)}
   .modal-head h3{margin:0;font-family:var(--f-body);font-size:20px;font-weight:700;color:var(--ink)}
   .modal-head button{border:0;background:transparent;cursor:pointer;color:var(--ink-soft);display:inline-flex}

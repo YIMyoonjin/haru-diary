@@ -175,7 +175,7 @@ var SPLASHES=[
   .alarm-body{padding:18px 20px}
   .alarm-lab{display:block;font-size:13px;color:var(--ink-soft);margin-bottom:8px;font-family:var(--f-body)}
   .alarm-input{width:100%;border:1px solid var(--line);border-radius:9px;padding:10px;font-family:var(--f-body);font-size:16px;background:var(--surface-2);color:var(--ink)}
-  .bottom-bar{display:none}
+  .bottom-bar{display:flex;flex-direction:column;align-items:center;gap:10px;position:fixed;left:0;right:0;bottom:0;z-index:90;padding:10px 14px calc(12px + env(safe-area-inset-bottom));background:linear-gradient(to top,var(--bg) 62%,transparent)}
   .alarm-pill{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:10px 22px;font-family:var(--f-body);font-size:15px;cursor:pointer}
   .alarm-pill.on{border-color:var(--accent);color:var(--accent)}
   .alarm-pill svg{width:18px;height:18px}
@@ -186,11 +186,8 @@ var SPLASHES=[
   .bnav-btn.active{color:var(--accent)}
   .bnav-add{width:50px;height:50px;border-radius:50%;border:0;background:var(--accent);color:var(--on-accent);display:flex;align-items:center;justify-content:center;cursor:pointer;flex:0 0 auto;box-shadow:0 6px 20px rgba(0,0,0,.25)}
   .bnav-add svg{width:26px;height:26px}
-  @media (max-width:768px){
-    .bottom-bar{display:flex;flex-direction:column;align-items:center;gap:10px;position:fixed;left:0;right:0;bottom:0;z-index:90;padding:10px 14px calc(12px + env(safe-area-inset-bottom));background:linear-gradient(to top,var(--bg) 62%,transparent)}
-    #home{padding-bottom:165px}
-    #editor{padding-bottom:120px}
-  }
+  #home{padding-bottom:170px}
+  #editor{padding-bottom:120px}
   .set-pop{width:260px;max-height:70vh;overflow-y:auto}
   .set-sec{margin-bottom:14px} .set-sec:last-child{margin-bottom:0}
   .font-list{display:flex;flex-direction:column;gap:6px}
@@ -297,9 +294,9 @@ var SPLASHES=[
   .modal[hidden]{display:none}
   .modal-card{background:var(--surface);border:1px solid var(--line);border-radius:20px;width:100%;max-width:440px;max-height:80vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.35)}
   /* 검색/공지: 떠있는 팝업이 아니라 전체 화면 페이지로 이동 */
-  #searchModal, #noticeModal{background:var(--bg);padding:0;align-items:stretch;justify-content:flex-start;z-index:80}
-  #searchModal .modal-card, #noticeModal .modal-card{max-width:none;width:100%;max-height:none;height:100%;border:0;border-radius:0;box-shadow:none}
-  #searchModal .hist-list, #noticeModal .hist-list{flex:1}
+  #searchModal, #noticeModal, #bookmarkModal{background:var(--bg);padding:0;align-items:stretch;justify-content:flex-start;z-index:80}
+  #searchModal .modal-card, #noticeModal .modal-card, #bookmarkModal .modal-card{max-width:none;width:100%;max-height:none;height:100%;border:0;border-radius:0;box-shadow:none}
+  #searchModal .hist-list, #noticeModal .hist-list, #bookmarkModal .hist-list{flex:1}
   .modal-head{display:flex;align-items:center;justify-content:space-between;padding:18px 20px;border-bottom:1px solid var(--line)}
   .modal-head h3{margin:0;font-family:var(--f-body);font-size:20px;font-weight:700;color:var(--ink)}
   .modal-head button{border:0;background:transparent;cursor:pointer;color:var(--ink-soft);display:inline-flex}
@@ -655,11 +652,18 @@ var SPLASHES=[
     <button id="alarmSetBtn" class="alarm-pill"><span data-ic="bell"></span><span>일기 알람 설정하기</span></button>
     <div class="bnav-row">
       <nav class="bnav">
-        <button class="bnav-btn active" id="navHome"><span data-ic="home"></span><span>홈</span></button>
-        <button class="bnav-btn" id="navGallery"><span data-ic="image"></span><span>갤러리</span></button>
-        <button class="bnav-btn" id="navProfile"><span data-ic="user"></span><span>프로필</span></button>
+        <button class="bnav-btn active" id="navHome"><span data-ic="home"></span></button>
+        <button class="bnav-btn" id="navGallery"><span data-ic="gallery"></span></button>
+        <button class="bnav-btn" id="navBookmark"><span data-ic="bookmark"></span></button>
+        <button class="bnav-btn" id="navProfile"><span data-ic="user"></span></button>
       </nav>
       <button class="bnav-add" id="navAdd"><span data-ic="plus"></span></button>
+    </div>
+  </div>
+  <div id="bookmarkModal" class="modal" hidden>
+    <div class="modal-card">
+      <div class="modal-head"><h3>중요 표시한 일기</h3><button id="bookmarkClose" data-ic="close" aria-label="닫기"></button></div>
+      <div id="bookmarkList" class="hist-list"></div>
     </div>
   </div>
   <div id="noticeModal" class="modal" hidden>
@@ -836,6 +840,7 @@ var SPLASHES=[
     bell:S+'<path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>',
     home:S+'<path d="M3 11.5 12 4l9 7.5"/><path d="M5.6 10v9.4h12.8V10"/></svg>',
     user:S+'<circle cx="12" cy="8" r="3.6"/><path d="M5 20c0-3.8 3.1-6 7-6s7 2.2 7 6"/></svg>',
+    gallery:S+'<rect x="3" y="4.5" width="18" height="15" rx="3"/><circle cx="8.5" cy="9.5" r="1.7"/><path d="M3.5 17l5-4.5 4 3.5 3.5-3 4.5 4"/></svg>',
     calendar:S+'<rect x="4" y="5.5" width="16" height="14.5" rx="2"/><path d="M4 9.5h16M8.5 3.5v3M15.5 3.5v3"/></svg>',
     sliders:S+'<path d="M4 7h9M17 7h3M4 12h3M11 12h9M4 17h6M14 17h6"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="12" cy="17" r="2"/></svg>',
     check:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.2 4.2L19 7"/></svg>',
@@ -1760,6 +1765,30 @@ var SPLASHES=[
   document.getElementById('navAdd').onclick=()=>{openEditor(new Date());};
   document.getElementById('navGallery').onclick=()=>{toast('갤러리는 곧 추가됩니다 🙂');};
   document.getElementById('navProfile').onclick=()=>{toast('프로필은 곧 추가됩니다 🙂');};
+  document.getElementById('navBookmark').onclick=()=>{document.getElementById('bookmarkModal').hidden=false;document.getElementById('home').style.display='none';renderBookmarks();};
+  document.getElementById('bookmarkClose').onclick=()=>{document.getElementById('bookmarkModal').hidden=true;document.getElementById('home').style.display='';};
+  document.getElementById('bookmarkModal').onclick=(ev)=>{if(ev.target.id==='bookmarkModal'){document.getElementById('bookmarkModal').hidden=true;document.getElementById('home').style.display='';}};
+  function renderBookmarks(){
+    const list=document.getElementById('bookmarkList');if(!list)return;list.innerHTML='';
+    const dates=new Set();
+    try{for(const k in _dayCache){if(k.indexOf('diary:')===0)dates.add(k.slice(6));}}catch(e){}
+    try{for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k&&k.indexOf('hd_diary:')===0)dates.add(k.slice(9));}}catch(e){}
+    const items=[];
+    dates.forEach(ds=>{const s=entrySummary(ds);if(s&&s.bookmarked){let d=_dayCache['diary:'+ds];if(!d){try{d=JSON.parse(localStorage.getItem('hd_diary:'+ds));}catch(e){}}
+      let snip='';if(d){snip=([d.diary,d.memo,d.wish,d.reflect].map(htmlText).join(' ')).replace(/\s+/g,' ').trim();}
+      items.push({ds,snip,photo:s.photo});}});
+    items.sort((a,b)=>a.ds<b.ds?1:-1);
+    if(!items.length){list.innerHTML='<div class="hist-empty">중요 표시한 일기가 없어요.</div>';return;}
+    items.forEach(it=>{const row=document.createElement('div');row.className='hist-item';
+      const main=document.createElement('div');main.className='hist-main';
+      const dt=document.createElement('div');dt.className='hist-date';dt.textContent=Number(it.ds.slice(5,7))+'월 '+Number(it.ds.slice(8,10))+'일';
+      const sn=document.createElement('div');sn.className='hist-snip';sn.textContent=it.snip||'사진 일기';
+      main.append(dt,sn);
+      const tag=document.createElement('span');tag.className='hist-tag';tag.innerHTML=ICON.bookmark;
+      row.append(main,tag);
+      row.onclick=()=>{document.getElementById('bookmarkModal').hidden=true;document.getElementById('home').style.display='';openEditor(new Date(it.ds+'T00:00:00'));};
+      list.appendChild(row);});
+  }
   document.getElementById('alarmTime').onchange=async(e)=>{reminderTime=e.target.value;await store.set('reminderTime',reminderTime);reflectAlarm();ensureAudio();try{if('Notification' in window&&Notification.permission==='default')Notification.requestPermission();}catch(e){}};
   document.getElementById('alarmClear').onclick=async()=>{reminderTime='';document.getElementById('alarmTime').value='';await store.set('reminderTime','');reflectAlarm();};
   document.getElementById('alarmBannerClose').onclick=()=>{document.getElementById('alarmBanner').hidden=true;};

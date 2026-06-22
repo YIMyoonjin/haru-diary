@@ -125,7 +125,7 @@ var SPLASHES=[
 <div id="lkInfo" hidden style="position:fixed;inset:0;z-index:9996;background:rgba(0,0,0,.82);display:flex;align-items:center;justify-content:center;padding:32px;text-align:center;color:#fff;font-size:16px;line-height:1.6;user-select:none">메인 설정창에서 언제든지<br>잠금모드를 설정할 수 있습니다.</div>
 
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400;600&family=Gaegu:wght@300;400;700&family=Gowun+Batang:wght@400;700&family=Gowun+Dodum&family=Jua&family=Nanum+Pen+Script&family=Black+Han+Sans&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400;600&family=Gaegu:wght@300;400;700&family=Gowun+Batang:wght@400;700&family=Gowun+Dodum&family=Jua&family=Nanum+Pen+Script&family=Black+Han+Sans&family=Nanum+Gothic:wght@400;700&family=Nanum+Myeongjo:wght@400;700&family=Do+Hyeon&family=Gamja+Flower&family=Hi+Melody&family=Single+Day&family=Nanum+Brush+Script&family=Dongle:wght@300;400;700&family=Song+Myung&display=swap');
 
   #app{
     --bg:#F4F1EA; --surface:#FBF9F4; --surface-2:#EFEBE1;
@@ -620,7 +620,6 @@ var SPLASHES=[
   #home .loc-btn, #home .wi-temp, #home .wi-time, #home .wi-place{ font-family:var(--f-hand); }
   #home .wi-temp{ font-size:26px; } #home .wi-time{ font-size:24px; }
   /* 에디터(일기 작성 화면)도 메인과 같은 손글씨로 */
-  #editor{ --f-body:'Caveat','Nanum Pen Script','Gaegu',cursive; }
   /* 상단 알람·검색·설정 아이콘에 손그림 느낌 */
   #home .home-top .icon-btn svg{ filter:url(#sketch); }
   /* 낮/밤 모드 선택 */
@@ -850,7 +849,7 @@ var SPLASHES=[
           <input type="file" id="photoInput" accept="image/*" multiple hidden>
         </div>
         <div class="sec-head"><span class="field">일기</span><button class="sec-gear" id="gearDiary" data-ic="sliders" title="서식"></button></div>
-        <div class="editable" id="diaryEdit" contenteditable="true" data-ph="무슨 일이 있었나요?"></div>
+        <div class="editable" id="diaryEdit" contenteditable="true" data-ph="사진을 추가해서 일기를 써 보아요"></div>
         <div class="entry-foot">
           <button class="foot-btn" id="bmBtn" data-ic="bookmark" title="중요한 날 표시"></button>
           <button class="foot-btn danger" id="trashBtn" data-ic="trash" title="이 날 일기 삭제"></button>
@@ -1011,7 +1010,17 @@ var SPLASHES=[
     {id:'jua',name:'주아 · 둥근',disp:"'Jua','Gowun Dodum',sans-serif"},
     {id:'pen',name:'나눔펜 · 손글씨',disp:"'Nanum Pen Script',cursive"},
     {id:'gowun',name:'고운바탕 · 클래식',disp:"'Gowun Batang',serif"},
-    {id:'black',name:'블랙한산스 · 굵게',disp:"'Black Han Sans',sans-serif"}
+    {id:'black',name:'블랙한산스 · 굵게',disp:"'Black Han Sans',sans-serif"},
+    {id:'ngothic',name:'나눔고딕 · 기본',disp:"'Nanum Gothic',sans-serif"},
+    {id:'nmyeongjo',name:'나눔명조 · 명조',disp:"'Nanum Myeongjo',serif"},
+    {id:'songmyung',name:'송명 · 고전명조',disp:"'Song Myung',serif"},
+    {id:'dohyeon',name:'도현 · 굵은고딕',disp:"'Do Hyeon',sans-serif"},
+    {id:'gowundodum',name:'고운돋움 · 깔끔',disp:"'Gowun Dodum',sans-serif"},
+    {id:'dongle',name:'동글 · 둥근',disp:"'Dongle',sans-serif"},
+    {id:'gamja',name:'감자꽃 · 손글씨',disp:"'Gamja Flower',cursive"},
+    {id:'himelody',name:'하이멜로디 · 손글씨',disp:"'Hi Melody',cursive"},
+    {id:'singleday',name:'싱글데이 · 손글씨',disp:"'Single Day',cursive"},
+    {id:'brush',name:'나눔붓 · 붓글씨',disp:"'Nanum Brush Script',cursive"}
   ];
   const THEMES={
     gold: {n:'기본',bg:'#F4F1EA',surface:'#FBF9F4',s2:'#EFEBE1',ink:'#2A2722',inkSoft:'#968E7E',line:'#E5DED1',accent:'#9C7A2B',accentSoft:'#EBE1C7',on:'#fff'},
@@ -1231,8 +1240,8 @@ var SPLASHES=[
     const zone=document.getElementById('photoZone'),empty=document.getElementById('photoEmpty'),grid=document.getElementById('photoGrid');
     const photos=day.photos||[];
     grid.innerHTML='';
-    if(!photos.length){empty.style.display='flex';grid.hidden=true;zone.classList.add('empty-mode');return;}
-    empty.style.display='none';grid.hidden=false;zone.classList.remove('empty-mode');
+    if(!photos.length){zone.style.display='none';empty.style.display='none';grid.hidden=true;return;}
+    zone.style.display='';empty.style.display='none';grid.hidden=false;zone.classList.remove('empty-mode');
     photos.forEach((p,i)=>{
       const cell=document.createElement('div');cell.className='pcell';
       const img=document.createElement('img');img.src=p;img.alt='사진';img.onclick=()=>openImg(i);

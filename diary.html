@@ -175,7 +175,7 @@ var SPLASHES=[
   .alarm-body{padding:18px 20px}
   .alarm-lab{display:block;font-size:13px;color:var(--ink-soft);margin-bottom:8px;font-family:var(--f-body)}
   .alarm-input{width:100%;border:1px solid var(--line);border-radius:9px;padding:10px;font-family:var(--f-body);font-size:16px;background:var(--surface-2);color:var(--ink)}
-  .bottom-bar{display:flex;flex-direction:column;align-items:center;gap:10px;position:fixed;left:0;right:0;bottom:0;z-index:90;padding:10px 14px calc(12px + env(safe-area-inset-bottom));background:linear-gradient(to top,var(--bg) 62%,transparent)}
+  .bottom-bar{display:flex;flex-direction:column;align-items:center;gap:10px;position:fixed;left:0;right:0;bottom:0;z-index:95;padding:10px 14px calc(12px + env(safe-area-inset-bottom));background:linear-gradient(to top,var(--bg) 62%,transparent)}
   .alarm-pill{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:10px 22px;font-family:var(--f-body);font-size:15px;cursor:pointer}
   .alarm-pill.on{border-color:var(--accent);color:var(--accent)}
   .alarm-pill svg{width:18px;height:18px}
@@ -1761,7 +1761,13 @@ var SPLASHES=[
   document.getElementById('alarmSetBtn').onclick=()=>{ensureAudio();document.getElementById('alarmModal').hidden=false;};
   document.getElementById('alarmClose').onclick=()=>{document.getElementById('alarmModal').hidden=true;};
   document.getElementById('alarmModal').onclick=(ev)=>{if(ev.target.id==='alarmModal')document.getElementById('alarmModal').hidden=true;};
-  document.getElementById('navHome').onclick=()=>{['searchModal','noticeModal','bookmarkModal','alarmModal','appSetModal'].forEach(id=>{const m=document.getElementById(id);if(m)m.hidden=true;});showHome();};
+  document.getElementById('navHome').onclick=()=>{
+    document.querySelectorAll('.modal').forEach(m=>{m.hidden=true;});
+    try{document.body.classList.remove('fmt-open');}catch(e){}
+    document.getElementById('editor').hidden=true;
+    document.getElementById('home').style.display='';
+    showHome();
+  };
   document.getElementById('navAdd').onclick=()=>{openEditor(new Date());};
   document.getElementById('navGallery').onclick=()=>{toast('갤러리는 곧 추가됩니다 🙂');};
   document.getElementById('navProfile').onclick=()=>{toast('프로필은 곧 추가됩니다 🙂');};

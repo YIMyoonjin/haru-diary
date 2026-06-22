@@ -1514,10 +1514,13 @@ var SPLASHES=[
     const list=document.getElementById('searchList');list.innerHTML='';
     q=(q||'').trim().toLowerCase();
     if(!q){list.innerHTML='<div class="hist-empty">키워드를 입력하면 해당 일기를 찾아드려요.</div>';return;}
-    const keys=[];for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k&&k.indexOf('hd_diary:')===0)keys.push(k.slice(3));}
+    const dates=new Set();
+    try{for(const k in _dayCache){if(k.indexOf('diary:')===0)dates.add(k.slice(6));}}catch(e){}
+    try{for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k&&k.indexOf('hd_diary:')===0)dates.add(k.slice(9));}}catch(e){}
     const items=[];
-    keys.forEach(k=>{try{const d=JSON.parse(localStorage.getItem('hd_'+k));const ds=k.slice(6);
-      const text=[d.diary,d.memo,d.wish,d.reflect].map(htmlText).join(' ')+' '+(d.logs||[]).map(l=>htmlText(l.text)).join(' ');
+    dates.forEach(ds=>{try{let d=_dayCache['diary:'+ds];if(!d){d=JSON.parse(localStorage.getItem('hd_diary:'+ds));}if(!d)return;
+      const sched=(d.schedules||[]).map(s=>(s&&s.text)||'').join(' ');
+      const text=[d.diary,d.memo,d.wish,d.reflect].map(htmlText).join(' ')+' '+(d.logs||[]).map(l=>htmlText(l.text)).join(' ')+' '+sched;
       if(text.toLowerCase().includes(q))items.push({ds,snip:text.replace(/\s+/g,' ').trim(),mode:d.mode});
     }catch(e){}});
     items.sort((a,b)=>a.ds<b.ds?1:-1);
@@ -1535,10 +1538,10 @@ var SPLASHES=[
       list.appendChild(row);
     });
   }
-  document.getElementById('searchBtn').onclick=()=>{document.getElementById('searchModal').hidden=false;const si=document.getElementById('searchInput');si.value='';runSearch('');setTimeout(()=>si.focus(),50);};
-  document.getElementById('searchClose').onclick=()=>{document.getElementById('searchModal').hidden=true;};
-  document.getElementById('noticeBtn').onclick=()=>{document.getElementById('noticeModal').hidden=false;};
-  document.getElementById('noticeClose').onclick=()=>{document.getElementById('noticeModal').hidden=true;};
+  document.getElementById('searchBtn').onclick=()=>{document.getElementById('searchModal').hidden=false;document.getElementById('home').style.display='none';const si=document.getElementById('searchInput');si.value='';runSearch('');setTimeout(()=>si.focus(),50);};
+  document.getElementById('searchClose').onclick=()=>{document.getElementById('searchModal').hidden=true;document.getElementById('home').style.display='';};
+  document.getElementById('noticeBtn').onclick=()=>{document.getElementById('noticeModal').hidden=false;document.getElementById('home').style.display='none';};
+  document.getElementById('noticeClose').onclick=()=>{document.getElementById('noticeModal').hidden=true;document.getElementById('home').style.display='';};
   document.getElementById('noticeModal').onclick=(ev)=>{if(ev.target.id==='noticeModal')document.getElementById('noticeModal').hidden=true;};
 
   // 앱 설정창

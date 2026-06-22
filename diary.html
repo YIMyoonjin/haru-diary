@@ -775,6 +775,10 @@ var SPLASHES=[
         <div class="set-row-s" id="lockStatus">허용 안됨</div>
       </div>
 
+      <div class="set-row" id="rowLocation">
+        <div class="set-row-l"><span class="set-ic">📍</span><div class="set-row-t"><strong>위치 허용</strong><small>날씨·현재 위치를 표시해요</small></div></div>
+        <div class="set-row-s" id="locationStatus">허용 안됨</div>
+      </div>
       <div class="set-group-label">꾸미기</div>
       <div class="set-sec"><label>기본 폰트</label><div class="font-list" id="fontListHome"></div></div>
       <div class="set-sec"><label>일기장 색상</label><div class="sw-list" id="themeListHome"></div></div>
@@ -1726,6 +1730,18 @@ var SPLASHES=[
     const s=document.getElementById('cameraStatus'); if(!s) return;
     s.textContent = camOn() ? '✅ 허용됨' : '허용 안됨';
   }
+  function refreshLocationStatus(){
+    const s=document.getElementById('locationStatus'); if(!s) return;
+    s.textContent='허용 안됨';
+    if(navigator.permissions&&navigator.permissions.query){
+      navigator.permissions.query({name:'geolocation'}).then(p=>{s.textContent=p.state==='granted'?'✅ 허용됨':(p.state==='denied'?'차단됨':'허용 안됨');}).catch(()=>{});
+    }
+  }
+  document.getElementById('rowLocation').onclick=()=>{
+    if(!navigator.geolocation){toast('위치를 지원하지 않는 기기예요');return;}
+    toast('위치 확인 중…');
+    navigator.geolocation.getCurrentPosition(async(pos)=>{const lat=pos.coords.latitude,lon=pos.coords.longitude;const place=await reverseGeo(lat,lon);try{fetchWeather(lat,lon,place);}catch(e){}try{fillEdInfo();}catch(e){}refreshLocationStatus();toast('위치가 허용됐어요');},()=>{refreshLocationStatus();toast('차단됨: 주소창 자물쇠 → 권한 → 위치에서 허용하세요');},{enableHighAccuracy:false,timeout:10000,maximumAge:600000});
+  };
   document.getElementById('profileSetBtn').onclick=()=>{document.getElementById('appSetModal').hidden=false;};
   document.getElementById('nameEditBtn').onclick=()=>{const cur=_nick||_fbName||'';const v=prompt('닉네임을 입력하세요',cur);if(v!=null){_nick=v.trim();store.set('nick',_nick);renderProfile();}};
   // 로그아웃
@@ -1927,7 +1943,7 @@ var SPLASHES=[
   function renderProfile(){
     const av=document.getElementById('profileAvatar');if(av){if(_fbPhoto){av.src=_fbPhoto;av.style.display='';}else{av.style.display='none';}}
     const nm=document.getElementById('profileName');if(nm)nm.textContent=_nick||_fbName||_fbEmail||'사용자';
-    try{refreshNotifStatus();refreshCameraStatus();refreshLockStatus();refreshDmodeBtns();}catch(e){}
+    try{refreshNotifStatus();refreshCameraStatus();refreshLocationStatus();refreshLockStatus();refreshDmodeBtns();}catch(e){}
     try{const u=window._FB&&window._FB.auth&&window._FB.auth.currentUser;const ae=document.getElementById('accountEmail');if(u&&ae)ae.textContent=u.displayName||u.email||'로그인됨';}catch(e){}
     const dates=new Set();
     try{for(const k in _dayCache){if(k.indexOf('diary:')===0)dates.add(k.slice(6));}}catch(e){}

@@ -294,7 +294,7 @@ var SPLASHES=[
   .modal[hidden]{display:none}
   .modal-card{background:var(--surface);border:1px solid var(--line);border-radius:20px;width:100%;max-width:440px;max-height:80vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.35)}
   /* 검색/공지: 떠있는 팝업이 아니라 전체 화면 페이지로 이동 */
-  #searchModal, #noticeModal, #bookmarkModal, #galleryModal{background:var(--bg);padding:0;align-items:stretch;justify-content:flex-start;z-index:80}
+  #searchModal, #noticeModal, #bookmarkModal, #galleryModal, #profileModal{background:var(--bg);padding:0;align-items:stretch;justify-content:flex-start;z-index:80}
   /* 갤러리 */
   .gallery-list{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:14px;padding:12px}
   .gallery-list.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;align-content:start}
@@ -309,7 +309,28 @@ var SPLASHES=[
   .gcard .gsnip{font-size:13px;opacity:.92;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
   .gallery-toggle{position:fixed;right:18px;bottom:100px;z-index:96;width:50px;height:50px;border-radius:50%;border:1px solid var(--line);background:var(--surface);color:var(--ink);box-shadow:0 4px 16px rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center;cursor:pointer}
   .gallery-toggle svg{width:24px;height:24px}
-  #searchModal .modal-card, #noticeModal .modal-card, #bookmarkModal .modal-card, #galleryModal .modal-card{max-width:none;width:100%;max-height:none;height:100%;border:0;border-radius:0;box-shadow:none}
+  .gal-head{border-bottom:0}
+  .gcard{background:#1a1a1c}
+  .gtop{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 14px 8px;color:#fff;font-family:var(--f-body)}
+  .gmonth{font-size:18px;font-weight:700}
+  .gprog{display:flex;align-items:center;gap:8px;flex:1;justify-content:flex-end}
+  .gprog-bar{flex:1;max-width:150px;height:4px;border-radius:3px;background:rgba(255,255,255,.25);overflow:hidden}
+  .gprog-bar i{display:block;height:100%;background:#fff}
+  .gprog-n{font-size:12px;opacity:.85;white-space:nowrap;color:#fff}
+  .gph{position:relative}
+  .gover{position:absolute;left:0;right:0;bottom:0;padding:14px;background:linear-gradient(to top,rgba(0,0,0,.55),transparent);color:#fff;font-family:var(--f-body)}
+  .gday{font-size:26px;font-weight:700;line-height:1}
+  .gcap{display:block;font-size:13px;opacity:.92;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .gallery-list.grid .gtop,.gallery-list.grid .gover{display:none}
+  .profile-body{flex:1;overflow-y:auto;padding:24px 20px}
+  .profile-top{display:flex;align-items:center;gap:16px;margin-bottom:24px}
+  .profile-avatar{width:64px;height:64px;border-radius:50%;object-fit:cover;background:var(--surface-2);border:1px solid var(--line)}
+  .profile-name{font-family:var(--f-body);font-size:22px;font-weight:700;color:var(--ink)}
+  .profile-stats{display:flex;gap:12px}
+  .pstat{flex:1;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px;text-align:center}
+  .pstat-num{font-family:var(--f-body);font-size:28px;font-weight:700;color:var(--ink)}
+  .pstat-lab{font-size:13px;color:var(--ink-soft);margin-top:4px;font-family:var(--f-body)}
+  #searchModal .modal-card, #noticeModal .modal-card, #bookmarkModal .modal-card, #galleryModal .modal-card, #profileModal .modal-card{max-width:none;width:100%;max-height:none;height:100%;border:0;border-radius:0;box-shadow:none}
   #searchModal .hist-list, #noticeModal .hist-list, #bookmarkModal .hist-list{flex:1}
   .modal-head{display:flex;align-items:center;justify-content:space-between;padding:18px 20px;border-bottom:1px solid var(--line)}
   .modal-head h3{margin:0;font-family:var(--f-body);font-size:20px;font-weight:700;color:var(--ink)}
@@ -682,9 +703,24 @@ var SPLASHES=[
   </div>
   <div id="galleryModal" class="modal" hidden>
     <div class="modal-card">
-      <div class="modal-head"><h3>갤러리</h3><button id="galleryClose" data-ic="close" aria-label="닫기"></button></div>
+      <div class="modal-head gal-head"><span></span><button id="galleryClose" data-ic="close" aria-label="닫기"></button></div>
       <div id="galleryList" class="gallery-list"></div>
       <button id="galleryToggle" class="gallery-toggle" title="보기 전환"><span data-ic="grid"></span></button>
+    </div>
+  </div>
+  <div id="profileModal" class="modal" hidden>
+    <div class="modal-card">
+      <div class="modal-head"><h3>프로필</h3><button id="profileClose" data-ic="close" aria-label="닫기"></button></div>
+      <div class="profile-body">
+        <div class="profile-top">
+          <img id="profileAvatar" class="profile-avatar" alt="" referrerpolicy="no-referrer">
+          <div class="profile-name" id="profileName">사용자</div>
+        </div>
+        <div class="profile-stats">
+          <div class="pstat"><div class="pstat-num" id="statLogs">0</div><div class="pstat-lab">모든 로그</div></div>
+          <div class="pstat"><div class="pstat-num" id="statBm">0</div><div class="pstat-lab">북마크</div></div>
+        </div>
+      </div>
     </div>
   </div>
   <div id="noticeModal" class="modal" hidden>
@@ -966,7 +1002,7 @@ var SPLASHES=[
   }
 
   /* 저장소 */
-  let _fbUid=null;
+  let _fbUid=null,_fbName='',_fbPhoto='',_fbEmail='';
 
   const store={
     _ref(k){const {db,doc}=window._FB;return doc(db,`users/${_fbUid}/data`,k);},
@@ -1801,21 +1837,33 @@ var SPLASHES=[
     try{for(const k in _dayCache){if(k.indexOf('diary:')===0)dates.add(k.slice(6));}}catch(e){}
     try{for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k&&k.indexOf('hd_diary:')===0)dates.add(k.slice(9));}}catch(e){}
     const arr=[...dates].sort((a,b)=>a<b?1:-1);
+    const monthRec={};
+    arr.forEach(ds=>{const s=entrySummary(ds);if(s&&(s.hasText||s.photo)){const mk=ds.slice(0,7);monthRec[mk]=(monthRec[mk]||0)+1;}});
     const items=[];
     arr.forEach(ds=>{const s=entrySummary(ds);if(s&&s.photo){let d=_dayCache['diary:'+ds];if(!d){try{d=JSON.parse(localStorage.getItem('hd_diary:'+ds));}catch(e){}}
-      const snip=d?([d.diary,d.memo].map(htmlText).join(' ')).replace(/\s+/g,' ').trim():'';
-      items.push({ds,photo:s.photo,snip});}});
+      let cap='';if(d){cap=htmlText(d.diary).replace(/\s+/g,' ').trim();}
+      items.push({ds,photo:s.photo,cap});}});
     if(!items.length){list.innerHTML='<div class="hist-empty">아직 사진이 없어요.</div>';return;}
-    items.forEach(it=>{const c=document.createElement('div');c.className='gcard';
-      const img=document.createElement('img');img.src=it.photo;img.loading='lazy';
-      const meta=document.createElement('div');meta.className='gmeta';
-      const dt=document.createElement('div');dt.className='gdate';dt.textContent=Number(it.ds.slice(5,7))+'월 '+Number(it.ds.slice(8,10))+'일';
-      const sn=document.createElement('div');sn.className='gsnip';sn.textContent=it.snip;
-      meta.append(dt,sn);c.append(img,meta);
+    items.forEach(it=>{const y=it.ds.slice(0,4),m=Number(it.ds.slice(5,7)),dayN=Number(it.ds.slice(8,10));
+      const di=new Date(Number(y),m,0).getDate();const rec=monthRec[it.ds.slice(0,7)]||0;const pct=Math.round(rec/di*100);
+      const c=document.createElement('div');c.className='gcard';
+      c.innerHTML='<div class="gtop"><span class="gmonth">'+y+'.'+String(m).padStart(2,'0')+'</span><span class="gprog"><span class="gprog-bar"><i style="width:'+pct+'%"></i></span><span class="gprog-n">'+rec+' / '+di+'</span></span></div><div class="gph"><img loading="lazy" src="'+it.photo+'"><div class="gover"><span class="gday">'+dayN+'</span>'+(it.cap?'<span class="gcap">'+_esc(it.cap)+'</span>':'')+'</div></div>';
       c.onclick=()=>{document.getElementById('galleryModal').hidden=true;document.getElementById('home').style.display='';openEditor(new Date(it.ds+'T00:00:00'));};
       list.appendChild(c);});
   }
-  document.getElementById('navProfile').onclick=()=>{toast('프로필은 곧 추가됩니다 🙂');};
+  document.getElementById('navProfile').onclick=()=>{document.getElementById('profileModal').hidden=false;document.getElementById('home').style.display='none';renderProfile();};
+  document.getElementById('profileClose').onclick=()=>{document.getElementById('profileModal').hidden=true;document.getElementById('home').style.display='';};
+  document.getElementById('profileModal').onclick=(ev)=>{if(ev.target.id==='profileModal'){document.getElementById('profileModal').hidden=true;document.getElementById('home').style.display='';}};
+  function renderProfile(){
+    const av=document.getElementById('profileAvatar');if(av){if(_fbPhoto){av.src=_fbPhoto;av.style.display='';}else{av.style.display='none';}}
+    const nm=document.getElementById('profileName');if(nm)nm.textContent=_fbName||_fbEmail||'사용자';
+    const dates=new Set();
+    try{for(const k in _dayCache){if(k.indexOf('diary:')===0)dates.add(k.slice(6));}}catch(e){}
+    try{for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k&&k.indexOf('hd_diary:')===0)dates.add(k.slice(9));}}catch(e){}
+    let logs=0,bm=0;dates.forEach(ds=>{const s=entrySummary(ds);if(s){if(s.hasText||s.photo)logs++;if(s.bookmarked)bm++;}});
+    const sl=document.getElementById('statLogs');if(sl)sl.textContent=logs;
+    const sb=document.getElementById('statBm');if(sb)sb.textContent=bm;
+  }
   document.getElementById('navBookmark').onclick=()=>{document.getElementById('bookmarkModal').hidden=false;document.getElementById('home').style.display='none';renderBookmarks();};
   document.getElementById('bookmarkClose').onclick=()=>{document.getElementById('bookmarkModal').hidden=true;document.getElementById('home').style.display='';};
   document.getElementById('bookmarkModal').onclick=(ev)=>{if(ev.target.id==='bookmarkModal'){document.getElementById('bookmarkModal').hidden=true;document.getElementById('home').style.display='';}};
@@ -1916,7 +1964,7 @@ var SPLASHES=[
     onAuthStateChanged(auth,async(user)=>{
       const loginScreen=document.getElementById('loginScreen');
       if(user){
-        _fbUid=user.uid;
+        _fbUid=user.uid;_fbName=user.displayName||'';_fbPhoto=user.photoURL||'';_fbEmail=user.email||'';
         loginScreen.style.display='none';
         try{const _mn=await migrateLocalToCloud(); if(_mn>0)toast('이 기기 기록 '+_mn+'개를 클라우드로 동기화했어요');}catch(e){}
         try{ await loadSettings(); }catch(e){} applyFont(curFont); applyTheme(curTheme); applyPalette(); applyInk();

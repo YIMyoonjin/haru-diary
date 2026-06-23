@@ -176,6 +176,24 @@ var SPLASHES=[
   .alarm-note{font-size:11.5px;color:var(--ink-soft);margin:8px 0 0;line-height:1.55}
   .alarm-body{padding:18px 20px}
   .alarm-lab{display:block;font-size:13px;color:var(--ink-soft);margin-bottom:8px;font-family:var(--f-body)}
+  .alarm-screen{align-items:stretch;justify-content:flex-start;background:var(--bg);padding:0;z-index:85;overflow-y:auto}
+  .alarm-screen-inner{width:100%;max-width:520px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;align-items:center;padding:56px 24px 210px;position:relative;box-sizing:border-box}
+  .alarm-x{position:absolute;top:14px;right:14px;border:0;background:transparent;color:var(--ink-soft);width:42px;height:42px;display:inline-flex;align-items:center;justify-content:center;cursor:pointer}
+  .alarm-x svg{width:22px;height:22px}
+  .alarm-title{text-align:center;color:var(--ink-soft);font-size:18px;margin:24px 0 40px;font-family:var(--f-ui);line-height:1.55}
+  .alarm-title b{display:block;margin-top:8px;color:var(--ink);font-size:24px;font-weight:700}
+  .tp-wrap{position:relative;display:flex;align-items:center;justify-content:center;gap:4px;height:180px;width:100%}
+  .tp-sel{position:absolute;left:50%;transform:translateX(-50%);width:236px;top:60px;height:60px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);pointer-events:none}
+  .tp-col{height:180px;overflow-y:scroll;scroll-snap-type:y mandatory;-ms-overflow-style:none;scrollbar-width:none;text-align:center;width:62px}
+  .tp-col::-webkit-scrollbar{display:none}
+  .tp-ap{width:80px}
+  .tp-pad{height:60px}
+  .tp-item{height:60px;line-height:60px;font-size:33px;color:var(--ink-soft);opacity:.35;scroll-snap-align:center;font-family:var(--f-ui)}
+  .tp-item.on{color:var(--ink);opacity:1;font-weight:700}
+  .tp-ap .tp-item{font-size:22px}
+  .tp-colon{font-size:30px;color:var(--ink);height:180px;line-height:180px;font-family:var(--f-ui)}
+  .alarm-done{margin-top:48px;width:100%;max-width:460px;background:#F0518B;color:#fff;border:0;border-radius:16px;padding:18px;font-size:17px;font-weight:700;font-family:var(--f-ui);cursor:pointer}
+  .alarm-off{margin-top:14px;border:0;background:transparent;color:var(--ink-soft);font-size:14px;font-family:var(--f-ui);cursor:pointer}
   .alarm-input{width:100%;border:1px solid var(--line);border-radius:9px;padding:10px;font-family:var(--f-body);font-size:16px;background:var(--surface-2);color:var(--ink)}
   .bottom-bar{display:flex;flex-direction:column;align-items:center;gap:10px;position:fixed;left:0;right:0;bottom:0;z-index:95;padding:10px 14px calc(12px + env(safe-area-inset-bottom));background:linear-gradient(to top,var(--bg) 62%,transparent)}
   .alarm-pill{display:inline-flex;align-items:center;gap:8px;border:2px solid transparent;background:linear-gradient(var(--surface),var(--surface)) padding-box,var(--accent-grad) border-box;color:#F7E9CB;border-radius:999px;padding:11px 24px;font-family:var(--f-ui);font-size:16px;cursor:pointer}
@@ -482,7 +500,7 @@ var SPLASHES=[
   .yday-body{display:flex;gap:12px;align-items:center}
   .yday-body img{width:54px;height:54px;border-radius:10px;object-fit:cover;flex:0 0 auto}
   .yday-text{font-family:var(--f-body);font-size:15px;color:var(--ink);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-  .cal-card{background:transparent;border:0;border-radius:20px;padding:4px 2px}
+  .cal-card{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:8px 6px}
   .cal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;padding:0 6px}
   .cal-label{font-family:var(--f-body);font-size:23px;font-weight:700;color:var(--ink)}
   .cal-nav{border:0;background:transparent;color:var(--ink-soft);font-size:28px;cursor:pointer;width:42px;height:42px;border-radius:12px;line-height:1}
@@ -680,7 +698,7 @@ var SPLASHES=[
   <!-- 홈(캘린더) 화면 -->
   <div id="home">
     <div class="home-top">
-      <div class="home-title">오늘의 Diary <span class="home-ver">v93</span></div>
+      <div class="home-title">오늘의 Diary <span class="home-ver">v94</span></div>
       <div class="home-actions">
         <button id="searchBtn" class="icon-btn" data-ic="search" title="일기 검색"></button>
         <button id="noticeBtn" class="icon-btn" data-ic="bell" title="공지사항"></button>
@@ -748,15 +766,19 @@ var SPLASHES=[
   </div>
 
   <!-- 앱 설정 -->
-  <div id="alarmModal" class="modal" hidden>
-    <div class="modal-card">
-      <div class="modal-head"><h3>일기 알람 설정</h3><button id="alarmClose" data-ic="close" aria-label="닫기"></button></div>
-      <div class="alarm-body">
-        <label class="alarm-lab">일기 쓸 시간</label>
-        <input type="time" id="alarmTime" class="alarm-input">
-        <button id="alarmClear" class="clr">알람 끄기</button>
-        <p class="alarm-note">설정한 시간에 알려드려요. (앱이 열려 있을 때)</p>
+  <div id="alarmModal" class="modal alarm-screen" hidden>
+    <div class="alarm-screen-inner">
+      <button id="alarmClose" class="alarm-x" data-ic="close" aria-label="닫기"></button>
+      <div class="alarm-title"><span id="alarmName">친구</span>님,<b>일기 쓸 시간을 정하세요.</b></div>
+      <div class="tp-wrap">
+        <div class="tp-sel"></div>
+        <div class="tp-col" id="tpHour"></div>
+        <div class="tp-colon">:</div>
+        <div class="tp-col" id="tpMin"></div>
+        <div class="tp-col tp-ap" id="tpAp"></div>
       </div>
+      <button id="alarmDone" class="alarm-done">완료</button>
+      <button id="alarmClear" class="alarm-off">알람 끄기</button>
     </div>
   </div>
   <div id="bottomBar" class="bottom-bar">
@@ -796,7 +818,7 @@ var SPLASHES=[
           <div class="pstat"><div class="pstat-num" id="statLogs">0</div><div class="pstat-lab">모든 로그</div></div>
           <div class="pstat"><div class="pstat-num" id="statBm">0</div><div class="pstat-lab">북마크</div></div>
         </div>
-        <div class="app-ver">오늘의 Diary · v93</div>
+        <div class="app-ver">오늘의 Diary · v94</div>
       <div class="set-modal-body">
       <div class="set-group-label">일기 모드</div>
       <div class="set-sec"><label>일기를 언제 쓰나요?</label>
@@ -1420,7 +1442,7 @@ var SPLASHES=[
   function scheduleSaveRoutines(){document.getElementById('saveState').textContent='저장 중…';clearTimeout(rtTimer);rtTimer=setTimeout(async()=>{await store.set('routines',JSON.stringify(routines));flash();},450);}
   async function loadRoutines(){const r=await store.get('routines');if(r&&r.value){routines=JSON.parse(r.value);routines.forEach(x=>{if(x.start===undefined)x.start='';if(x.end===undefined)x.end='';});}else{routines=[mk()];await store.set('routines',JSON.stringify(routines));}}
   async function loadDay(){const r=await store.get(key());day=r&&r.value?Object.assign(blankDay(),JSON.parse(r.value)):blankDay();if(!day.done)day.done={};if(!Array.isArray(day.photos))day.photos=[];if(day.photo){if(!day.photos.length)day.photos=[day.photo];day.photo='';}if(!Array.isArray(day.logs))day.logs=[];if(typeof day.bookmarked!=='boolean')day.bookmarked=false;if(typeof day.weather!=='string')day.weather='';if(typeof day.postit!=='string')day.postit='';if(typeof day.postitTitle!=='string')day.postitTitle='';try{_daySnap=JSON.stringify(day);}catch(e){_daySnap=null;}renderAll();}
-  async function loadReminder(){const r=await store.get('reminderTime');reminderTime=r&&r.value?r.value:'';document.getElementById('alarmTime').value=reminderTime;reflectAlarm();}
+  async function loadReminder(){const r=await store.get('reminderTime');reminderTime=r&&r.value?r.value:'';{const _at=document.getElementById('alarmTime');if(_at)_at.value=reminderTime;}reflectAlarm();}
   async function loadSettings(){const f=await store.get('font');if(f&&f.value)curFont=f.value;const t=await store.get('theme');if(t&&t.value)curTheme=t.value;const i=await store.get('ink');if(i&&i.value!==undefined)curInk=i.value;const dm=await store.get('dmode');if(dm&&dm.value)defaultMode=dm.value;const m=await store.get('fmt');if(m&&m.value){try{secFont=Object.assign(secFont,JSON.parse(m.value));}catch(e){}}const sb=await store.get('secbg');if(sb&&sb.value){try{secBg=Object.assign(secBg,JSON.parse(sb.value));}catch(e){}}const nk=await store.get('nick');if(nk&&nk.value)_nick=nk.value;const avs=await store.get('avatar');if(avs&&avs.value)_avatar=avs.value;}
 
   /* 사진 */
@@ -1461,6 +1483,32 @@ var SPLASHES=[
 
   /* 알람 */
   function reflectAlarm(){const b=document.getElementById('alarmBtn');if(b){b.classList.toggle('set',!!reminderTime);b.title=reminderTime?('알람 '+reminderTime):'알람 설정';}const p=document.getElementById('alarmSetBtn');if(p)p.classList.toggle('on',!!reminderTime);}
+  function _buildWheel(col,vals,fmt){if(!col)return;col.innerHTML='<div class="tp-pad"></div>'+vals.map(v=>'<div class="tp-item">'+fmt(v)+'</div>').join('')+'<div class="tp-pad"></div>';}
+  function _wheelIdx(col){return col?Math.max(0,Math.round(col.scrollTop/60)):0;}
+  function _markWheel(col){if(!col)return;const i=_wheelIdx(col);col.querySelectorAll('.tp-item').forEach((el,k)=>el.classList.toggle('on',k===i));}
+  function openAlarm(){
+    ensureAudio();
+    const nmEl=document.getElementById('alarmName');if(nmEl)nmEl.textContent=(_nick||_fbName||'친구');
+    const hc=document.getElementById('tpHour'),mc=document.getElementById('tpMin'),ac=document.getElementById('tpAp');
+    _buildWheel(hc,Array.from({length:12},(_,i)=>i+1),v=>v);
+    _buildWheel(mc,Array.from({length:60},(_,i)=>i),v=>String(v).padStart(2,'0'));
+    _buildWheel(ac,['오전','오후'],v=>v);
+    let h=8,m=0,ap=0;
+    if(reminderTime){const p=reminderTime.split(':');let H=parseInt(p[0])||0,M=parseInt(p[1])||0;ap=H>=12?1:0;h=H%12;if(h===0)h=12;m=M;}
+    document.getElementById('alarmModal').hidden=false;
+    setTimeout(()=>{if(hc){hc.scrollTop=(h-1)*60;_markWheel(hc);}if(mc){mc.scrollTop=m*60;_markWheel(mc);}if(ac){ac.scrollTop=ap*60;_markWheel(ac);}},40);
+    [hc,mc,ac].forEach(c=>{if(c)c.onscroll=()=>{clearTimeout(c._t);c._t=setTimeout(()=>_markWheel(c),70);};});
+  }
+  async function alarmConfirm(){
+    const hc=document.getElementById('tpHour'),mc=document.getElementById('tpMin'),ac=document.getElementById('tpAp');
+    let h=_wheelIdx(hc)+1,m=_wheelIdx(mc),ap=_wheelIdx(ac);
+    let H=h%12; if(ap===1)H+=12;
+    reminderTime=String(H).padStart(2,'0')+':'+String(m).padStart(2,'0');
+    await store.set('reminderTime',reminderTime);reflectAlarm();
+    try{if('Notification' in window&&Notification.permission==='default')Notification.requestPermission();}catch(e){}
+    document.getElementById('alarmModal').hidden=true;
+    toast('일기 알람을 '+(ap===0?'오전':'오후')+' '+h+':'+String(m).padStart(2,'0')+'에 맞췄어요');
+  }
   function ensureAudio(){try{if(!audioCtx){const AC=window.AudioContext||window.webkitAudioContext;if(AC)audioCtx=new AC();}if(audioCtx&&audioCtx.state==='suspended')audioCtx.resume();}catch(e){}}
   function beep(){try{if(!audioCtx)return;const t=audioCtx.currentTime;[0,0.55].forEach(off=>{const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.connect(g);g.connect(audioCtx.destination);o.type='sine';o.frequency.value=880;g.gain.setValueAtTime(0.0001,t+off);g.gain.exponentialRampToValueAtTime(0.22,t+off+0.02);g.gain.exponentialRampToValueAtTime(0.0001,t+off+0.4);o.start(t+off);o.stop(t+off+0.42);});}catch(e){}}
   function fireAlarm(){const b=document.getElementById('alarmBanner');b.hidden=false;setTimeout(()=>{b.hidden=true;},30000);beep();try{if('Notification' in window&&Notification.permission==='granted')new Notification('하루 다이어리',{body:'일기 쓸 시간이에요'});}catch(e){}}
@@ -2028,7 +2076,8 @@ var SPLASHES=[
   document.getElementById('histModal').onclick=(ev)=>{if(ev.target.id==='histModal')document.getElementById('histModal').hidden=true;};
   document.getElementById('stkClose').onclick=()=>{document.getElementById('stkModal').hidden=true;};
   document.getElementById('stkModal').onclick=(ev)=>{if(ev.target.id==='stkModal')document.getElementById('stkModal').hidden=true;};
-  document.getElementById('alarmSetBtn').onclick=()=>{ensureAudio();document.getElementById('alarmModal').hidden=false;};
+  document.getElementById('alarmSetBtn').onclick=()=>{openAlarm();};
+  document.getElementById('alarmDone').onclick=()=>{alarmConfirm();};
   document.getElementById('alarmClose').onclick=()=>{document.getElementById('alarmModal').hidden=true;};
   document.getElementById('alarmModal').onclick=(ev)=>{if(ev.target.id==='alarmModal')document.getElementById('alarmModal').hidden=true;};
   function setActiveNav(id){document.querySelectorAll('.bnav-btn').forEach(b=>b.classList.remove('active'));const el=document.getElementById(id);if(el)el.classList.add('active');}
@@ -2104,8 +2153,8 @@ var SPLASHES=[
       row.onclick=()=>{document.getElementById('bookmarkModal').hidden=true;document.getElementById('home').style.display='';openEditor(new Date(it.ds+'T00:00:00'),'bookmark');};
       list.appendChild(row);});
   }
-  document.getElementById('alarmTime').onchange=async(e)=>{reminderTime=e.target.value;await store.set('reminderTime',reminderTime);reflectAlarm();ensureAudio();try{if('Notification' in window&&Notification.permission==='default')Notification.requestPermission();}catch(e){}};
-  document.getElementById('alarmClear').onclick=async()=>{reminderTime='';document.getElementById('alarmTime').value='';await store.set('reminderTime','');reflectAlarm();};
+
+  document.getElementById('alarmClear').onclick=async()=>{reminderTime='';await store.set('reminderTime','');reflectAlarm();document.getElementById('alarmModal').hidden=true;toast('알람을 껐어요');};
   document.getElementById('alarmBannerClose').onclick=()=>{document.getElementById('alarmBanner').hidden=true;};
   const setPop=document.getElementById('setPop');
   document.getElementById('setBtn').onclick=(ev)=>{ev.stopPropagation();closePops(setPop);setPop.classList.toggle('open');};

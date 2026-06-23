@@ -337,7 +337,19 @@ var SPLASHES=[
   /* 히스토리 */
   .modal{position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;background:rgba(18,16,13,.5);padding:20px}
   .modal[hidden]{display:none}
-  .exit-modal{align-items:flex-end;justify-content:center;background:rgba(0,0,0,.55);padding:0}
+  .exit-modal{align-items:flex-end;justify-content:center;background:rgba(0,0,0,.55);padding:0;z-index:130}
+  .profile-avatar{cursor:pointer}
+  .nick-modal{z-index:120;align-items:center;justify-content:center;background:rgba(0,0,0,.55);padding:24px}
+  .nick-card{width:100%;max-width:340px;background:var(--surface);border-radius:20px;padding:24px 22px;display:flex;flex-direction:column;align-items:center;gap:16px}
+  .nick-card h3{margin:0;font-size:18px;color:var(--ink);font-family:var(--f-ui);font-weight:700}
+  .nick-avatar-wrap{position:relative;border:0;background:transparent;padding:0;cursor:pointer}
+  .nick-avatar{width:88px;height:88px;border-radius:50%;object-fit:cover;background:var(--surface-2);border:1px solid var(--line);display:block}
+  .avatar-badge{position:absolute;right:0;bottom:0;width:28px;height:28px;border-radius:50%;background:var(--accent-grad);color:#2B2A26;display:flex;align-items:center;justify-content:center;border:2px solid var(--surface)}
+  .avatar-badge svg{width:15px;height:15px}
+  .nick-input{width:100%;border:1px solid var(--line);border-radius:12px;padding:13px 14px;background:var(--surface-2);color:var(--ink);font-size:16px;font-family:var(--f-ui);outline:none;text-align:center;box-sizing:border-box}
+  .nick-btns{display:flex;gap:10px;width:100%}
+  .nick-cancel{flex:1;border:0;background:var(--surface-2);color:var(--ink-soft);border-radius:12px;padding:13px;font-size:15px;font-family:var(--f-ui);cursor:pointer}
+  .nick-save{flex:1;border:0;background:var(--accent-grad);color:#2B2A26;border-radius:12px;padding:13px;font-size:15px;font-weight:700;font-family:var(--f-ui);cursor:pointer}
   .exit-card{width:100%;max-width:520px;background:var(--surface);border-radius:22px 22px 0 0;padding:28px 22px calc(22px + env(safe-area-inset-bottom));text-align:center;box-shadow:0 -8px 30px rgba(0,0,0,.3)}
   .exit-card h3{margin:0 0 12px;font-size:19px;color:var(--ink);font-family:var(--f-ui);font-weight:700}
   .exit-card p{margin:0 0 22px;font-size:15px;color:var(--ink-soft);line-height:1.6;font-family:var(--f-ui)}
@@ -834,6 +846,16 @@ var SPLASHES=[
     </div>
   </div>
 
+  <div id="nickModal" class="modal nick-modal" hidden>
+    <div class="nick-card">
+      <h3>프로필 편집</h3>
+      <button id="nickAvatarBtn" class="nick-avatar-wrap" type="button"><img id="nickAvatar" class="nick-avatar" alt=""><span class="avatar-badge" data-ic="camera"></span></button>
+      <input type="file" id="avatarInput" accept="image/*" hidden>
+      <input type="text" id="nickInput" class="nick-input" placeholder="닉네임" maxlength="20">
+      <div class="nick-btns"><button id="nickCancel" class="nick-cancel" type="button">취소</button><button id="nickSave" class="nick-save" type="button">저장</button></div>
+    </div>
+  </div>
+
   <div id="exitModal" class="modal exit-modal" hidden>
     <div class="exit-card">
       <h3>일기 작성 취소</h3>
@@ -978,8 +1000,10 @@ var SPLASHES=[
 <script>
 (function(){
   const app=document.getElementById('app');
+  const DEFAULT_AV='data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20100%20100%22%3E%3Crect%20width%3D%22100%22%20height%3D%22100%22%20fill%3D%22%232A2A2E%22%2F%3E%3Ccircle%20cx%3D%2250%22%20cy%3D%2240%22%20r%3D%2217%22%20fill%3D%22%237A7A80%22%2F%3E%3Cpath%20d%3D%22M22%2084c0-16%2012-27%2028-27s28%2011%2028%2027z%22%20fill%3D%22%237A7A80%22%2F%3E%3C%2Fsvg%3E';
   const S='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">';
   const ICON={
+    pen:S+'<path d="M14.5 5.5l4 4M4 20l1-4 11-11a1.8 1.8 0 0 1 2.5 0l1.5 1.5a1.8 1.8 0 0 1 0 2.5L9.5 19 4 20z"/></svg>',
     sun:S+'<circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.2M12 19.3v2.2M21.5 12h-2.2M4.7 12H2.5M18.4 5.6l-1.6 1.6M7.2 16.8l-1.6 1.6M18.4 18.4l-1.6-1.6M7.2 7.2 5.6 5.6"/></svg>',
     moon:S+'<path d="M20 14.5A8 8 0 1 1 9.5 4a6.3 6.3 0 0 0 10.5 10.5z"/></svg>',
     camera:S+'<path d="M3.5 8.5A1.5 1.5 0 0 1 5 7h1.6l1-1.6A1 1 0 0 1 9.4 5h5.2a1 1 0 0 1 .8.4L16.4 7H19a1.5 1.5 0 0 1 1.5 1.5v8A1.5 1.5 0 0 1 19 18H5a1.5 1.5 0 0 1-1.5-1.5z"/><circle cx="12" cy="12.5" r="3.2"/></svg>',
@@ -1103,7 +1127,7 @@ var SPLASHES=[
   }
 
   /* 저장소 */
-  let _fbUid=null,_fbName='',_fbPhoto='',_fbEmail='',_nick='';
+  let _fbUid=null,_fbName='',_fbPhoto='',_fbEmail='',_nick='',_avatar='';
 
   const store={
     _ref(k){const {db,doc}=window._FB;return doc(db,`users/${_fbUid}/data`,k);},
@@ -1394,7 +1418,7 @@ var SPLASHES=[
   async function loadRoutines(){const r=await store.get('routines');if(r&&r.value){routines=JSON.parse(r.value);routines.forEach(x=>{if(x.start===undefined)x.start='';if(x.end===undefined)x.end='';});}else{routines=[mk()];await store.set('routines',JSON.stringify(routines));}}
   async function loadDay(){const r=await store.get(key());day=r&&r.value?Object.assign(blankDay(),JSON.parse(r.value)):blankDay();if(!day.done)day.done={};if(!Array.isArray(day.photos))day.photos=[];if(day.photo){if(!day.photos.length)day.photos=[day.photo];day.photo='';}if(!Array.isArray(day.logs))day.logs=[];if(typeof day.bookmarked!=='boolean')day.bookmarked=false;if(typeof day.weather!=='string')day.weather='';if(typeof day.postit!=='string')day.postit='';if(typeof day.postitTitle!=='string')day.postitTitle='';try{_daySnap=JSON.stringify(day);}catch(e){_daySnap=null;}renderAll();}
   async function loadReminder(){const r=await store.get('reminderTime');reminderTime=r&&r.value?r.value:'';document.getElementById('alarmTime').value=reminderTime;reflectAlarm();}
-  async function loadSettings(){const f=await store.get('font');if(f&&f.value)curFont=f.value;const t=await store.get('theme');if(t&&t.value)curTheme=t.value;const i=await store.get('ink');if(i&&i.value!==undefined)curInk=i.value;const dm=await store.get('dmode');if(dm&&dm.value)defaultMode=dm.value;const m=await store.get('fmt');if(m&&m.value){try{secFont=Object.assign(secFont,JSON.parse(m.value));}catch(e){}}const sb=await store.get('secbg');if(sb&&sb.value){try{secBg=Object.assign(secBg,JSON.parse(sb.value));}catch(e){}}const nk=await store.get('nick');if(nk&&nk.value)_nick=nk.value;}
+  async function loadSettings(){const f=await store.get('font');if(f&&f.value)curFont=f.value;const t=await store.get('theme');if(t&&t.value)curTheme=t.value;const i=await store.get('ink');if(i&&i.value!==undefined)curInk=i.value;const dm=await store.get('dmode');if(dm&&dm.value)defaultMode=dm.value;const m=await store.get('fmt');if(m&&m.value){try{secFont=Object.assign(secFont,JSON.parse(m.value));}catch(e){}}const sb=await store.get('secbg');if(sb&&sb.value){try{secBg=Object.assign(secBg,JSON.parse(sb.value));}catch(e){}}const nk=await store.get('nick');if(nk&&nk.value)_nick=nk.value;const avs=await store.get('avatar');if(avs&&avs.value)_avatar=avs.value;}
 
   /* 사진 */
   function readPhotos(files){
@@ -1818,7 +1842,14 @@ var SPLASHES=[
     navigator.geolocation.getCurrentPosition(async(pos)=>{const lat=pos.coords.latitude,lon=pos.coords.longitude;const place=await reverseGeo(lat,lon);try{fetchWeather(lat,lon,place);}catch(e){}try{fillEdInfo();}catch(e){}refreshLocationStatus();toast('위치가 허용됐어요');},(err)=>{refreshLocationStatus();if(err&&err.code===1){alert('위치 권한이 거부됐어요.\n주소창 왼쪽 자물쇠 → 권한 → 위치 → 허용 후 다시 시도해 주세요.');}else{toast('위치를 가져오지 못했어요');}},{enableHighAccuracy:false,timeout:10000,maximumAge:600000});
   };
   document.getElementById('profileSetBtn').onclick=()=>{document.getElementById('appSetModal').hidden=false;};
-  document.getElementById('nameEditBtn').onclick=()=>{const cur=_nick||_fbName||'';const v=prompt('닉네임을 입력하세요',cur);if(v!=null){_nick=v.trim();store.set('nick',_nick);renderProfile();}};
+  let _avStaged=null;
+  function openNickEdit(){const ni=document.getElementById('nickInput');ni.value=_nick||_fbName||'';document.getElementById('nickAvatar').src=_avatar||_fbPhoto||DEFAULT_AV;_avStaged=null;document.getElementById('nickModal').hidden=false;}
+  document.getElementById('nameEditBtn').onclick=openNickEdit;
+  {const _pa=document.getElementById('profileAvatar');if(_pa)_pa.onclick=openNickEdit;}
+  document.getElementById('nickAvatarBtn').onclick=()=>document.getElementById('avatarInput').click();
+  document.getElementById('avatarInput').onchange=(e)=>{const f=e.target.files&&e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{const img=new Image();img.onload=()=>{const sz=240,c=document.createElement('canvas');c.width=sz;c.height=sz;const ctx=c.getContext('2d');const sm=Math.min(img.width,img.height),sx=(img.width-sm)/2,sy=(img.height-sm)/2;ctx.drawImage(img,sx,sy,sm,sm,0,0,sz,sz);_avStaged=c.toDataURL('image/jpeg',0.85);document.getElementById('nickAvatar').src=_avStaged;};img.src=r.result;};r.readAsDataURL(f);e.target.value='';};
+  document.getElementById('nickCancel').onclick=()=>{document.getElementById('nickModal').hidden=true;};
+  document.getElementById('nickSave').onclick=async()=>{const v=document.getElementById('nickInput').value.trim();_nick=v;await store.set('nick',_nick);if(_avStaged){_avatar=_avStaged;await store.set('avatar',_avatar);_avStaged=null;}renderProfile();document.getElementById('nickModal').hidden=true;};
   // 로그아웃
   document.getElementById('logoutBtn').onclick=async()=>{
     if(!confirm('로그아웃 할까요?'))return;
@@ -2016,7 +2047,7 @@ var SPLASHES=[
   document.getElementById('profileClose').onclick=()=>{document.getElementById('profileModal').hidden=true;document.getElementById('home').style.display='';};
   document.getElementById('profileModal').onclick=(ev)=>{if(ev.target.id==='profileModal'){document.getElementById('profileModal').hidden=true;document.getElementById('home').style.display='';}};
   function renderProfile(){
-    const av=document.getElementById('profileAvatar');if(av){if(_fbPhoto){av.src=_fbPhoto;av.style.display='';}else{av.style.display='none';}}
+    const av=document.getElementById('profileAvatar');if(av){av.src=_avatar||_fbPhoto||DEFAULT_AV;av.style.display='';}
     const nm=document.getElementById('profileName');if(nm)nm.textContent=_nick||_fbName||_fbEmail||'사용자';
     try{refreshNotifStatus();refreshCameraStatus();refreshLocationStatus();refreshLockStatus();refreshDmodeBtns();}catch(e){}
     try{const u=window._FB&&window._FB.auth&&window._FB.auth.currentUser;const ae=document.getElementById('accountEmail');if(u&&ae)ae.textContent=u.displayName||u.email||'로그인됨';}catch(e){}

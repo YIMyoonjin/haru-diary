@@ -215,13 +215,13 @@ var SPLASHES=[
   .ed-tool{border:0;background:transparent;color:var(--ink-soft);cursor:pointer;display:inline-flex;padding:4px}
   .ed-tool svg{width:26px;height:26px}
   .ed-save{margin-left:auto;background:var(--accent-grad);color:var(--on-grad);border:0;border-radius:999px;padding:9px 22px;font-family:var(--f-ui);font-size:15px;cursor:pointer}
-  .tag-bar{position:fixed;left:0;right:0;bottom:0;z-index:99;background:var(--surface);border-top:1px solid var(--line);padding:10px 12px calc(10px + env(safe-area-inset-bottom));display:none;flex-direction:column;gap:10px}
+  .tag-bar{position:fixed;left:0;right:0;bottom:0;z-index:99;background:var(--surface);border-top:1px solid var(--line);padding:14px 14px calc(14px + env(safe-area-inset-bottom));display:none;flex-direction:column;gap:10px}
   .tag-bar.open{display:flex}
   .tag-bar-row{display:flex;align-items:center;gap:10px}
   .tg-close{flex:0 0 auto}
-  .tg-field{flex:1;display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:999px;padding:14px 18px;background:var(--surface-2)}
-  .tg-field .taghash{color:#F2632B;font-weight:700;font-size:17px;font-family:var(--f-ui)}
-  .tag-bar-row .taginput{flex:1;border:0;border-radius:0;padding:0;font-family:var(--f-ui);font-size:16px;background:transparent;color:var(--ink);outline:none;min-height:21px;max-height:80px;overflow-y:auto;white-space:pre-wrap;word-break:break-word}
+  .tg-field{flex:1;display:flex;align-items:center;gap:9px;border:1px solid var(--line);border-radius:999px;padding:18px 20px;background:var(--surface-2)}
+  .tg-field .taghash{color:#F2632B;font-weight:700;font-size:19px;font-family:var(--f-ui)}
+  .tag-bar-row .taginput{flex:1;border:0;border-radius:0;padding:0;font-family:var(--f-ui);font-size:17px;background:transparent;color:var(--ink);outline:none;min-height:26px;max-height:96px;overflow-y:auto;white-space:pre-wrap;word-break:break-word}
   .tag-bar-row .taginput:empty:before{content:attr(data-ph);color:var(--ink-soft);pointer-events:none}
   .tag-sugg{display:flex;gap:8px;overflow-x:auto}
   .tag-sugg button{flex:0 0 auto;border:0;background:var(--surface-2);color:var(--ink);border-radius:999px;padding:7px 13px;font-family:var(--f-ui);font-size:13px;cursor:pointer}
@@ -632,7 +632,7 @@ var SPLASHES=[
   #home .cal-cell{ border:0; border-right:1.4px solid var(--line); border-bottom:1.4px solid var(--line); border-radius:0; }
   #home .cal-cell .dnum{ font-family:var(--f-hand); font-size:16px; font-weight:700; padding:1px 0 0 3px; }
   #home .cal-cell .cphoto{ border-radius:3px; }
-  #home .cal-cell.today .dnum{ color:var(--on-accent); padding:0; }
+  #home .cal-cell.today .dnum{ background:transparent; color:var(--ink); border:2px solid #F0518B; outline:1.5px solid #F0518B; outline-offset:1.5px; width:21px; height:21px; padding:0; }
   /* 카드 글씨체 */
   #home .today-card, #home .today-label, #home .today-date, #home .today-hint{ font-family:var(--f-ui); }
   #home .today-label{ font-size:16px; } #home .today-date{ font-size:21px; }

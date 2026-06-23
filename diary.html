@@ -536,6 +536,14 @@ var SPLASHES=[
   .sched-inp{flex:1;min-width:0;border:1px solid var(--line);border-radius:9px;padding:7px 9px;font-family:var(--f-body);font-size:15px;background:var(--surface-2);color:var(--ink)}
   .sched-del{background:none;border:none;cursor:pointer;color:var(--ink-soft);flex:0 0 auto;padding:2px;display:inline-flex}
   .sched-del svg{width:16px;height:16px}
+  .sched-item{margin:6px 0}
+  .sched-photos{display:flex;gap:6px;margin:8px 0 0 30px}
+  .sched-photos .sp{position:relative;width:58px;height:58px;border-radius:9px;overflow:hidden;background:var(--surface-2);flex:0 0 auto}
+  .sched-photos .sp img{width:100%;height:100%;object-fit:cover;display:block;cursor:pointer}
+  .sched-photos .sprm{position:absolute;top:2px;right:2px;width:19px;height:19px;border-radius:50%;background:rgba(0,0,0,.55);color:#fff;border:0;display:inline-flex;align-items:center;justify-content:center;cursor:pointer}
+  .sched-photos .sprm svg{width:11px;height:11px}
+  .sched-photos .spadd{width:58px;height:58px;border-radius:9px;border:1.5px dashed var(--line);background:transparent;color:var(--ink-soft);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;flex:0 0 auto}
+  .sched-photos .spadd svg{width:20px;height:20px}
   .today-card{display:flex;align-items:center;justify-content:space-between;width:100%;margin-top:22px;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:18px 20px;cursor:pointer;font-family:var(--f-body);text-align:left}
   .today-card:hover{border-color:var(--accent)}
   .today-left{display:flex;flex-direction:column;gap:2px}
@@ -706,7 +714,7 @@ var SPLASHES=[
   <!-- 홈(캘린더) 화면 -->
   <div id="home">
     <div class="home-top">
-      <div class="home-title">오늘의 Diary <span class="home-ver">v97</span></div>
+      <div class="home-title">오늘의 Diary <span class="home-ver">v98</span></div>
       <div class="home-actions">
         <button id="searchBtn" class="icon-btn" data-ic="search" title="일기 검색"></button>
         <button id="noticeBtn" class="icon-btn" data-ic="bell" title="공지사항"></button>
@@ -826,7 +834,7 @@ var SPLASHES=[
           <div class="pstat"><div class="pstat-num" id="statLogs">0</div><div class="pstat-lab">모든 로그</div></div>
           <div class="pstat"><div class="pstat-num" id="statBm">0</div><div class="pstat-lab">북마크</div></div>
         </div>
-        <div class="app-ver">오늘의 Diary · v97</div>
+        <div class="app-ver">오늘의 Diary · v98</div>
       <div class="set-modal-body">
       <div class="set-group-label">일기 모드</div>
       <div class="set-sec"><label>일기를 언제 쓰나요?</label>
@@ -956,6 +964,7 @@ var SPLASHES=[
         <div class="sec-head"><span class="field">일정</span></div>
         <div id="schedList"></div>
         <button class="log-add" id="schedAdd"><span class="pc" data-ic="plus"></span><span>일정 추가하기</span></button>
+        <input type="file" id="schedPhotoInput" accept="image/*" hidden>
       </div>
       <div id="logList"></div>
       <button class="log-add" id="logAdd"><span class="pc" data-ic="plus"></span><span>일기 더 추가하기</span></button>
@@ -1408,6 +1417,8 @@ var SPLASHES=[
     const wrap=document.getElementById('schedList');if(!wrap)return;wrap.innerHTML='';
     if(!Array.isArray(day.schedules))day.schedules=[];
     day.schedules.forEach((s,i)=>{
+      if(!Array.isArray(s.photos))s.photos=[];
+      const item=document.createElement('div');item.className='sched-item';
       const row=document.createElement('div');row.className='sched-row';
       const sw=document.createElement('button');sw.className='sched-sw';sw.style.background=s.color||SCHED_COLORS[0];sw.title='색상 바꾸기';
       sw.onclick=()=>{const idx=SCHED_COLORS.indexOf(s.color);const nx=SCHED_COLORS[(idx+1)%SCHED_COLORS.length];day.schedules[i].color=nx;sw.style.background=nx;scheduleSaveDay();};
@@ -1416,7 +1427,11 @@ var SPLASHES=[
       inp.addEventListener('blur',flushSave);
       const del=document.createElement('button');del.className='sched-del';del.innerHTML=ICON.close;del.title='삭제';
       del.onclick=()=>{day.schedules.splice(i,1);renderSchedules();scheduleSaveDay();};
-      row.append(sw,inp,del);wrap.appendChild(row);
+      row.append(sw,inp,del);
+      const pr=document.createElement('div');pr.className='sched-photos';
+      s.photos.forEach((ph,pi)=>{const cell=document.createElement('div');cell.className='sp';const im=document.createElement('img');im.src=ph;im.onclick=()=>{document.getElementById('imgBig').src=ph;document.getElementById('imgModal').hidden=false;};const rm=document.createElement('button');rm.className='sprm';rm.innerHTML=ICON.close;rm.onclick=(e)=>{e.stopPropagation();s.photos.splice(pi,1);renderSchedules();scheduleSaveDay();};cell.append(im,rm);pr.appendChild(cell);});
+      if(s.photos.length<2){const add=document.createElement('button');add.className='spadd';add.innerHTML=ICON.camera;add.title='사진 추가';add.onclick=()=>{_schedPhotoIdx=i;document.getElementById('schedPhotoInput').click();};pr.appendChild(add);}
+      item.append(row,pr);wrap.appendChild(item);
     });
   }
   function _esc(s){return (s+'').replace(/[&<>\"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[c];});}
@@ -1843,7 +1858,10 @@ var SPLASHES=[
   document.getElementById('edGal').onclick=()=>{const pi=document.getElementById('photoInput');pi.removeAttribute('capture');pi.click();};
   document.getElementById('edSave').onclick=()=>{flushSave();toast('저장됐어요');document.getElementById('editor').hidden=true;{const _bb=document.getElementById('bottomBar');if(_bb)_bb.style.display='';}showHome();};
   document.getElementById('edSet').onclick=()=>{flushSave();document.getElementById('editor').hidden=true;{const _bb=document.getElementById('bottomBar');if(_bb)_bb.style.display='';}document.querySelectorAll('.modal').forEach(m=>m.hidden=true);document.getElementById('home').style.display='none';document.getElementById('profileModal').hidden=false;renderProfile();};
-  document.getElementById('schedAdd').onclick=()=>{if(!Array.isArray(day.schedules))day.schedules=[];const c=SCHED_COLORS[day.schedules.length%SCHED_COLORS.length];day.schedules.push({text:'',color:c});renderSchedules();scheduleSaveDay();const ins=document.querySelectorAll('#schedList .sched-inp');if(ins.length)ins[ins.length-1].focus();};
+  document.getElementById('schedAdd').onclick=()=>{if(!Array.isArray(day.schedules))day.schedules=[];if(day.schedules.length>=3){toast('일정은 최대 3개예요');return;}const c=SCHED_COLORS[day.schedules.length%SCHED_COLORS.length];day.schedules.push({text:'',color:c,photos:[]});renderSchedules();scheduleSaveDay();const ins=document.querySelectorAll('#schedList .sched-inp');if(ins.length)ins[ins.length-1].focus();};
+  let _schedPhotoIdx=-1;
+  function readSchedPhoto(file,idx){const fr=new FileReader();fr.onload=()=>{const img=new Image();img.onload=async()=>{const max=1200,sc=Math.min(1,max/Math.max(img.width,img.height));const c=document.createElement('canvas');c.width=img.width*sc;c.height=img.height*sc;c.getContext('2d').drawImage(img,0,0,c.width,c.height);const b64=c.toDataURL('image/jpeg',0.82);const sch=day.schedules[idx];if(!sch)return;if(!Array.isArray(sch.photos))sch.photos=[];if(sch.photos.length>=2)return;if(_fbUid){try{const {storage,ref,uploadString,getDownloadURL}=window._FB;const ds=`${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;const path=`users/${_fbUid}/sched/${ds}/${Date.now()}_${Math.random().toString(36).slice(2)}.jpg`;const storageRef=ref(storage,path);await uploadString(storageRef,b64,'data_url');const url=await getDownloadURL(storageRef);sch.photos.push(url);}catch(e){sch.photos.push(b64);}}else{sch.photos.push(b64);}renderSchedules();scheduleSaveDay();};img.onerror=()=>{};img.src=fr.result;};fr.readAsDataURL(file);}
+  document.getElementById('schedPhotoInput').onchange=(e)=>{const f=e.target.files&&e.target.files[0];if(f&&_schedPhotoIdx>=0)readSchedPhoto(f,_schedPhotoIdx);e.target.value='';};
   /* 포스트잇 */
   document.getElementById('postitAddBtn').onclick=()=>{
     if(!Array.isArray(day.postits))day.postits=[];

@@ -178,8 +178,8 @@ var SPLASHES=[
   .alarm-lab{display:block;font-size:13px;color:var(--ink-soft);margin-bottom:8px;font-family:var(--f-body)}
   .alarm-input{width:100%;border:1px solid var(--line);border-radius:9px;padding:10px;font-family:var(--f-body);font-size:16px;background:var(--surface-2);color:var(--ink)}
   .bottom-bar{display:flex;flex-direction:column;align-items:center;gap:10px;position:fixed;left:0;right:0;bottom:0;z-index:95;padding:10px 14px calc(12px + env(safe-area-inset-bottom));background:linear-gradient(to top,var(--bg) 62%,transparent)}
-  .alarm-pill{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:11px 24px;font-family:var(--f-ui);font-size:16px;cursor:pointer}
-  .alarm-pill.on{border-color:var(--accent);color:var(--accent)}
+  .alarm-pill{display:inline-flex;align-items:center;gap:8px;border:1px solid transparent;background:var(--accent-grad);color:var(--on-grad);border-radius:999px;padding:11px 24px;font-family:var(--f-ui);font-size:16px;cursor:pointer}
+  .alarm-pill.on{border-color:transparent;color:var(--on-grad)}
   .alarm-pill svg{width:20px;height:20px}
   .bnav-row{display:flex;align-items:center;gap:10px;width:100%;max-width:460px;justify-content:center}
   .bnav{flex:1;display:flex;align-items:center;justify-content:space-around;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:6px 4px;box-shadow:0 6px 20px rgba(0,0,0,.18)}
@@ -193,6 +193,8 @@ var SPLASHES=[
   #editor{padding-bottom:158px}
   .ed-info{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:2px 4px 14px;color:var(--ink-soft);font-family:var(--f-ui);font-size:14px}
   .ed-info svg{width:16px;height:16px}
+  #weatherBtn{display:none}
+  .ed-info .edi-w{border:0;background:transparent;padding:0;margin:0;cursor:pointer;color:inherit;display:inline-flex;align-items:center}
   .edi-w,.edi-p{display:inline-flex;align-items:center;gap:4px}
   .edi-add{display:inline-flex;align-items:center;gap:4px;border:0;background:transparent;color:var(--accent);cursor:pointer;font-family:var(--f-ui);font-size:14px}
   .tag-wrap{display:flex;flex-wrap:wrap;gap:8px;padding:10px 14px;margin:0;align-items:center;border-bottom:1px solid var(--line)}
@@ -208,7 +210,8 @@ var SPLASHES=[
   .tag-bar{position:fixed;left:0;right:0;bottom:0;z-index:99;background:var(--surface);border-top:1px solid var(--line);padding:10px 12px calc(10px + env(safe-area-inset-bottom));display:none;flex-direction:column;gap:10px}
   .tag-bar.open{display:flex}
   .tag-bar-row{display:flex;align-items:center;gap:8px}
-  .tag-bar-row input{flex:1;border:1px solid var(--line);border-radius:999px;padding:10px 14px;font-family:var(--f-ui);font-size:15px;background:var(--surface-2);color:var(--ink)}
+  .tag-bar-row .taginput{flex:1;border:1px solid var(--line);border-radius:999px;padding:10px 14px;font-family:var(--f-ui);font-size:15px;background:var(--surface-2);color:var(--ink);outline:none;min-height:21px;max-height:80px;overflow-y:auto;white-space:pre-wrap;word-break:break-word}
+  .tag-bar-row .taginput:empty:before{content:attr(data-ph);color:var(--ink-soft);pointer-events:none}
   .tag-sugg{display:flex;gap:8px;overflow-x:auto}
   .tag-sugg button{flex:0 0 auto;border:0;background:var(--surface-2);color:var(--ink);border-radius:999px;padding:7px 13px;font-family:var(--f-ui);font-size:13px;cursor:pointer}
   .tag-sugg button b{color:#F2632B}
@@ -233,7 +236,7 @@ var SPLASHES=[
   .photo.empty-mode{aspect-ratio:16/9}
   .photo .empty{position:absolute;inset:0;display:flex;flex-direction:column;gap:8px;align-items:center;justify-content:center;color:var(--ink-soft);cursor:pointer;font-size:14px;font-family:var(--f-body)}
   .photo .empty .ic svg{width:28px;height:28px}
-  .photo-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:3px;padding:3px;aspect-ratio:16/9;box-sizing:border-box}
+  .photo-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:3px;padding:3px;box-sizing:border-box}
   .photo-grid[hidden]{display:none}
   .pcell{position:relative;overflow:hidden;background:var(--surface-2)}
   .pcell img{width:100%;height:100%;object-fit:cover;display:block;cursor:pointer}
@@ -538,6 +541,7 @@ var SPLASHES=[
   .fmt-sheet{position:fixed;left:0;right:0;bottom:0;z-index:70;background:var(--surface);border-top:1px solid var(--line);border-radius:20px 20px 0 0;padding:16px 16px calc(18px + env(safe-area-inset-bottom));box-shadow:0 -8px 30px rgba(0,0,0,.2);transform:translateY(110%);transition:transform .24s ease;max-height:62vh;overflow-y:auto}
   body.fmt-open .fmt-sheet{transform:translateY(0)}
   body.fmt-open .fmt-backdrop{opacity:1;pointer-events:auto}
+  body.fmt-open .ed-bottom,body.fmt-open .tag-bar{display:none}
   .fmt-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
   .fmt-head h4{margin:0;font-size:16px;color:var(--ink);font-family:var(--f-body);font-weight:700}
   .fmt-body{display:flex;flex-direction:column;gap:16px;align-items:stretch}
@@ -903,7 +907,7 @@ var SPLASHES=[
     </div>
   </div>
   <div class="tag-bar" id="tagBar">
-    <div class="tag-bar-row"><input type="text" id="tagInput" placeholder="# 추가할 태그를 입력하세요!" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false"><button class="ed-tool" id="tagBarClose"><span data-ic="close"></span></button></div>
+    <div class="tag-bar-row"><div id="tagInput" class="taginput" contenteditable="true" role="textbox" inputmode="text" enterkeyhint="done" autocapitalize="off" autocorrect="off" spellcheck="false" data-ph="# 추가할 태그를 입력하세요!"></div><button class="ed-tool" id="tagBarClose"><span data-ic="close"></span></button></div>
     <div class="tag-sugg" id="tagSugg"></div>
   </div>
   </div>
@@ -1247,18 +1251,15 @@ var SPLASHES=[
     grid.innerHTML='';
     if(!photos.length){zone.style.display='none';empty.style.display='none';grid.hidden=true;return;}
     zone.style.display='';empty.style.display='none';grid.hidden=false;zone.classList.remove('empty-mode');
+    const n=photos.length;
     photos.forEach((p,i)=>{
       const cell=document.createElement('div');cell.className='pcell';
+      if(n===1||(n===3&&i===2)){cell.style.gridColumn='1 / -1';cell.style.aspectRatio='16 / 9';}else{cell.style.aspectRatio='1 / 1';}
       const img=document.createElement('img');img.src=p;img.alt='사진';img.onclick=()=>openImg(i);
       const rm=document.createElement('button');rm.className='prm';rm.innerHTML=ICON.close;rm.setAttribute('aria-label','사진 삭제');
       rm.onclick=(e)=>{e.stopPropagation();day.photos.splice(i,1);renderPhotos();scheduleSaveDay();};
       cell.append(img,rm);grid.appendChild(cell);
     });
-    if(photos.length<4){
-      const add=document.createElement('div');add.className='padd';add.innerHTML=ICON.camera+'<span>추가</span>';
-      if(photos.length%2===0)add.style.gridColumn='1 / -1';
-      add.onclick=()=>document.getElementById('photoInput').click();grid.appendChild(add);
-    }
   }
   function openImg(i){
     const photos=day.photos||[];
@@ -1663,7 +1664,8 @@ var SPLASHES=[
     let wx=null;try{wx=JSON.parse(localStorage.getItem('hd_wx')||'null');}catch(e){}
     let wIcon=ICON.cloud,place='';
     if(wx){try{const w=wcode(wx.code||0);wIcon=ICON[w.ic];}catch(e){}place=wx.place||'';}
-    el.innerHTML='<span class="edi-w">'+wIcon+'</span><span class="edi-t">'+ap+' '+hh+':'+mm+'</span>'+(place?('<span class="edi-p"><span class="edi-pin"></span>'+place+'</span>'):('<button class="edi-add" id="edLocAdd"><span class="edi-pin"></span>위치 추가</button>'));
+    el.innerHTML='<button type="button" class="edi-w" id="edWx" title="날씨 새로고침">'+wIcon+'</button><span class="edi-t">'+ap+' '+hh+':'+mm+'</span>'+(place?('<span class="edi-p"><span class="edi-pin"></span>'+place+'</span>'):('<button class="edi-add" id="edLocAdd"><span class="edi-pin"></span>위치 추가</button>'));
+    const wxb=document.getElementById('edWx');if(wxb)wxb.onclick=()=>{if(!navigator.geolocation){toast('위치를 지원하지 않는 기기예요');return;}navigator.geolocation.getCurrentPosition(async(pos)=>{const lat=pos.coords.latitude,lon=pos.coords.longitude;const place=await reverseGeo(lat,lon);try{fetchWeather(lat,lon,place);}catch(e){}setTimeout(fillEdInfo,900);},()=>{toast('위치 권한이 필요해요');});};
     el.querySelectorAll('.edi-pin').forEach(s=>s.innerHTML=ICON.pin);
     const add=document.getElementById('edLocAdd');
     if(add)add.onclick=()=>{if(!navigator.geolocation){toast('위치를 지원하지 않는 기기예요');return;}add.textContent='위치 확인 중…';navigator.geolocation.getCurrentPosition(async(pos)=>{const lat=pos.coords.latitude,lon=pos.coords.longitude;const place=await reverseGeo(lat,lon);try{fetchWeather(lat,lon,place);}catch(e){}setTimeout(fillEdInfo,900);},()=>{fillEdInfo();toast('위치 권한이 필요해요');},{enableHighAccuracy:false,timeout:10000,maximumAge:600000});};
@@ -1675,10 +1677,10 @@ var SPLASHES=[
     day.tags.forEach((t,i)=>{const c=document.createElement('span');c.className='tag-chip';c.innerHTML='<b>#</b>'+_esc(t)+' <span class="x">✕</span>';c.querySelector('.x').onclick=()=>{day.tags.splice(i,1);renderTags();scheduleSaveDay();};w.appendChild(c);});
     if(day.tags.length<5){const b=document.createElement('button');b.className='tag-add';b.innerHTML='<b>#</b> 태그 추가 <span style="color:var(--ink-soft)">'+day.tags.length+'/5</span>';b.onclick=openTagBar;w.appendChild(b);}
   }
-  function openTagBar(){const bar=document.getElementById('tagBar');const sg=document.getElementById('tagSugg');if(!bar)return;sg.innerHTML='';TAG_SUGG.forEach(t=>{const b=document.createElement('button');b.innerHTML='<b>#</b>'+t;b.onclick=()=>addTag(t);sg.appendChild(b);});bar.classList.add('open');const inp=document.getElementById('tagInput');inp.value='';setTimeout(()=>inp.focus(),50);}
-  function addTag(t){t=(t||'').replace(/#/g,'').trim();if(!t)return;if(!Array.isArray(day.tags))day.tags=[];if(day.tags.length>=5){toast('태그는 최대 5개예요');return;}if(!day.tags.includes(t)){day.tags.push(t);renderTags();scheduleSaveDay();}const inp=document.getElementById('tagInput');if(inp)inp.value='';}
+  function openTagBar(){const bar=document.getElementById('tagBar');const sg=document.getElementById('tagSugg');if(!bar)return;sg.innerHTML='';TAG_SUGG.forEach(t=>{const b=document.createElement('button');b.innerHTML='<b>#</b>'+t;b.onclick=()=>addTag(t);sg.appendChild(b);});bar.classList.add('open');const inp=document.getElementById('tagInput');inp.textContent='';setTimeout(()=>inp.focus(),50);}
+  function addTag(t){t=(t||'').replace(/#/g,'').trim();if(!t)return;if(!Array.isArray(day.tags))day.tags=[];if(day.tags.length>=5){toast('태그는 최대 5개예요');return;}if(!day.tags.includes(t)){day.tags.push(t);renderTags();scheduleSaveDay();}const inp=document.getElementById('tagInput');if(inp)inp.textContent='';}
   document.getElementById('tagBarClose').onclick=()=>document.getElementById('tagBar').classList.remove('open');
-  document.getElementById('tagInput').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();addTag(e.target.value);}});
+  document.getElementById('tagInput').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();addTag(e.currentTarget.textContent);}});
   document.getElementById('edCam').onclick=()=>{const pi=document.getElementById('photoInput');pi.setAttribute('capture','environment');pi.click();};
   document.getElementById('edGal').onclick=()=>{const pi=document.getElementById('photoInput');pi.removeAttribute('capture');pi.click();};
   document.getElementById('edSave').onclick=()=>{flushSave();toast('저장됐어요');document.getElementById('editor').hidden=true;{const _bb=document.getElementById('bottomBar');if(_bb)_bb.style.display='';}showHome();};

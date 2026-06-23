@@ -1178,7 +1178,7 @@ var SPLASHES=[
   /* 상태 */
   let defaultMode='evening';
   let imgIndex=0;
-  let date=new Date(),routines=[],day=blankDay(),reminderTime='',lastFired='',audioCtx=null,dayTimer=null,rtTimer=null,_daySnap=null;
+  let date=new Date(),routines=[],day=blankDay(),reminderTime='',lastFired='',audioCtx=null,dayTimer=null,rtTimer=null,_daySnap=null,_edSource='write';
   function key(){return 'diary:'+ymd(date);}
   function ymd(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
   function mdLabel(s){const p=s.split('-');return(+p[1])+'/'+(+p[2]);}
@@ -1617,7 +1617,7 @@ var SPLASHES=[
     window.scrollTo(0,0);
     saveViewState('home');
   }
-  function openEditor(dObj){
+  function openEditor(dObj,source){_edSource=source||'write';
     try{document.body.classList.remove('tagbar-open');var _tb=document.getElementById('tagBar');if(_tb)_tb.classList.remove('open');}catch(e){}
     document.getElementById('home').style.display='none';
     document.getElementById('editor').hidden=false;
@@ -1637,9 +1637,22 @@ var SPLASHES=[
     const exm=document.getElementById('exitModal');
     if(exm&&!exm.hidden){ exm.hidden=true; try{history.pushState({hd:'editor'},'');}catch(e){} return; }
     const ed=document.getElementById('editor');
-    if(ed&&!ed.hidden){ showExitConfirm(); try{history.pushState({hd:'editor'},'');}catch(e){} }
+    if(ed&&!ed.hidden){ if(_edSource==='gallery'||_edSource==='bookmark'||_edSource==='search'){ returnToSource(); } else { showExitConfirm(); try{history.pushState({hd:'editor'},'');}catch(e){} } }
   });
   function showExitConfirm(){const m=document.getElementById('exitModal');if(m)m.hidden=false;}
+  function returnToSource(){
+    flushSave();
+    document.getElementById('editor').hidden=true;
+    document.body.classList.remove('tagbar-open');
+    try{var _tb=document.getElementById('tagBar');if(_tb)_tb.classList.remove('open');}catch(e){}
+    document.getElementById('home').style.display='';
+    {const _bb=document.getElementById('bottomBar');if(_bb)_bb.style.display='';}
+    if(_edSource==='gallery'){document.getElementById('galleryModal').hidden=false;renderGallery();setActiveNav('navGallery');}
+    else if(_edSource==='bookmark'){document.getElementById('bookmarkModal').hidden=false;renderBookmarks();setActiveNav('navBookmark');}
+    else if(_edSource==='search'){document.getElementById('searchModal').hidden=false;}
+    window.scrollTo(0,0);
+    try{history.replaceState({hd:'home'},'');}catch(e){}
+  }
   function doExit(){
     try{clearTimeout(dayTimer);}catch(e){}
     try{ if(_daySnap){ day=JSON.parse(_daySnap); _dayCache['diary:'+ymd(date)]=JSON.parse(_daySnap); saveNow(key(), _daySnap); } }catch(e){}
@@ -1677,7 +1690,7 @@ var SPLASHES=[
     cc.addEventListener('touchstart',e=>{const t=e.touches[0];sx=t.clientX;sy=t.clientY;on=true;},{passive:true});
     cc.addEventListener('touchend',e=>{if(!on)return;on=false;const t=e.changedTouches[0];const dx=t.clientX-sx,dy=t.clientY-sy;if(Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy)+10){if(dx>0)_gotoPrevMonth();else _gotoNextMonth();}},{passive:true});
   })();
-  document.getElementById('backBtn').onclick=()=>{ showExitConfirm(); };
+  document.getElementById('backBtn').onclick=()=>{ if(_edSource==='gallery'||_edSource==='bookmark'||_edSource==='search'){ returnToSource(); } else { showExitConfirm(); } };
   document.getElementById('exitStay').onclick=()=>{const m=document.getElementById('exitModal');if(m)m.hidden=true;};
   document.getElementById('exitGo').onclick=()=>{const m=document.getElementById('exitModal');if(m)m.hidden=true;doExit();};
 
@@ -1802,7 +1815,7 @@ var SPLASHES=[
       main.append(dt,sn);
       const tag=document.createElement('div');tag.className='hist-tag';tag.innerHTML=it.mode==='evening'?ICON.moon:ICON.sun;
       row.append(main,tag);
-      row.onclick=()=>{document.getElementById('searchModal').hidden=true;openEditor(new Date(it.ds+'T00:00:00'));};
+      row.onclick=()=>{document.getElementById('searchModal').hidden=true;openEditor(new Date(it.ds+'T00:00:00'),'search');};
       list.appendChild(row);
     });
   }
@@ -2040,7 +2053,7 @@ var SPLASHES=[
       const di=new Date(Number(y),m,0).getDate();const rec=monthRec[it.ds.slice(0,7)]||0;const pct=Math.round(rec/di*100);
       const c=document.createElement('div');c.className='gcard';
       c.innerHTML='<div class="gtop"><span class="gmonth">'+y+'.'+String(m).padStart(2,'0')+'</span><span class="gprog"><span class="gprog-bar"><i style="width:'+pct+'%"></i></span><span class="gprog-n">'+rec+' / '+di+'</span></span></div><div class="gph"><img loading="lazy" src="'+it.photo+'"><div class="gover"><span class="gday">'+dayN+'</span>'+(it.cap?'<span class="gcap">'+_esc(it.cap)+'</span>':'')+'</div></div>';
-      c.onclick=()=>{document.getElementById('galleryModal').hidden=true;document.getElementById('home').style.display='';openEditor(new Date(it.ds+'T00:00:00'));};
+      c.onclick=()=>{document.getElementById('galleryModal').hidden=true;document.getElementById('home').style.display='';openEditor(new Date(it.ds+'T00:00:00'),'gallery');};
       list.appendChild(c);});
   }
   document.getElementById('navProfile').onclick=()=>{document.querySelectorAll('.modal').forEach(m=>m.hidden=true);document.getElementById('profileModal').hidden=false;document.getElementById('home').style.display='none';renderProfile();setActiveNav('navProfile');};
@@ -2079,7 +2092,7 @@ var SPLASHES=[
       main.append(dt,sn);
       const tag=document.createElement('span');tag.className='hist-tag';tag.innerHTML=ICON.bookmark;
       row.append(main,tag);
-      row.onclick=()=>{document.getElementById('bookmarkModal').hidden=true;document.getElementById('home').style.display='';openEditor(new Date(it.ds+'T00:00:00'));};
+      row.onclick=()=>{document.getElementById('bookmarkModal').hidden=true;document.getElementById('home').style.display='';openEditor(new Date(it.ds+'T00:00:00'),'bookmark');};
       list.appendChild(row);});
   }
   document.getElementById('alarmTime').onchange=async(e)=>{reminderTime=e.target.value;await store.set('reminderTime',reminderTime);reflectAlarm();ensureAudio();try{if('Notification' in window&&Notification.permission==='default')Notification.requestPermission();}catch(e){}};

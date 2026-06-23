@@ -132,6 +132,7 @@ var SPLASHES=[
     --ink:#2A2722; --ink-soft:#968E7E; --line:#E5DED1;
     --accent:#9C7A2B; --accent-soft:#EBE1C7; --on-accent:#FFFFFF;
     --mark:#E23B3B;
+    --accent-grad:linear-gradient(115deg,#E9E5C4 0%,#D3E4CB 28%,#C4D5DD 54%,#D1CBE1 78%,#E7E2CB 100%); --on-grad:#2B2A26;
     --f-body:'Gaegu','Gowun Batang',serif;
     --f-ui:'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR','Segoe UI',sans-serif;
     transition:background .5s ease,color .5s ease;
@@ -155,7 +156,7 @@ var SPLASHES=[
   .mode-toggle{display:inline-flex;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:4px}
   .seg{display:inline-flex;align-items:center;gap:6px;border:0;background:transparent;cursor:pointer;color:var(--ink-soft);font-family:var(--f-body);font-size:15px;padding:7px 15px;border-radius:999px}
   .seg .ic-slot svg{width:15px;height:15px}
-  .seg.active{background:var(--accent);color:var(--on-accent)}
+  .seg.active{background:var(--accent-grad);color:var(--on-grad)}
   .date-wrap{position:relative;display:inline-flex;align-items:center}
   #dateLabel{border:0;background:transparent;cursor:pointer;color:var(--ink);font-family:var(--f-body);font-size:19px;font-weight:700;padding:2px 6px;border-radius:8px}
   #dateLabel:hover{background:var(--surface-2)}
@@ -185,7 +186,7 @@ var SPLASHES=[
   .bnav-btn{display:flex;flex-direction:column;align-items:center;gap:2px;border:0;background:transparent;color:var(--ink-soft);cursor:pointer;font-family:var(--f-ui);font-size:11px;padding:8px 12px;flex:1}
   .bnav-btn svg{width:27px;height:27px}
   .bnav-btn.active{color:var(--accent);background:var(--accent-soft);border-radius:999px}
-  .bnav-add{width:56px;height:56px;border-radius:50%;border:0;background:var(--accent);color:var(--on-accent);display:flex;align-items:center;justify-content:center;cursor:pointer;flex:0 0 auto;box-shadow:0 6px 20px rgba(0,0,0,.25)}
+  .bnav-add{width:56px;height:56px;border-radius:50%;border:0;background:var(--accent-grad);color:var(--on-grad);display:flex;align-items:center;justify-content:center;cursor:pointer;flex:0 0 auto;box-shadow:0 6px 20px rgba(0,0,0,.25)}
   .bnav-add svg{width:30px;height:30px}
   #editor #photoEmpty{display:none}
   #editor #photoZone{border:0;background:transparent;min-height:0;padding:0}
@@ -203,7 +204,7 @@ var SPLASHES=[
   .ed-toolbar{display:flex;align-items:center;gap:20px;padding:10px 18px calc(10px + env(safe-area-inset-bottom))}
   .ed-tool{border:0;background:transparent;color:var(--ink-soft);cursor:pointer;display:inline-flex;padding:4px}
   .ed-tool svg{width:26px;height:26px}
-  .ed-save{margin-left:auto;background:var(--accent);color:var(--on-accent);border:0;border-radius:999px;padding:9px 22px;font-family:var(--f-ui);font-size:15px;cursor:pointer}
+  .ed-save{margin-left:auto;background:var(--accent-grad);color:var(--on-grad);border:0;border-radius:999px;padding:9px 22px;font-family:var(--f-ui);font-size:15px;cursor:pointer}
   .tag-bar{position:fixed;left:0;right:0;bottom:0;z-index:99;background:var(--surface);border-top:1px solid var(--line);padding:10px 12px calc(10px + env(safe-area-inset-bottom));display:none;flex-direction:column;gap:10px}
   .tag-bar.open{display:flex}
   .tag-bar-row{display:flex;align-items:center;gap:8px}
@@ -218,6 +219,8 @@ var SPLASHES=[
   .font-list{display:flex;flex-direction:column;gap:6px}
   .font-list button{text-align:left;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);border-radius:10px;padding:8px 11px;cursor:pointer;font-size:16px}
   .font-list button.active{border-color:var(--accent);color:var(--accent)}
+  .font-list .fgroup-h{font-size:12px;color:var(--ink-soft);font-family:var(--f-ui);font-weight:600;margin:8px 2px 0}
+  .font-list .fgroup-h:first-child{margin-top:0}
   .sw-list{display:flex;gap:8px;flex-wrap:wrap}
   .sw-list button{width:28px;height:28px;border-radius:50%;border:2px solid var(--line);cursor:pointer;padding:0}
   .sw-list button.active{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
@@ -301,7 +304,7 @@ var SPLASHES=[
   .rdate{position:relative;flex:0 0 auto}
   .rdate .chip{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--line);background:var(--surface-2);color:var(--ink-soft);cursor:pointer;font-size:12.5px;border-radius:999px;padding:5px 11px;font-family:var(--f-body);white-space:nowrap}
   .rdate .chip svg{width:13px;height:13px}
-  .rdate .chip.set{color:var(--accent);border-color:var(--accent)}
+  .rdate .chip.set{background:var(--accent-grad);color:var(--on-grad);border-color:transparent}
   .rdate .pop{position:absolute;right:0;top:calc(100% + 8px);z-index:20;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px;width:200px;display:none;box-shadow:0 12px 30px rgba(0,0,0,.18)}
   .rdate .pop.open{display:block}
   .rdate .pop .grp{margin-bottom:10px}
@@ -497,7 +500,7 @@ var SPLASHES=[
   .log-div::before,.log-div::after{content:"";flex:1;height:1px;background:var(--line)}
   .log-add{display:flex;flex-direction:row;align-items:center;justify-content:center;gap:8px;margin:12px 0 0;padding:13px;border:1.5px dashed var(--line);border-radius:14px;color:var(--ink-soft);background:transparent;cursor:pointer;font-family:var(--f-body);font-size:14px;width:100%}
   .log-add:hover{border-color:var(--accent);color:var(--accent)}
-  .log-add .pc{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:var(--accent);color:var(--on-accent)} .log-add .pc svg{width:16px;height:16px}
+  .log-add .pc{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:var(--accent-grad);color:var(--on-grad)} .log-add .pc svg{width:16px;height:16px}
   .log-card{margin:12px 0 0;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 16px;position:relative}
   .log-card .log-edit{outline:none;min-height:40px;font-family:var(--f-body);font-size:16px;color:var(--ink);line-height:1.7}
   .log-card .log-edit:empty:before{content:attr(data-ph);color:var(--ink-soft)}
@@ -509,7 +512,7 @@ var SPLASHES=[
   .dn-arrow svg{width:20px;height:20px}
   .dn-arrow:hover{border-color:var(--accent);color:var(--accent)}
   .dn-label{font-family:var(--f-body);font-size:16px;color:var(--ink)}
-  .dn-plus{display:inline-flex;align-items:center;justify-content:center;width:54px;height:54px;border-radius:50%;border:0;background:var(--accent);color:var(--on-accent);cursor:pointer}
+  .dn-plus{display:inline-flex;align-items:center;justify-content:center;width:54px;height:54px;border-radius:50%;border:0;background:var(--accent-grad);color:var(--on-grad);cursor:pointer}
   .dn-plus svg{width:26px;height:26px}
   /* 포스트잇 제목 편집 */
   .postit-title{outline:none;min-width:40px;border-bottom:1px dashed transparent}
@@ -1006,21 +1009,21 @@ var SPLASHES=[
 
   /* 폰트 / 테마 / 글자색 */
   const FONTS=[
-    {id:'gaegu',name:'가에구 · 크레용',disp:"'Gaegu','Gowun Batang',serif"},
-    {id:'jua',name:'주아 · 둥근',disp:"'Jua','Gowun Dodum',sans-serif"},
-    {id:'pen',name:'나눔펜 · 손글씨',disp:"'Nanum Pen Script',cursive"},
-    {id:'gowun',name:'고운바탕 · 클래식',disp:"'Gowun Batang',serif"},
-    {id:'black',name:'블랙한산스 · 굵게',disp:"'Black Han Sans',sans-serif"},
-    {id:'ngothic',name:'나눔고딕 · 기본',disp:"'Nanum Gothic',sans-serif"},
-    {id:'nmyeongjo',name:'나눔명조 · 명조',disp:"'Nanum Myeongjo',serif"},
-    {id:'songmyung',name:'송명 · 고전명조',disp:"'Song Myung',serif"},
-    {id:'dohyeon',name:'도현 · 굵은고딕',disp:"'Do Hyeon',sans-serif"},
-    {id:'gowundodum',name:'고운돋움 · 깔끔',disp:"'Gowun Dodum',sans-serif"},
-    {id:'dongle',name:'동글 · 둥근',disp:"'Dongle',sans-serif"},
-    {id:'gamja',name:'감자꽃 · 손글씨',disp:"'Gamja Flower',cursive"},
-    {id:'himelody',name:'하이멜로디 · 손글씨',disp:"'Hi Melody',cursive"},
-    {id:'singleday',name:'싱글데이 · 손글씨',disp:"'Single Day',cursive"},
-    {id:'brush',name:'나눔붓 · 붓글씨',disp:"'Nanum Brush Script',cursive"}
+    {id:'ngothic',cat:'기본 글씨',name:'나눔고딕 · 기본',disp:"'Nanum Gothic',sans-serif"},
+    {id:'gowundodum',cat:'기본 글씨',name:'고운돋움 · 깔끔',disp:"'Gowun Dodum',sans-serif"},
+    {id:'nmyeongjo',cat:'기본 글씨',name:'나눔명조 · 명조',disp:"'Nanum Myeongjo',serif"},
+    {id:'songmyung',cat:'기본 글씨',name:'송명 · 고전명조',disp:"'Song Myung',serif"},
+    {id:'gowun',cat:'기본 글씨',name:'고운바탕 · 클래식',disp:"'Gowun Batang',serif"},
+    {id:'black',cat:'굵은 글씨',name:'블랙한산스 · 굵게',disp:"'Black Han Sans',sans-serif"},
+    {id:'dohyeon',cat:'굵은 글씨',name:'도현 · 굵은고딕',disp:"'Do Hyeon',sans-serif"},
+    {id:'jua',cat:'굵은 글씨',name:'주아 · 둥근',disp:"'Jua','Gowun Dodum',sans-serif"},
+    {id:'dongle',cat:'굵은 글씨',name:'동글 · 둥근',disp:"'Dongle',sans-serif"},
+    {id:'gaegu',cat:'손글씨',name:'가에구 · 크레용',disp:"'Gaegu','Gowun Batang',serif"},
+    {id:'pen',cat:'손글씨',name:'나눔펜 · 손글씨',disp:"'Nanum Pen Script',cursive"},
+    {id:'gamja',cat:'손글씨',name:'감자꽃 · 손글씨',disp:"'Gamja Flower',cursive"},
+    {id:'himelody',cat:'손글씨',name:'하이멜로디 · 손글씨',disp:"'Hi Melody',cursive"},
+    {id:'singleday',cat:'손글씨',name:'싱글데이 · 손글씨',disp:"'Single Day',cursive"},
+    {id:'brush',cat:'손글씨',name:'나눔붓 · 붓글씨',disp:"'Nanum Brush Script',cursive"}
   ];
   const THEMES={
     gold: {n:'기본',bg:'#F4F1EA',surface:'#FBF9F4',s2:'#EFEBE1',ink:'#2A2722',inkSoft:'#968E7E',line:'#E5DED1',accent:'#9C7A2B',accentSoft:'#EBE1C7',on:'#fff'},
@@ -1046,16 +1049,15 @@ var SPLASHES=[
   function applySecFont(section,edit){if(section==='postit'){const pf=FONTS.find(x=>x.id===secFont['postit']);document.querySelectorAll('#postitContainer .editable').forEach(el=>{el.style.fontFamily=pf?pf.disp:'';});return;}const id=secFont[section];const f=FONTS.find(x=>x.id===id);edit.style.fontFamily=f?f.disp:'';}
   function cardOf(section){return document.getElementById(section==='diary'?'cardDiary':section==='prompt'?'cardPrompt':section==='postit'?'cardPostit':'cardMemo');}
   function applySecBg(section){const c=SECBGS.find(x=>x.id===secBg[section]);const col=(c&&c.c)?c.c:'';if(section==='postit'){document.querySelectorAll('#postitContainer .card').forEach(card=>{card.style.background=col;});return;}const card=cardOf(section);if(card)card.style.background=col;if(section==='diary'){const pz=document.getElementById('photoZone');if(pz)pz.style.background=col;}}
+  function _fillFontList(fl){if(!fl)return;fl.innerHTML='';['기본 글씨','굵은 글씨','손글씨'].forEach(cat=>{const fs=FONTS.filter(f=>f.cat===cat);if(!fs.length)return;const h=document.createElement('div');h.className='fgroup-h';h.textContent=cat;fl.appendChild(h);fs.forEach(f=>{const b=document.createElement('button');b.dataset.f=f.id;b.style.fontFamily=f.disp;b.textContent='가나다 '+f.name;b.onclick=async()=>{applyFont(f.id);await store.set('font',f.id);};fl.appendChild(b);});});}
   function buildSettings(){
-    const fl=document.getElementById('fontList');fl.innerHTML='';
-    FONTS.forEach(f=>{const b=document.createElement('button');b.dataset.f=f.id;b.style.fontFamily=f.disp;b.textContent='가나다 '+f.name;b.onclick=async()=>{applyFont(f.id);await store.set('font',f.id);};fl.appendChild(b);});
+    _fillFontList(document.getElementById('fontList'));
     const tl=document.getElementById('themeList');tl.innerHTML='';
     Object.keys(THEMES).forEach(id=>{const b=document.createElement('button');b.dataset.t=id;b.title=THEMES[id].n;b.style.background=THEMES[id].bg;b.style.borderColor=THEMES[id].line;b.onclick=async()=>{applyTheme(id);await store.set('theme',id);};tl.appendChild(b);});
     const il=document.getElementById('inkList');il.innerHTML='';
     INKS.forEach(i=>{const b=document.createElement('button');b.dataset.i=i.id;b.title=i.n;b.style.background=i.c||'var(--ink)';b.onclick=async()=>{curInk=i.id;applyPalette();applyInk();await store.set('ink',i.id);};il.appendChild(b);});
     // 홈 설정창의 동일한 목록
-    const fl2=document.getElementById('fontListHome'); if(fl2){fl2.innerHTML='';
-      FONTS.forEach(f=>{const b=document.createElement('button');b.dataset.f=f.id;b.style.fontFamily=f.disp;b.textContent='가나다 '+f.name;b.onclick=async()=>{applyFont(f.id);await store.set('font',f.id);};fl2.appendChild(b);});}
+    _fillFontList(document.getElementById('fontListHome'));
     const tl2=document.getElementById('themeListHome'); if(tl2){tl2.innerHTML='';
       Object.keys(THEMES).forEach(id=>{const b=document.createElement('button');b.dataset.t=id;b.title=THEMES[id].n;b.style.background=THEMES[id].bg;b.style.borderColor=THEMES[id].line;b.onclick=async()=>{applyTheme(id);await store.set('theme',id);};tl2.appendChild(b);});}
     const il2=document.getElementById('inkListHome'); if(il2){il2.innerHTML='';

@@ -209,8 +209,11 @@ var SPLASHES=[
   .ed-save{margin-left:auto;background:var(--accent-grad);color:var(--on-grad);border:0;border-radius:999px;padding:9px 22px;font-family:var(--f-ui);font-size:15px;cursor:pointer}
   .tag-bar{position:fixed;left:0;right:0;bottom:0;z-index:99;background:var(--surface);border-top:1px solid var(--line);padding:10px 12px calc(10px + env(safe-area-inset-bottom));display:none;flex-direction:column;gap:10px}
   .tag-bar.open{display:flex}
-  .tag-bar-row{display:flex;align-items:center;gap:8px}
-  .tag-bar-row .taginput{flex:1;border:1px solid var(--line);border-radius:999px;padding:10px 14px;font-family:var(--f-ui);font-size:15px;background:var(--surface-2);color:var(--ink);outline:none;min-height:21px;max-height:80px;overflow-y:auto;white-space:pre-wrap;word-break:break-word}
+  .tag-bar-row{display:flex;align-items:center;gap:10px}
+  .tg-close{flex:0 0 auto}
+  .tg-field{flex:1;display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:999px;padding:14px 18px;background:var(--surface-2)}
+  .tg-field .taghash{color:#F2632B;font-weight:700;font-size:17px;font-family:var(--f-ui)}
+  .tag-bar-row .taginput{flex:1;border:0;border-radius:0;padding:0;font-family:var(--f-ui);font-size:16px;background:transparent;color:var(--ink);outline:none;min-height:21px;max-height:80px;overflow-y:auto;white-space:pre-wrap;word-break:break-word}
   .tag-bar-row .taginput:empty:before{content:attr(data-ph);color:var(--ink-soft);pointer-events:none}
   .tag-sugg{display:flex;gap:8px;overflow-x:auto}
   .tag-sugg button{flex:0 0 auto;border:0;background:var(--surface-2);color:var(--ink);border-radius:999px;padding:7px 13px;font-family:var(--f-ui);font-size:13px;cursor:pointer}
@@ -426,8 +429,8 @@ var SPLASHES=[
   .streak-day{display:flex;flex-direction:column;align-items:center;gap:5px;flex:1}
   .streak-dow{font-size:12px;color:var(--ink-soft);font-family:var(--f-body)}
   .streak-dot{width:30px;height:30px;border-radius:50%;border:1.5px solid var(--line);display:flex;align-items:center;justify-content:center;color:var(--accent);font-family:var(--f-hand);font-size:22px;line-height:1}
-  .streak-dot.on{border-color:var(--accent);background:var(--accent-soft)}
-  .streak-dot.today{box-shadow:0 0 0 2px var(--accent)}
+  .streak-dot.on{border-color:#F0518B;background:#F0518B;color:#fff}
+  .streak-dot.today{box-shadow:0 0 0 2px #F0518B}
   .streak-count{margin-top:14px;font-family:var(--f-body);font-size:15px;color:var(--ink)}
   .streak-count b{color:var(--accent);font-size:22px;margin:0 2px}
   .stat-row{display:flex;align-items:center;gap:16px;margin-top:12px}
@@ -907,8 +910,8 @@ var SPLASHES=[
     </div>
   </div>
   <div class="tag-bar" id="tagBar">
-    <div class="tag-bar-row"><div id="tagInput" class="taginput" contenteditable="true" role="textbox" inputmode="text" enterkeyhint="done" autocapitalize="off" autocorrect="off" spellcheck="false" data-ph="# 추가할 태그를 입력하세요!"></div><button class="ed-tool" id="tagBarClose"><span data-ic="close"></span></button></div>
-    <div class="tag-sugg" id="tagSugg"></div>
+    <div class="tag-bar-row"><button class="ed-tool tg-close" id="tagBarClose"><span data-ic="close"></span></button><div class="tg-field"><span class="taghash">#</span><div id="tagInput" class="taginput" contenteditable="true" role="textbox" inputmode="text" enterkeyhint="done" autocapitalize="off" autocorrect="off" spellcheck="false" data-ph="추가할 태그를 입력하세요!"></div></div></div>
+    <div class="tag-sugg" id="tagSugg" hidden></div>
   </div>
   </div>
   <!-- /에디터 -->
@@ -1677,7 +1680,7 @@ var SPLASHES=[
     day.tags.forEach((t,i)=>{const c=document.createElement('span');c.className='tag-chip';c.innerHTML='<b>#</b>'+_esc(t)+' <span class="x">✕</span>';c.querySelector('.x').onclick=()=>{day.tags.splice(i,1);renderTags();scheduleSaveDay();};w.appendChild(c);});
     if(day.tags.length<5){const b=document.createElement('button');b.className='tag-add';b.innerHTML='<b>#</b> 태그 추가 <span style="color:var(--ink-soft)">'+day.tags.length+'/5</span>';b.onclick=openTagBar;w.appendChild(b);}
   }
-  function openTagBar(){const bar=document.getElementById('tagBar');const sg=document.getElementById('tagSugg');if(!bar)return;sg.innerHTML='';TAG_SUGG.forEach(t=>{const b=document.createElement('button');b.innerHTML='<b>#</b>'+t;b.onclick=()=>addTag(t);sg.appendChild(b);});bar.classList.add('open');const inp=document.getElementById('tagInput');inp.textContent='';setTimeout(()=>inp.focus(),50);}
+  function openTagBar(){const bar=document.getElementById('tagBar');const sg=document.getElementById('tagSugg');if(!bar)return;if(sg){sg.innerHTML='';sg.hidden=true;}bar.classList.add('open');const inp=document.getElementById('tagInput');inp.textContent='';setTimeout(()=>inp.focus(),50);}
   function addTag(t){t=(t||'').replace(/#/g,'').trim();if(!t)return;if(!Array.isArray(day.tags))day.tags=[];if(day.tags.length>=5){toast('태그는 최대 5개예요');return;}if(!day.tags.includes(t)){day.tags.push(t);renderTags();scheduleSaveDay();}const inp=document.getElementById('tagInput');if(inp)inp.textContent='';}
   document.getElementById('tagBarClose').onclick=()=>document.getElementById('tagBar').classList.remove('open');
   document.getElementById('tagInput').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();addTag(e.currentTarget.textContent);}});

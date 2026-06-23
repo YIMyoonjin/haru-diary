@@ -218,8 +218,9 @@ var SPLASHES=[
   .tag-bar{position:fixed;left:0;right:0;bottom:0;z-index:99;background:var(--surface);border-top:1px solid var(--line);padding:14px 14px calc(14px + env(safe-area-inset-bottom));display:none;flex-direction:column;gap:10px}
   .tag-bar.open{display:flex}
   .tag-bar-row{display:flex;align-items:center;gap:10px}
-  .tg-close{flex:0 0 auto}
-  .tg-field{flex:1;display:flex;align-items:center;gap:9px;border:1px solid var(--line);border-radius:999px;padding:18px 20px;background:var(--surface-2)}
+  .tg-close{flex:0 0 auto;width:46px;height:46px;border-radius:50%;background:var(--surface-2);color:var(--ink);display:inline-flex;align-items:center;justify-content:center;border:0;cursor:pointer}
+  .tg-close svg{width:18px;height:18px}
+  .tg-field{flex:1;display:flex;align-items:center;gap:9px;border:1px solid var(--line);border-radius:999px;padding:21px 22px;background:var(--surface-2)}
   .tg-field .taghash{color:#F2632B;font-weight:700;font-size:19px;font-family:var(--f-ui)}
   .tag-bar-row .taginput{flex:1;border:0;border-radius:0;padding:0;font-family:var(--f-ui);font-size:17px;background:transparent;color:var(--ink);outline:none;min-height:26px;max-height:96px;overflow-y:auto;white-space:pre-wrap;word-break:break-word}
   .tag-bar-row .taginput:empty:before{content:attr(data-ph);color:var(--ink-soft);pointer-events:none}
@@ -336,6 +337,13 @@ var SPLASHES=[
   /* 히스토리 */
   .modal{position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;background:rgba(18,16,13,.5);padding:20px}
   .modal[hidden]{display:none}
+  .exit-modal{align-items:flex-end;justify-content:center;background:rgba(0,0,0,.55);padding:0}
+  .exit-card{width:100%;max-width:520px;background:var(--surface);border-radius:22px 22px 0 0;padding:28px 22px calc(22px + env(safe-area-inset-bottom));text-align:center;box-shadow:0 -8px 30px rgba(0,0,0,.3)}
+  .exit-card h3{margin:0 0 12px;font-size:19px;color:var(--ink);font-family:var(--f-ui);font-weight:700}
+  .exit-card p{margin:0 0 22px;font-size:15px;color:var(--ink-soft);line-height:1.6;font-family:var(--f-ui)}
+  .exit-btns{display:flex;gap:10px}
+  .exit-stay{flex:1;border:0;background:var(--surface-2);color:var(--ink-soft);border-radius:14px;padding:15px;font-size:16px;font-family:var(--f-ui);cursor:pointer}
+  .exit-go{flex:1;border:0;background:#fff;color:#141414;border-radius:14px;padding:15px;font-size:16px;font-weight:700;font-family:var(--f-ui);cursor:pointer}
   .modal-card{background:var(--surface);border:1px solid var(--line);border-radius:20px;width:100%;max-width:440px;max-height:80vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.35)}
   /* 검색/공지: 떠있는 팝업이 아니라 전체 화면 페이지로 이동 */
   #searchModal, #noticeModal, #bookmarkModal, #galleryModal, #profileModal{background:var(--bg);padding:0;align-items:stretch;justify-content:flex-start;z-index:80}
@@ -632,7 +640,7 @@ var SPLASHES=[
   #home .cal-cell{ border:0; border-right:1.4px solid var(--line); border-bottom:1.4px solid var(--line); border-radius:0; }
   #home .cal-cell .dnum{ font-family:var(--f-hand); font-size:16px; font-weight:700; padding:1px 0 0 3px; }
   #home .cal-cell .cphoto{ border-radius:3px; }
-  #home .cal-cell.today .dnum{ background:transparent; color:var(--ink); border:2px solid #F0518B; outline:1.5px solid #F0518B; outline-offset:1.5px; width:21px; height:21px; padding:0; }
+  #home .cal-cell.today .dnum{ background:transparent url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2080%2080%22%3E%3Cpath%20d%3D%22M53%2015%20C30%209%2012%2025%2014%2044%20C16%2065%2045%2073%2061%2057%20C75%2044%2070%2021%2045%2015%20C39%2013.6%2032%2014%2027%2017.5%22%20fill%3D%22none%22%20stroke%3D%22%23F0518B%22%20stroke-width%3D%225%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E") center/contain no-repeat; color:var(--ink); border:0; outline:0; width:30px; height:30px; padding:0; }
   /* 카드 글씨체 */
   #home .today-card, #home .today-label, #home .today-date, #home .today-hint{ font-family:var(--f-ui); }
   #home .today-label{ font-size:16px; } #home .today-date{ font-size:21px; }
@@ -823,6 +831,17 @@ var SPLASHES=[
     <div class="modal-card">
       <div class="modal-head"><h3>설정</h3><button id="appSetClose" data-ic="close" aria-label="닫기"></button></div>
       <div class="set-modal-body"><div class="hist-empty">설정 항목은 곧 추가됩니다.</div></div>
+    </div>
+  </div>
+
+  <div id="exitModal" class="modal exit-modal" hidden>
+    <div class="exit-card">
+      <h3>일기 작성 취소</h3>
+      <p>일기 작성을 취소할까요?<br>작성 중인 일기는 저장되지 않아요.</p>
+      <div class="exit-btns">
+        <button id="exitStay" class="exit-stay">돌아가기</button>
+        <button id="exitGo" class="exit-go">작성 취소하기</button>
+      </div>
     </div>
   </div>
 
@@ -1135,7 +1154,7 @@ var SPLASHES=[
   /* 상태 */
   let defaultMode='evening';
   let imgIndex=0;
-  let date=new Date(),routines=[],day=blankDay(),reminderTime='',lastFired='',audioCtx=null,dayTimer=null,rtTimer=null;
+  let date=new Date(),routines=[],day=blankDay(),reminderTime='',lastFired='',audioCtx=null,dayTimer=null,rtTimer=null,_daySnap=null;
   function key(){return 'diary:'+ymd(date);}
   function ymd(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
   function mdLabel(s){const p=s.split('-');return(+p[1])+'/'+(+p[2]);}
@@ -1373,7 +1392,7 @@ var SPLASHES=[
   function scheduleSaveDay(){document.getElementById('saveState').textContent='저장 중…';clearTimeout(dayTimer);dayTimer=setTimeout(async()=>{const cur=promptEdit.innerHTML;if(day.mode==='morning')day.wish=cur;else day.reflect=cur;day.diary=diaryEdit.innerHTML;day.memo=memoEdit.innerHTML;const ds=ymd(date);_dayCache['diary:'+ds]=JSON.parse(JSON.stringify(day));await store.set(key(),JSON.stringify(day));flash();},450);}
   function scheduleSaveRoutines(){document.getElementById('saveState').textContent='저장 중…';clearTimeout(rtTimer);rtTimer=setTimeout(async()=>{await store.set('routines',JSON.stringify(routines));flash();},450);}
   async function loadRoutines(){const r=await store.get('routines');if(r&&r.value){routines=JSON.parse(r.value);routines.forEach(x=>{if(x.start===undefined)x.start='';if(x.end===undefined)x.end='';});}else{routines=[mk()];await store.set('routines',JSON.stringify(routines));}}
-  async function loadDay(){const r=await store.get(key());day=r&&r.value?Object.assign(blankDay(),JSON.parse(r.value)):blankDay();if(!day.done)day.done={};if(!Array.isArray(day.photos))day.photos=[];if(day.photo){if(!day.photos.length)day.photos=[day.photo];day.photo='';}if(!Array.isArray(day.logs))day.logs=[];if(typeof day.bookmarked!=='boolean')day.bookmarked=false;if(typeof day.weather!=='string')day.weather='';if(typeof day.postit!=='string')day.postit='';if(typeof day.postitTitle!=='string')day.postitTitle='';renderAll();}
+  async function loadDay(){const r=await store.get(key());day=r&&r.value?Object.assign(blankDay(),JSON.parse(r.value)):blankDay();if(!day.done)day.done={};if(!Array.isArray(day.photos))day.photos=[];if(day.photo){if(!day.photos.length)day.photos=[day.photo];day.photo='';}if(!Array.isArray(day.logs))day.logs=[];if(typeof day.bookmarked!=='boolean')day.bookmarked=false;if(typeof day.weather!=='string')day.weather='';if(typeof day.postit!=='string')day.postit='';if(typeof day.postitTitle!=='string')day.postitTitle='';try{_daySnap=JSON.stringify(day);}catch(e){_daySnap=null;}renderAll();}
   async function loadReminder(){const r=await store.get('reminderTime');reminderTime=r&&r.value?r.value:'';document.getElementById('alarmTime').value=reminderTime;reflectAlarm();}
   async function loadSettings(){const f=await store.get('font');if(f&&f.value)curFont=f.value;const t=await store.get('theme');if(t&&t.value)curTheme=t.value;const i=await store.get('ink');if(i&&i.value!==undefined)curInk=i.value;const dm=await store.get('dmode');if(dm&&dm.value)defaultMode=dm.value;const m=await store.get('fmt');if(m&&m.value){try{secFont=Object.assign(secFont,JSON.parse(m.value));}catch(e){}}const sb=await store.get('secbg');if(sb&&sb.value){try{secBg=Object.assign(secBg,JSON.parse(sb.value));}catch(e){}}const nk=await store.get('nick');if(nk&&nk.value)_nick=nk.value;}
 
@@ -1591,9 +1610,24 @@ var SPLASHES=[
   window.addEventListener('popstate', ()=>{
     const modal=document.getElementById('imgModal');
     if(modal&&!modal.hidden){ modal.hidden=true; return; }
+    const exm=document.getElementById('exitModal');
+    if(exm&&!exm.hidden){ exm.hidden=true; try{history.pushState({hd:'editor'},'');}catch(e){} return; }
     const ed=document.getElementById('editor');
-    if(ed&&!ed.hidden){ showHome(); }
+    if(ed&&!ed.hidden){ showExitConfirm(); try{history.pushState({hd:'editor'},'');}catch(e){} }
   });
+  function showExitConfirm(){const m=document.getElementById('exitModal');if(m)m.hidden=false;}
+  function doExit(){
+    try{clearTimeout(dayTimer);}catch(e){}
+    try{ if(_daySnap){ day=JSON.parse(_daySnap); _dayCache['diary:'+ymd(date)]=JSON.parse(_daySnap); saveNow(key(), _daySnap); } }catch(e){}
+    document.getElementById('editor').hidden=true;
+    document.getElementById('home').style.display='';
+    {const _bb=document.getElementById('bottomBar');if(_bb)_bb.style.display='';}
+    document.body.classList.remove('tagbar-open');
+    try{var _tb=document.getElementById('tagBar');if(_tb)_tb.classList.remove('open');}catch(e){}
+    renderCalendar();refreshTodayCard();showYesterday();renderStats();tickClock();
+    window.scrollTo(0,0);saveViewState('home');
+    try{history.replaceState({hd:'home'},'');}catch(e){}
+  }
   // 새로고침/복귀 시 마지막 화면 복원
   function restoreView(){
     enterApp();
@@ -1619,10 +1653,9 @@ var SPLASHES=[
     cc.addEventListener('touchstart',e=>{const t=e.touches[0];sx=t.clientX;sy=t.clientY;on=true;},{passive:true});
     cc.addEventListener('touchend',e=>{if(!on)return;on=false;const t=e.changedTouches[0];const dx=t.clientX-sx,dy=t.clientY-sy;if(Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy)+10){if(dx>0)_gotoPrevMonth();else _gotoNextMonth();}},{passive:true});
   })();
-  document.getElementById('backBtn').onclick=()=>{
-    try{ if(history.state&&history.state.hd==='editor'){ history.back(); return; } }catch(e){}
-    showHome();
-  };
+  document.getElementById('backBtn').onclick=()=>{ showExitConfirm(); };
+  document.getElementById('exitStay').onclick=()=>{const m=document.getElementById('exitModal');if(m)m.hidden=true;};
+  document.getElementById('exitGo').onclick=()=>{const m=document.getElementById('exitModal');if(m)m.hidden=true;doExit();};
 
   /* 자동저장 보강: 화면 이탈 시 즉시 저장 */
   function flushSave(){try{

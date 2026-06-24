@@ -716,7 +716,7 @@ var SPLASHES=[
   <!-- 홈(캘린더) 화면 -->
   <div id="home">
     <div class="home-top">
-      <div class="home-title">오늘의 Diary <span class="home-ver">v108</span></div>
+      <div class="home-title">오늘의 Diary <span class="home-ver">v109</span></div>
       <div class="home-actions">
         <button id="searchBtn" class="icon-btn" data-ic="search" title="일기 검색"></button>
         <button id="noticeBtn" class="icon-btn" data-ic="bell" title="공지사항"></button>
@@ -836,7 +836,7 @@ var SPLASHES=[
           <div class="pstat"><div class="pstat-num" id="statLogs">0</div><div class="pstat-lab">모든 로그</div></div>
           <div class="pstat"><div class="pstat-num" id="statBm">0</div><div class="pstat-lab">북마크</div></div>
         </div>
-        <div class="app-ver">오늘의 Diary · v108</div>
+        <div class="app-ver">오늘의 Diary · v109</div>
       <div class="set-modal-body">
       <div class="set-group-label">일기 모드</div>
       <div class="set-sec"><label>일기를 언제 쓰나요?</label>
@@ -2112,7 +2112,7 @@ var SPLASHES=[
   document.getElementById('histModal').onclick=(ev)=>{if(ev.target.id==='histModal')document.getElementById('histModal').hidden=true;};
   document.getElementById('stkClose').onclick=()=>{document.getElementById('stkModal').hidden=true;};
   document.getElementById('stkModal').onclick=(ev)=>{if(ev.target.id==='stkModal')document.getElementById('stkModal').hidden=true;};
-  document.getElementById('alarmSetBtn').onclick=()=>{openAlarm();};
+  document.getElementById('alarmSetBtn').onclick=()=>{const m=document.getElementById('alarmModal');if(m&&!m.hidden){m.hidden=true;}else{openAlarm();}};
   document.getElementById('alarmDone').onclick=()=>{alarmConfirm();};
   document.getElementById('alarmClose').onclick=()=>{document.getElementById('alarmModal').hidden=true;};
   document.getElementById('alarmModal').onclick=(ev)=>{if(ev.target.id==='alarmModal')document.getElementById('alarmModal').hidden=true;};

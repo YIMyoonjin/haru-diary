@@ -126,6 +126,7 @@ var SPLASHES=[
 <div id="lkInfo" hidden style="position:fixed;inset:0;z-index:9996;background:rgba(0,0,0,.82);display:flex;align-items:center;justify-content:center;padding:32px;text-align:center;color:#fff;font-size:16px;line-height:1.6;user-select:none">메인 설정창에서 언제든지<br>잠금모드를 설정할 수 있습니다.</div>
 
 <style>
+  @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400;600&family=Gaegu:wght@300;400;700&family=Gowun+Batang:wght@400;700&family=Gowun+Dodum&family=Jua&family=Nanum+Pen+Script&family=Black+Han+Sans&family=Nanum+Gothic:wght@400;700&family=Nanum+Myeongjo:wght@400;700&family=Do+Hyeon&family=Gamja+Flower&family=Hi+Melody&family=Single+Day&family=Nanum+Brush+Script&family=Dongle:wght@300;400;700&family=Song+Myung&display=swap');
   .sp-stage{flex:1;display:flex;align-items:center;justify-content:center;width:100%}
   .sp-titlewrap{position:relative;display:inline-block}
   .sp-title{font-family:'Nanum Pen Script','Gaegu','Caveat',cursive;font-size:50px;color:#fff;white-space:nowrap;letter-spacing:1px;line-height:1.1;display:inline-block;clip-path:inset(0 100% 0 0)}
@@ -141,7 +142,6 @@ var SPLASHES=[
   @keyframes spPenFade{0%{opacity:0}12%{opacity:1}85%{opacity:1}100%{opacity:0}}
   @keyframes spLogoIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
   @keyframes spBob{0%,100%{transform:translateY(0) rotate(0deg)}50%{transform:translateY(-5px) rotate(-5deg)}}
-  @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400;600&family=Gaegu:wght@300;400;700&family=Gowun+Batang:wght@400;700&family=Gowun+Dodum&family=Jua&family=Nanum+Pen+Script&family=Black+Han+Sans&family=Nanum+Gothic:wght@400;700&family=Nanum+Myeongjo:wght@400;700&family=Do+Hyeon&family=Gamja+Flower&family=Hi+Melody&family=Single+Day&family=Nanum+Brush+Script&family=Dongle:wght@300;400;700&family=Song+Myung&display=swap');
 
   #app{
     --bg:#F4F1EA; --surface:#FBF9F4; --surface-2:#EFEBE1;
@@ -738,6 +738,14 @@ var SPLASHES=[
         <button id="noticeBtn" class="icon-btn" data-ic="bell" title="공지사항"></button>
       </div>
     </div>
+    <div id="weatherCard" class="weather-card">
+      <button id="locBtn" class="loc-btn"><span data-ic="pin"></span><span>위치 허용하고 날씨·시간 보기</span></button>
+      <div id="weatherInfo" class="weather-info" hidden>
+        <span class="wi-icon" id="wiIcon" data-ic="sun"></span>
+        <div class="wi-main"><span class="wi-temp" id="wiTemp">--°</span><span class="wi-place" id="wiPlace"></span></div>
+        <div class="wi-time" id="wiTime">--:--</div>
+      </div>
+    </div>
     <div class="cal-card">
       <div class="cal-head">
         <button id="calPrev" class="cal-nav" aria-label="이전 달">‹</button>
@@ -752,14 +760,6 @@ var SPLASHES=[
       <span class="today-go"><span id="todayHint" class="today-hint">오늘을 기록해 보세요</span><span class="today-plus" data-ic="pen"></span></span>
     </button>
 
-    <div id="weatherCard" class="weather-card">
-      <button id="locBtn" class="loc-btn"><span data-ic="pin"></span><span>위치 허용하고 날씨·시간 보기</span></button>
-      <div id="weatherInfo" class="weather-info" hidden>
-        <span class="wi-icon" id="wiIcon" data-ic="sun"></span>
-        <div class="wi-main"><span class="wi-temp" id="wiTemp">--°</span><span class="wi-place" id="wiPlace"></span></div>
-        <div class="wi-time" id="wiTime">--:--</div>
-      </div>
-    </div>
 
     <div id="ydayCard" class="yday-card" hidden>
       <div class="yday-head">어제의 일기</div>
@@ -1214,6 +1214,7 @@ var SPLASHES=[
   function saveNow(k,v){
     if(_fbUid){store.set(k,v);}
     else{try{localStorage.setItem('hd_'+k,v);}catch(e){}}
+    if(k==='wx'){try{localStorage.setItem('hd_wx',v);}catch(e){}}
     if(k.indexOf('diary:')===0){ try{_dayCache[k]=JSON.parse(v);}catch(e){} }
   }
   // 로그인 시: 이 기기의 로컬 전용 기록(hd_*)을 클라우드에 없으면 올려서 기기 간 통일

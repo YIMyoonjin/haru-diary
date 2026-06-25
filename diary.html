@@ -1151,10 +1151,10 @@ var SPLASHES=[
   const SECBGS=[{id:'',c:'',n:'기본'},{id:'w',c:'#FFFFFF',n:'화이트'},{id:'cr',c:'#FBF3D9',n:'크림'},{id:'pk',c:'#FCE9EE',n:'핑크'},{id:'gn',c:'#E7F3E8',n:'그린'},{id:'bl',c:'#E6EFF7',n:'블루'},{id:'pp',c:'#EFE8F6',n:'퍼플'},{id:'gy',c:'#F0F0F0',n:'그레이'}];
 
   let curFont='gaegu', curTheme='gold', curInk='', secFont={diary:'',prompt:'',memo:''}, secBg={diary:'',prompt:'',memo:''};
-  function applyFont(id){const f=FONTS.find(x=>x.id===id)||FONTS[0];curFont=f.id;app.style.setProperty('--f-body',f.disp);document.querySelectorAll('#fontList button').forEach(b=>b.classList.toggle('active',b.dataset.f===f.id));}
+  function applyFont(id){const f=FONTS.find(x=>x.id===id)||FONTS[0];curFont=f.id;app.style.setProperty('--f-body',f.disp);document.querySelectorAll('#fontList button').forEach(b=>b.classList.toggle('active',b.dataset.f===f.id));try{localStorage.setItem('hd_font',curFont);}catch(e){}}
   function applyPalette(){const t=THEMES[curTheme]||THEMES.gold;const m={'--bg':t.bg,'--surface':t.surface,'--surface-2':t.s2,'--ink':t.ink,'--ink-soft':t.inkSoft,'--line':t.line,'--accent':t.accent,'--accent-soft':t.accentSoft,'--on-accent':t.on};for(const k in m)app.style.setProperty(k,m[k]);try{document.body.style.background=t.bg;}catch(e){}}
   function applyInk(){ const i=curInk?INKS.find(x=>x.id===curInk):null; app.style.setProperty('--ink-edit',(i&&i.c)?i.c:'var(--ink)'); document.querySelectorAll('#inkList button').forEach(b=>b.classList.toggle('active',b.dataset.i===curInk)); }
-  function applyTheme(id){if(THEMES[id])curTheme=id;applyPalette();applyInk();document.querySelectorAll('#themeList button').forEach(b=>b.classList.toggle('active',b.dataset.t===curTheme));}
+  function applyTheme(id){if(THEMES[id])curTheme=id;applyPalette();applyInk();document.querySelectorAll('#themeList button').forEach(b=>b.classList.toggle('active',b.dataset.t===curTheme));try{localStorage.setItem('hd_theme',curTheme);}catch(e){}}
   function applySecFont(section,edit){if(section==='postit'){const pf=FONTS.find(x=>x.id===secFont['postit']);document.querySelectorAll('#postitContainer .editable').forEach(el=>{el.style.fontFamily=pf?pf.disp:'';});return;}const id=secFont[section];const f=FONTS.find(x=>x.id===id);edit.style.fontFamily=f?f.disp:'';}
   function cardOf(section){return document.getElementById(section==='diary'?'cardDiary':section==='prompt'?'cardPrompt':section==='postit'?'cardPostit':'cardMemo');}
   function applySecBg(section){const c=SECBGS.find(x=>x.id===secBg[section]);const col=(c&&c.c)?c.c:'';if(section==='postit'){document.querySelectorAll('#postitContainer .card').forEach(card=>{card.style.background=col;});return;}const card=cardOf(section);if(card)card.style.background=col;if(section==='diary'){const pz=document.getElementById('photoZone');if(pz)pz.style.background=col;}}
@@ -2205,6 +2205,7 @@ var SPLASHES=[
   (async function init(){
     if(__inited) return; __inited=true;
     fillIcons();buildSettings();
+    try{const _ct=localStorage.getItem('hd_theme');if(_ct&&THEMES[_ct]){applyTheme(_ct);}const _cf=localStorage.getItem('hd_font');if(_cf){applyFont(_cf);}}catch(e){}
     (function(){const sg=document.getElementById('stkGrid');STICKERS.forEach(s=>{const b=document.createElement('button');b.innerHTML=s;b.onclick=()=>insertSticker(s);sg.appendChild(b);});})();
     const now=new Date();calYear=now.getFullYear();calMonth=now.getMonth();
     day.mode=(now.getHours()>=4&&now.getHours()<14)?'morning':'evening';

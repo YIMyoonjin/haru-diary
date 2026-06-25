@@ -2215,7 +2215,11 @@ var SPLASHES=[
     const _isFirstVisit = !sessionStorage.getItem('hd_live');
     const splash=document.getElementById('splashScreen');
     const _t0=Date.now();
-    if(splash){splash.style.opacity='0';splash.style.display='none';}
+    if(_isFirstVisit){
+      try{const _si=document.getElementById('splashImg');if(window.SPLASHES&&SPLASHES.length){_si.src=SPLASHES[Math.floor(Math.random()*SPLASHES.length)];}}catch(e){}
+      splash.style.display='flex';
+      requestAnimationFrame(()=>{splash.style.opacity='1';});
+    }
 
     // Firebase 모듈이 로드될 때까지 대기
     await new Promise(resolve=>{
@@ -2273,7 +2277,12 @@ var SPLASHES=[
           else if(_isFirstVisit && !LS.get('asked')){askLock();}
           else{restoreView();}
         };
-        _proceed();
+        if(_isFirstVisit){
+          const _wait=Math.max(0, 1200-(Date.now()-_t0));
+          setTimeout(()=>{ splash.style.opacity='0'; setTimeout(_proceed, 500); }, _wait);
+        } else {
+          _proceed();
+        }
       } else {
         _fbUid=null;
         if(splash){ splash.style.opacity='0'; splash.style.display='none'; }

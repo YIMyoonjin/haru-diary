@@ -431,7 +431,7 @@ var SPLASHES=[
   .gday{font-size:26px;font-weight:700;line-height:1}
   .gcap{display:block;font-size:13px;opacity:.92;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .gallery-list.grid .gtop,.gallery-list.grid .gover{display:none}
-  .profile-body{flex:1;overflow-y:auto;padding:24px 20px}
+  .profile-body{flex:1;overflow-y:auto;padding:24px 20px calc(190px + env(safe-area-inset-bottom));-webkit-overflow-scrolling:touch}
   .profile-top{display:flex;align-items:center;gap:16px;margin-bottom:24px}
   .profile-avatar{width:64px;height:64px;border-radius:50%;object-fit:cover;background:var(--surface-2);border:1px solid var(--line)}
   .profile-name{font-family:var(--f-body);font-size:22px;font-weight:700;color:var(--ink)}
@@ -685,7 +685,7 @@ var SPLASHES=[
   .set-row-t strong{font-size:15px;color:var(--ink)}
   .set-row-t small{font-size:13px;color:var(--ink-soft)}
   .set-row-s{font-size:13px;color:var(--accent);font-weight:600;white-space:nowrap}
-  .set-modal-body{padding:6px 18px 20px;overflow-y:auto;-webkit-overflow-scrolling:touch}
+  .set-modal-body{padding:6px 18px 20px;overflow:visible}
   .set-modal-body .set-sec{margin-top:6px}
   .lock-type-btns{display:flex;flex-direction:column;gap:10px;width:100%}
   .lock-type-btn{padding:16px;border-radius:14px;border:1px solid #333;background:#1e1e26;color:#fff;font-size:16px;text-align:left;cursor:pointer;display:flex;align-items:center;gap:12px}

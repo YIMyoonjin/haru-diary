@@ -1,4 +1,16 @@
-const CACHE = 'haru-diary-v118';
+importScripts('https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js');
+importScripts('https://www.gstatic.com/firebasejs/10.13.2/firebase-messaging-compat.js');
+try{
+  firebase.initializeApp({apiKey:"AIzaSyAR0FRkNxUb3gzrmJiUGgoEpgs0wl4IiC4",authDomain:"haru-diary-a269f.firebaseapp.com",projectId:"haru-diary-a269f",storageBucket:"haru-diary-a269f.firebasestorage.app",messagingSenderId:"544993236898",appId:"1:544993236898:web:9146aeac7f203db4fcc4fb"});
+  const _msg=firebase.messaging();
+  _msg.onBackgroundMessage(function(payload){
+    const n=(payload&&(payload.notification||payload.data))||{};
+    self.registration.showNotification(n.title||'오늘의 Diary',{body:n.body||'일기 쓸 시간이에요 ✍️',icon:'/haru-diary/icon-192.png',badge:'/haru-diary/icon-192.png',tag:'haru-reminder'});
+  });
+}catch(e){}
+self.addEventListener('notificationclick',function(e){e.notification.close();e.waitUntil(clients.matchAll({type:'window',includeUncontrolled:true}).then(function(cs){for(var i=0;i<cs.length;i++){if('focus' in cs[i])return cs[i].focus();}if(clients.openWindow)return clients.openWindow('/haru-diary/diary.html');}));});
+
+const CACHE = 'haru-diary-v119';
 const ASSETS = [
   '/haru-diary/diary.html',
   '/haru-diary/manifest.json'

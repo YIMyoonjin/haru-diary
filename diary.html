@@ -23,6 +23,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/fireba
 import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
 import { getFirestore, doc, getDoc, setDoc, deleteDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
 import { getStorage, ref, uploadString, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-storage.js";
+import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-messaging.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAR0FRkNxUb3gzrmJiUGgoEpgs0wl4IiC4",
@@ -44,7 +45,8 @@ const _provider = new GoogleAuthProvider();
 window._FB = { auth:_auth, db:_db, storage:_storage, provider:_provider,
   signInWithPopup, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged,
   doc, getDoc, setDoc, deleteDoc, collection, getDocs,
-  ref, uploadString, getDownloadURL, deleteObject };
+  ref, uploadString, getDownloadURL, deleteObject,
+  app:_fbApp, getMessaging, getToken, onMessage };
 </script>
 </head>
 <body style="margin:0;padding:0">
@@ -1527,6 +1529,26 @@ var SPLASHES=[
 
   /* 알람 */
   function reflectAlarm(){const b=document.getElementById('alarmBtn');if(b){b.classList.toggle('set',!!reminderTime);b.title=reminderTime?('알람 '+reminderTime):'알람 설정';}const p=document.getElementById('alarmSetBtn');if(p)p.classList.toggle('on',!!reminderTime);}
+  const VAPID_KEY='BJFGyCOcHppJyRY-sGPllEpm-KxsprvWtKvZwHdR_hJ8enAGVbaFitJPOrHQXqAjXskMqTrqquAZRaxPugsVEvw';
+  async function enablePush(){
+    try{
+      if(!_fbUid||!window._FB||!window._FB.getMessaging)return;
+      if(!('Notification' in window)||!('serviceWorker' in navigator))return;
+      let perm=Notification.permission;
+      if(perm==='default'){perm=await Notification.requestPermission();}
+      if(perm!=='granted')return;
+      const reg=await navigator.serviceWorker.ready;
+      const {getMessaging,getToken,db,doc,setDoc}=window._FB;
+      const msg=getMessaging(window._FB.app);
+      const token=await getToken(msg,{vapidKey:VAPID_KEY,serviceWorkerRegistration:reg});
+      if(!token)return;
+      let tz='Asia/Seoul';try{tz=Intl.DateTimeFormat().resolvedOptions().timeZone||'Asia/Seoul';}catch(e){}
+      await setDoc(doc(db,'reminders',_fbUid),{uid:_fbUid,token:token,hhmm:reminderTime||'',tz:tz,enabled:!!reminderTime,updated:Date.now()});
+    }catch(e){console.warn('push err',e);}
+  }
+  async function disablePush(){
+    try{if(!_fbUid||!window._FB)return;const {db,doc,setDoc}=window._FB;await setDoc(doc(db,'reminders',_fbUid),{enabled:false,hhmm:'',updated:Date.now()},{merge:true});}catch(e){}
+  }
   function _buildWheel(col,vals,fmt){if(!col)return;col.innerHTML='<div class="tp-pad"></div>'+vals.map(v=>'<div class="tp-item">'+fmt(v)+'</div>').join('')+'<div class="tp-pad"></div>';}
   function _wheelIdx(col){return col?Math.max(0,Math.round(col.scrollTop/60)):0;}
   function _markWheel(col){if(!col)return;const i=_wheelIdx(col);col.querySelectorAll('.tp-item').forEach((el,k)=>el.classList.toggle('on',k===i));}
@@ -1549,7 +1571,7 @@ var SPLASHES=[
     let H=h%12; if(ap===1)H+=12;
     reminderTime=String(H).padStart(2,'0')+':'+String(m).padStart(2,'0');
     await store.set('reminderTime',reminderTime);reflectAlarm();
-    try{if('Notification' in window&&Notification.permission==='default')Notification.requestPermission();}catch(e){}
+    enablePush();
     document.getElementById('alarmModal').hidden=true;
     toast('일기 알람을 '+(ap===0?'오전':'오후')+' '+h+':'+String(m).padStart(2,'0')+'에 맞췄어요');
   }
@@ -2206,7 +2228,7 @@ var SPLASHES=[
       list.appendChild(row);});
   }
 
-  document.getElementById('alarmClear').onclick=async()=>{reminderTime='';await store.set('reminderTime','');reflectAlarm();document.getElementById('alarmModal').hidden=true;toast('알람을 껐어요');};
+  document.getElementById('alarmClear').onclick=async()=>{reminderTime='';await store.set('reminderTime','');reflectAlarm();disablePush();document.getElementById('alarmModal').hidden=true;toast('알람을 껐어요');};
   document.getElementById('alarmBannerClose').onclick=()=>{document.getElementById('alarmBanner').hidden=true;};
   const setPop=document.getElementById('setPop');
   document.getElementById('setBtn').onclick=(ev)=>{ev.stopPropagation();closePops(setPop);setPop.classList.toggle('open');};
@@ -2286,6 +2308,8 @@ var SPLASHES=[
         try{const _mn=await migrateLocalToCloud(); if(_mn>0)toast('이 기기 기록 '+_mn+'개를 클라우드로 동기화했어요');}catch(e){}
         try{ await loadSettings(); }catch(e){} applyFont(curFont); applyTheme(curTheme); applyPalette(); applyInk();
         try{ await loadRoutines(); await loadReminder(); }catch(e){} renderRoutines();
+        try{ const _F=window._FB; if(_F&&_F.getMessaging&&_F.onMessage){ const _mm=_F.getMessaging(_F.app); _F.onMessage(_mm,()=>{ try{fireAlarm();}catch(e){} }); } }catch(e){}
+        try{ if(reminderTime && typeof Notification!=='undefined' && Notification.permission==='granted') enablePush(); }catch(e){}
         try{ await warmCalendarCache(); }catch(e){}
         initWeather(); showYesterday(); renderCalendar(); refreshTodayCard();
         const _proceed=()=>{

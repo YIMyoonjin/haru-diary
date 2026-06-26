@@ -10,7 +10,7 @@ try{
 }catch(e){}
 self.addEventListener('notificationclick',function(e){e.notification.close();e.waitUntil(clients.matchAll({type:'window',includeUncontrolled:true}).then(function(cs){for(var i=0;i<cs.length;i++){if('focus' in cs[i])return cs[i].focus();}if(clients.openWindow)return clients.openWindow('/haru-diary/diary.html');}));});
 
-const CACHE = 'haru-diary-v120';
+const CACHE = 'haru-diary-v121';
 const ASSETS = [
   '/haru-diary/diary.html',
   '/haru-diary/manifest.json'

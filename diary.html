@@ -1532,19 +1532,25 @@ var SPLASHES=[
   const VAPID_KEY='BJFGyCOcHppJyRY-sGPllEpm-KxsprvWtKvZwHdR_hJ8enAGVbaFitJPOrHQXqAjXskMqTrqquAZRaxPugsVEvw';
   async function enablePush(){
     try{
-      if(!_fbUid||!window._FB||!window._FB.getMessaging)return;
-      if(!('Notification' in window)||!('serviceWorker' in navigator))return;
+      if(!_fbUid){toast('알림: 로그인 필요');return;}
+      if(!window._FB||!window._FB.getMessaging){toast('알림: 모듈 로드 실패');return;}
+      if(!('Notification' in window)||!('serviceWorker' in navigator)){toast('알림: 이 기기 미지원');return;}
       let perm=Notification.permission;
       if(perm==='default'){perm=await Notification.requestPermission();}
-      if(perm!=='granted')return;
+      if(perm!=='granted'){toast('알림: 권한 거부됨');return;}
       const reg=await navigator.serviceWorker.ready;
       const {getMessaging,getToken,db,doc,setDoc}=window._FB;
-      const msg=getMessaging(window._FB.app);
-      const token=await getToken(msg,{vapidKey:VAPID_KEY,serviceWorkerRegistration:reg});
-      if(!token)return;
+      let msg;
+      try{msg=getMessaging(window._FB.app);}catch(e){toast('알림: getMessaging 실패 '+((e&&(e.code||e.message))||e));return;}
+      let token;
+      try{token=await getToken(msg,{vapidKey:VAPID_KEY,serviceWorkerRegistration:reg});}
+      catch(e){toast('알림: 토큰오류 '+((e&&(e.code||e.message))||e));return;}
+      if(!token){toast('알림: 토큰 없음(null)');return;}
       let tz='Asia/Seoul';try{tz=Intl.DateTimeFormat().resolvedOptions().timeZone||'Asia/Seoul';}catch(e){}
-      await setDoc(doc(db,'reminders',_fbUid),{uid:_fbUid,token:token,hhmm:reminderTime||'',tz:tz,enabled:!!reminderTime,updated:Date.now()});
-    }catch(e){console.warn('push err',e);}
+      try{await setDoc(doc(db,'reminders',_fbUid),{uid:_fbUid,token:token,hhmm:reminderTime||'',tz:tz,enabled:!!reminderTime,updated:Date.now()});}
+      catch(e){toast('알림: 저장오류 '+((e&&(e.code||e.message))||e));return;}
+      toast('알림 등록 완료 ✅');
+    }catch(e){toast('알림: 오류 '+((e&&(e.code||e.message))||e));}
   }
   async function disablePush(){
     try{if(!_fbUid||!window._FB)return;const {db,doc,setDoc}=window._FB;await setDoc(doc(db,'reminders',_fbUid),{enabled:false,hhmm:'',updated:Date.now()},{merge:true});}catch(e){}

@@ -1529,7 +1529,7 @@ var SPLASHES=[
 
   /* 알람 */
   function reflectAlarm(){const b=document.getElementById('alarmBtn');if(b){b.classList.toggle('set',!!reminderTime);b.title=reminderTime?('알람 '+reminderTime):'알람 설정';}const p=document.getElementById('alarmSetBtn');if(p)p.classList.toggle('on',!!reminderTime);}
-  const VAPID_KEY='BJFGyCOcHppJyRY-sGPllEpm-KxsprvWtKvZwHdR_hJ8enAGVbaFitJPOrHQXqAjXskMqTrqquAZRaxPugsVEvw';
+  const VAPID_KEY='BJFGyCOcHppJyRY-sGPllEpm-KxsprvWtKvZwHdR_hJ8enAGVbaFitJP0rHQXqAjXskMqTrqquAZRaxPugsVEvw';
   async function enablePush(){
     let dbg='start';
     const rec=async(extra)=>{try{if(_fbUid&&window._FB){const {db,doc,setDoc}=window._FB;await setDoc(doc(db,'reminders',_fbUid),Object.assign({debug:dbg,debugAt:Date.now()},extra||{}),{merge:true});}}catch(_){}};

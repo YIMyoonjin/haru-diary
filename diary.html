@@ -1532,7 +1532,7 @@ var SPLASHES=[
   const VAPID_KEY='BJFGyCOcHppJyRY-sGPllEpm-KxsprvWtKvZwHdR_hJ8enAGVbaFitJP0rHQXqAjXskMqTrqquAZRaxPugsVEvw';
   async function enablePush(){
     let dbg='start';
-    const rec=async(extra)=>{try{if(_fbUid&&window._FB){const {db,doc,setDoc}=window._FB;await setDoc(doc(db,'reminders',_fbUid),Object.assign({debug:dbg,debugAt:Date.now(),ver:'v127',keyMid:VAPID_KEY.slice(50,60)},extra||{}),{merge:true});}}catch(_){}};
+    const rec=async(extra)=>{try{if(_fbUid&&window._FB){const {db,doc,setDoc}=window._FB;await setDoc(doc(db,'reminders',_fbUid),Object.assign({debug:dbg,debugAt:Date.now(),ver:'v128',keyMid:VAPID_KEY.slice(50,60)},extra||{}),{merge:true});}}catch(_){}};
     try{
       if(!_fbUid){dbg='1-로그인필요';return;}
       if(!window._FB||!window._FB.getMessaging){dbg='2-모듈없음';await rec();return;}
@@ -1545,12 +1545,13 @@ var SPLASHES=[
       const {getMessaging,getToken,db,doc,setDoc}=window._FB;
       let msg;
       try{msg=getMessaging(window._FB.app);}catch(e){dbg='6-getMessaging:'+((e&&(e.code||e.message))||e);await rec();return;}
+      try{const _old=await reg.pushManager.getSubscription();if(_old){await _old.unsubscribe();}}catch(_){}
       let token;
       try{token=await getToken(msg,{vapidKey:VAPID_KEY,serviceWorkerRegistration:reg});}
       catch(e){dbg='7-토큰오류:'+((e&&(e.code||e.message))||e);await rec();return;}
       if(!token){dbg='8-토큰null';await rec();return;}
       let tz='Asia/Seoul';try{tz=Intl.DateTimeFormat().resolvedOptions().timeZone||'Asia/Seoul';}catch(e){}
-      try{await setDoc(doc(db,'reminders',_fbUid),{uid:_fbUid,token:token,hhmm:reminderTime||'',tz:tz,enabled:!!reminderTime,updated:Date.now(),debug:'OK',debugAt:Date.now(),ver:'v127',keyMid:VAPID_KEY.slice(50,60)});}
+      try{await setDoc(doc(db,'reminders',_fbUid),{uid:_fbUid,token:token,hhmm:reminderTime||'',tz:tz,enabled:!!reminderTime,updated:Date.now(),debug:'OK',debugAt:Date.now(),ver:'v128',keyMid:VAPID_KEY.slice(50,60)});}
       catch(e){dbg='9-저장오류:'+((e&&(e.code||e.message))||e);await rec();return;}
       try{toast('알림 등록 완료 \u2705');}catch(_){}
     }catch(e){dbg='X-예외:'+((e&&(e.code||e.message))||e);await rec();}

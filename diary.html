@@ -1531,28 +1531,29 @@ var SPLASHES=[
   function reflectAlarm(){const b=document.getElementById('alarmBtn');if(b){b.classList.toggle('set',!!reminderTime);b.title=reminderTime?('알람 '+reminderTime):'알람 설정';}const p=document.getElementById('alarmSetBtn');if(p)p.classList.toggle('on',!!reminderTime);}
   const VAPID_KEY='BJFGyCOcHppJyRY-sGPllEpm-KxsprvWtKvZwHdR_hJ8enAGVbaFitJPOrHQXqAjXskMqTrqquAZRaxPugsVEvw';
   async function enablePush(){
-    const D=(m)=>{try{alert('[알림진단] '+m);}catch(_){}try{toast(m);}catch(_){}};
+    let dbg='start';
+    const rec=async(extra)=>{try{if(_fbUid&&window._FB){const {db,doc,setDoc}=window._FB;await setDoc(doc(db,'reminders',_fbUid),Object.assign({debug:dbg,debugAt:Date.now()},extra||{}),{merge:true});}}catch(_){}};
     try{
-      if(!_fbUid){D('로그인 필요');return;}
-      if(!window._FB||!window._FB.getMessaging){D('모듈 로드 실패 (_FB.getMessaging 없음)');return;}
-      if(!('Notification' in window)||!('serviceWorker' in navigator)){D('이 기기/브라우저 미지원');return;}
+      if(!_fbUid){dbg='1-로그인필요';return;}
+      if(!window._FB||!window._FB.getMessaging){dbg='2-모듈없음';await rec();return;}
+      if(!('Notification' in window)||!('serviceWorker' in navigator)){dbg='3-미지원기기';await rec();return;}
       let perm=Notification.permission;
       if(perm==='default'){perm=await Notification.requestPermission();}
-      if(perm!=='granted'){D('권한 거부됨 ('+perm+')');return;}
+      if(perm!=='granted'){dbg='4-권한거부('+perm+')';await rec();return;}
       let reg;
-      try{reg=await navigator.serviceWorker.ready;}catch(e){D('SW 준비 실패 '+((e&&(e.code||e.message))||e));return;}
+      try{reg=await navigator.serviceWorker.ready;}catch(e){dbg='5-SW실패:'+((e&&(e.code||e.message))||e);await rec();return;}
       const {getMessaging,getToken,db,doc,setDoc}=window._FB;
       let msg;
-      try{msg=getMessaging(window._FB.app);}catch(e){D('getMessaging 실패: '+((e&&(e.code||e.message))||e));return;}
+      try{msg=getMessaging(window._FB.app);}catch(e){dbg='6-getMessaging:'+((e&&(e.code||e.message))||e);await rec();return;}
       let token;
       try{token=await getToken(msg,{vapidKey:VAPID_KEY,serviceWorkerRegistration:reg});}
-      catch(e){D('토큰오류: '+((e&&(e.code||e.message))||e));return;}
-      if(!token){D('토큰 없음(null)');return;}
+      catch(e){dbg='7-토큰오류:'+((e&&(e.code||e.message))||e);await rec();return;}
+      if(!token){dbg='8-토큰null';await rec();return;}
       let tz='Asia/Seoul';try{tz=Intl.DateTimeFormat().resolvedOptions().timeZone||'Asia/Seoul';}catch(e){}
-      try{await setDoc(doc(db,'reminders',_fbUid),{uid:_fbUid,token:token,hhmm:reminderTime||'',tz:tz,enabled:!!reminderTime,updated:Date.now()});}
-      catch(e){D('저장오류: '+((e&&(e.code||e.message))||e));return;}
-      D('등록 완료 ✅ 토큰='+token.slice(0,12)+'...');
-    }catch(e){D('오류: '+((e&&(e.code||e.message))||e));}
+      try{await setDoc(doc(db,'reminders',_fbUid),{uid:_fbUid,token:token,hhmm:reminderTime||'',tz:tz,enabled:!!reminderTime,updated:Date.now(),debug:'OK',debugAt:Date.now()});}
+      catch(e){dbg='9-저장오류:'+((e&&(e.code||e.message))||e);await rec();return;}
+      try{toast('알림 등록 완료 \u2705');}catch(_){}
+    }catch(e){dbg='X-예외:'+((e&&(e.code||e.message))||e);await rec();}
   }
   async function disablePush(){
     try{if(!_fbUid||!window._FB)return;const {db,doc,setDoc}=window._FB;await setDoc(doc(db,'reminders',_fbUid),{enabled:false,hhmm:'',updated:Date.now()},{merge:true});}catch(e){}

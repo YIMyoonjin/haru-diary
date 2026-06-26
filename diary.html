@@ -1531,26 +1531,28 @@ var SPLASHES=[
   function reflectAlarm(){const b=document.getElementById('alarmBtn');if(b){b.classList.toggle('set',!!reminderTime);b.title=reminderTime?('알람 '+reminderTime):'알람 설정';}const p=document.getElementById('alarmSetBtn');if(p)p.classList.toggle('on',!!reminderTime);}
   const VAPID_KEY='BJFGyCOcHppJyRY-sGPllEpm-KxsprvWtKvZwHdR_hJ8enAGVbaFitJPOrHQXqAjXskMqTrqquAZRaxPugsVEvw';
   async function enablePush(){
+    const D=(m)=>{try{alert('[알림진단] '+m);}catch(_){}try{toast(m);}catch(_){}};
     try{
-      if(!_fbUid){toast('알림: 로그인 필요');return;}
-      if(!window._FB||!window._FB.getMessaging){toast('알림: 모듈 로드 실패');return;}
-      if(!('Notification' in window)||!('serviceWorker' in navigator)){toast('알림: 이 기기 미지원');return;}
+      if(!_fbUid){D('로그인 필요');return;}
+      if(!window._FB||!window._FB.getMessaging){D('모듈 로드 실패 (_FB.getMessaging 없음)');return;}
+      if(!('Notification' in window)||!('serviceWorker' in navigator)){D('이 기기/브라우저 미지원');return;}
       let perm=Notification.permission;
       if(perm==='default'){perm=await Notification.requestPermission();}
-      if(perm!=='granted'){toast('알림: 권한 거부됨');return;}
-      const reg=await navigator.serviceWorker.ready;
+      if(perm!=='granted'){D('권한 거부됨 ('+perm+')');return;}
+      let reg;
+      try{reg=await navigator.serviceWorker.ready;}catch(e){D('SW 준비 실패 '+((e&&(e.code||e.message))||e));return;}
       const {getMessaging,getToken,db,doc,setDoc}=window._FB;
       let msg;
-      try{msg=getMessaging(window._FB.app);}catch(e){toast('알림: getMessaging 실패 '+((e&&(e.code||e.message))||e));return;}
+      try{msg=getMessaging(window._FB.app);}catch(e){D('getMessaging 실패: '+((e&&(e.code||e.message))||e));return;}
       let token;
       try{token=await getToken(msg,{vapidKey:VAPID_KEY,serviceWorkerRegistration:reg});}
-      catch(e){toast('알림: 토큰오류 '+((e&&(e.code||e.message))||e));return;}
-      if(!token){toast('알림: 토큰 없음(null)');return;}
+      catch(e){D('토큰오류: '+((e&&(e.code||e.message))||e));return;}
+      if(!token){D('토큰 없음(null)');return;}
       let tz='Asia/Seoul';try{tz=Intl.DateTimeFormat().resolvedOptions().timeZone||'Asia/Seoul';}catch(e){}
       try{await setDoc(doc(db,'reminders',_fbUid),{uid:_fbUid,token:token,hhmm:reminderTime||'',tz:tz,enabled:!!reminderTime,updated:Date.now()});}
-      catch(e){toast('알림: 저장오류 '+((e&&(e.code||e.message))||e));return;}
-      toast('알림 등록 완료 ✅');
-    }catch(e){toast('알림: 오류 '+((e&&(e.code||e.message))||e));}
+      catch(e){D('저장오류: '+((e&&(e.code||e.message))||e));return;}
+      D('등록 완료 ✅ 토큰='+token.slice(0,12)+'...');
+    }catch(e){D('오류: '+((e&&(e.code||e.message))||e));}
   }
   async function disablePush(){
     try{if(!_fbUid||!window._FB)return;const {db,doc,setDoc}=window._FB;await setDoc(doc(db,'reminders',_fbUid),{enabled:false,hhmm:'',updated:Date.now()},{merge:true});}catch(e){}
@@ -1577,9 +1579,9 @@ var SPLASHES=[
     let H=h%12; if(ap===1)H+=12;
     reminderTime=String(H).padStart(2,'0')+':'+String(m).padStart(2,'0');
     await store.set('reminderTime',reminderTime);reflectAlarm();
-    enablePush();
     document.getElementById('alarmModal').hidden=true;
     toast('일기 알람을 '+(ap===0?'오전':'오후')+' '+h+':'+String(m).padStart(2,'0')+'에 맞췄어요');
+    await enablePush();
   }
   function ensureAudio(){try{if(!audioCtx){const AC=window.AudioContext||window.webkitAudioContext;if(AC)audioCtx=new AC();}if(audioCtx&&audioCtx.state==='suspended')audioCtx.resume();}catch(e){}}
   function beep(){try{if(!audioCtx)return;const t=audioCtx.currentTime;[0,0.55].forEach(off=>{const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.connect(g);g.connect(audioCtx.destination);o.type='sine';o.frequency.value=880;g.gain.setValueAtTime(0.0001,t+off);g.gain.exponentialRampToValueAtTime(0.22,t+off+0.02);g.gain.exponentialRampToValueAtTime(0.0001,t+off+0.4);o.start(t+off);o.stop(t+off+0.42);});}catch(e){}}

@@ -1558,25 +1558,26 @@ var SPLASHES=[
   async function disablePush(){
     try{if(!_fbUid||!window._FB)return;const {db,doc,setDoc}=window._FB;await setDoc(doc(db,'reminders',_fbUid),{enabled:false,hhmm:'',updated:Date.now()},{merge:true});}catch(e){}
   }
-  function _buildWheel(col,vals,fmt){if(!col)return;col.innerHTML='<div class="tp-pad"></div>'+vals.map(v=>'<div class="tp-item">'+fmt(v)+'</div>').join('')+'<div class="tp-pad"></div>';}
+  function _buildWheel(col,vals,fmt,reps){if(!col)return;reps=reps||1;col._len=vals.length;col._reps=reps;let items='';for(let r=0;r<reps;r++){items+=vals.map(v=>'<div class="tp-item">'+fmt(v)+'</div>').join('');}col.innerHTML='<div class="tp-pad"></div>'+items+'<div class="tp-pad"></div>';}
+  function _recenterWheel(col){if(!col||!col._reps||col._reps<2)return;const base=col._len,total=base*col._reps;let idx=_wheelIdx(col);if(idx<base||idx>=total-base){const v=((idx%base)+base)%base;col.scrollTop=(v+base*Math.floor(col._reps/2))*60;}}
   function _wheelIdx(col){return col?Math.max(0,Math.round(col.scrollTop/60)):0;}
   function _markWheel(col){if(!col)return;const i=_wheelIdx(col);col.querySelectorAll('.tp-item').forEach((el,k)=>el.classList.toggle('on',k===i));}
   function openAlarm(){
     ensureAudio();
     const nmEl=document.getElementById('alarmName');if(nmEl)nmEl.textContent=(_nick||_fbName||'친구');
     const hc=document.getElementById('tpHour'),mc=document.getElementById('tpMin'),ac=document.getElementById('tpAp');
-    _buildWheel(hc,Array.from({length:12},(_,i)=>i+1),v=>v);
-    _buildWheel(mc,Array.from({length:60},(_,i)=>i),v=>String(v).padStart(2,'0'));
-    _buildWheel(ac,['오전','오후'],v=>v);
+    _buildWheel(hc,Array.from({length:12},(_,i)=>i+1),v=>v,7);
+    _buildWheel(mc,Array.from({length:60},(_,i)=>i),v=>String(v).padStart(2,'0'),7);
+    _buildWheel(ac,['오전','오후'],v=>v,1);
     let h=8,m=0,ap=0;
     if(reminderTime){const p=reminderTime.split(':');let H=parseInt(p[0])||0,M=parseInt(p[1])||0;ap=H>=12?1:0;h=H%12;if(h===0)h=12;m=M;}
     document.getElementById('alarmModal').hidden=false;
-    setTimeout(()=>{if(hc){hc.scrollTop=(h-1)*60;_markWheel(hc);}if(mc){mc.scrollTop=m*60;_markWheel(mc);}if(ac){ac.scrollTop=ap*60;_markWheel(ac);}},40);
-    [hc,mc,ac].forEach(c=>{if(c)c.onscroll=()=>{clearTimeout(c._t);c._t=setTimeout(()=>_markWheel(c),70);};});
+    setTimeout(()=>{if(hc){hc.scrollTop=((h-1)+hc._len*Math.floor(hc._reps/2))*60;_markWheel(hc);}if(mc){mc.scrollTop=(m+mc._len*Math.floor(mc._reps/2))*60;_markWheel(mc);}if(ac){ac.scrollTop=ap*60;_markWheel(ac);}},40);
+    [hc,mc,ac].forEach(c=>{if(c)c.onscroll=()=>{clearTimeout(c._t);c._t=setTimeout(()=>{_recenterWheel(c);_markWheel(c);},70);};});
   }
   async function alarmConfirm(){
     const hc=document.getElementById('tpHour'),mc=document.getElementById('tpMin'),ac=document.getElementById('tpAp');
-    let h=_wheelIdx(hc)+1,m=_wheelIdx(mc),ap=_wheelIdx(ac);
+    let h=(_wheelIdx(hc)%12)+1,m=_wheelIdx(mc)%60,ap=_wheelIdx(ac);
     let H=h%12; if(ap===1)H+=12;
     reminderTime=String(H).padStart(2,'0')+':'+String(m).padStart(2,'0');
     await store.set('reminderTime',reminderTime);reflectAlarm();

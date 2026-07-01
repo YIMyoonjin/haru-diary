@@ -394,7 +394,7 @@ var SPLASHES=[
   .rdate .chip{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--line);background:var(--surface-2);color:var(--ink-soft);cursor:pointer;font-size:12.5px;border-radius:999px;padding:5px 11px;font-family:var(--f-body);white-space:nowrap}
   .rdate .chip svg{width:13px;height:13px}
   .rdate .chip.set{background:#F0518B;color:#fff;border-color:transparent}
-  .diary-paper{background:var(--paper-tex) center/cover}
+  .diary-paper{background:transparent}
   .diary-tags{display:none;flex-wrap:wrap;gap:8px;padding:10px 16px 8px}
   .diary-tags .dtag{font-size:13.5px;color:#F0518B;font-family:var(--f-ui);font-weight:600}
   .rdate .pop{position:absolute;right:0;top:calc(100% + 8px);z-index:20;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px;width:200px;display:none;box-shadow:0 12px 30px rgba(0,0,0,.18)}
@@ -519,13 +519,13 @@ var SPLASHES=[
   .loc-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;border:1.5px dashed var(--line);background:transparent;color:var(--ink-soft);border-radius:16px;padding:16px;cursor:pointer;font-family:var(--f-body);font-size:14px}
   .loc-btn svg{width:18px;height:18px}
   .loc-btn[hidden]{display:none}
-  .weather-info{display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:13px 16px}
+  .weather-info{display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--bg);border-radius:16px;padding:12px 16px}
   .weather-info[hidden]{display:none}
-  .wi-icon{display:inline-flex;color:var(--accent)} .wi-icon svg{width:22px;height:22px}
+  .wi-icon{display:inline-flex;color:var(--accent)} .wi-icon svg{width:20px;height:20px}
   .wi-main{display:flex;flex-direction:column;gap:2px;flex:1}
-  .wi-temp{font-family:var(--f-body);font-size:15px;font-weight:700;color:var(--ink)}
-  .wi-place{font-size:11.5px;color:var(--ink-soft)}
-  .wi-time{font-family:var(--f-body);font-size:13px;font-weight:700;color:var(--accent)}
+  .wi-temp{font-family:var(--f-body);font-size:13px;font-weight:700;color:var(--ink)}
+  .wi-place{font-size:11px;color:var(--ink-soft)}
+  .wi-time{font-family:var(--f-body);font-size:12px;font-weight:700;color:var(--accent)}
   /* 어제 일기 카드 */
   /* === 메인 통계 패널 === */
   .stats-wrap{margin-top:18px;display:flex;flex-direction:column;gap:14px}
@@ -1002,7 +1002,7 @@ var SPLASHES=[
           <div class="photo-grid" id="photoGrid" hidden></div>
           <input type="file" id="photoInput" accept="image/*" multiple hidden>
         </div>
-        <div class="sec-head"><span class="sec-lead"><span class="field">일기</span><span class="field-hint">(사진을 추가해서 일기를 써 보아요)</span></span><button class="sec-gear" id="gearDiary" data-ic="sliders" title="서식"></button></div>
+        <div class="sec-head"><span class="sec-lead"><span class="field">일기</span><span class="field-hint" id="diaryHint">(사진을 추가해서 일기를 써 보아요)</span></span><button class="sec-gear" id="gearDiary" data-ic="sliders" title="서식"></button></div>
         <div class="editable" id="diaryEdit" contenteditable="true" data-ph=""></div>
         </div>
         <div id="diaryTags" class="diary-tags"></div>
@@ -1279,13 +1279,16 @@ var SPLASHES=[
   function ymd(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
   function mdLabel(s){const p=s.split('-');return(+p[1])+'/'+(+p[2]);}
   function mk(){return{id:'r'+Math.random().toString(36).slice(2,9),text:'',start:'',end:''};}
-  function blankDay(){return{mode:defaultMode,photos:[],wish:'',reflect:'',diary:'',memo:'',done:{},bookmarked:false,logs:[],weather:'',postit:'',postitTitle:'',postits:[],schedules:[],tags:[]};}
+  function blankDay(){return{mode:defaultMode,photos:[],wish:'',reflect:'',diary:'',memo:'',done:{},bookmarked:false,logs:[],weather:'',postit:'',postitTitle:'',postits:[],schedules:[],tags:[],diaryAt:''};}
   function fmtDate(d){const days=['일','월','화','수','목','금','토'];return`${d.getFullYear()}년 ${d.getMonth()+1}월 ${d.getDate()}일 ${days[d.getDay()]}요일`;}
   function inRange(rt,ds){if(!rt.start&&!rt.end)return true;if(rt.start&&ds<rt.start)return false;if(rt.end&&ds>rt.end)return false;return true;}
   function rangeLabel(rt){if(!rt.start&&!rt.end)return '기간';return(rt.start?mdLabel(rt.start):'…')+' ~ '+(rt.end?mdLabel(rt.end):'…');}
   function htmlText(h){const d=document.createElement('div');d.innerHTML=h||'';return d.textContent||'';}
+  function fmtTimeShort(ts){try{const d=new Date(ts);let h=d.getHours();const ap=h<12?'오전':'오후';let hh=h%12;if(hh===0)hh=12;return ap+' '+hh+':'+String(d.getMinutes()).padStart(2,'0');}catch(e){return '';}}
+  function updateDiaryHint(){const el=document.getElementById('diaryHint');if(!el)return;const has=htmlText(day.diary||'').trim();if(has){el.textContent=day.diaryAt?(fmtTimeShort(day.diaryAt)+' 작성'):'';}else{el.textContent='(사진을 추가해서 일기를 써 보아요)';}}
 
   const diaryEdit=document.getElementById('diaryEdit'), promptEdit=document.getElementById('promptEdit'), memoEdit=document.getElementById('memoEdit');
+  let _profileFromEd=false;
 
   /* 서식 툴바 */
   function divider(){const d=document.createElement('span');d.className='tb-div';return d;}
@@ -1433,7 +1436,7 @@ var SPLASHES=[
   function renderAll(){
     document.getElementById('dateLabel').textContent=fmtDate(date);
     document.getElementById('navDate').value=ymd(date);
-    diaryEdit.innerHTML=day.diary||'';
+    diaryEdit.innerHTML=day.diary||'';try{updateDiaryHint();}catch(e){}
     memoEdit.innerHTML=day.memo||'';
     applySecFont('diary',diaryEdit);applySecFont('prompt',promptEdit);applySecFont('memo',memoEdit);
     applySecBg('diary');applySecBg('prompt');applySecBg('memo');
@@ -1791,6 +1794,8 @@ var SPLASHES=[
     if(nm&&!nm.hidden){ nm.hidden=true; try{history.pushState({hd:'home'},'');}catch(e){} return; }
     const ed=document.getElementById('editor');
     if(ed&&!ed.hidden){ if(_edSource==='gallery'||_edSource==='bookmark'||_edSource==='search'){ returnToSource(); } else { showExitConfirm(); try{history.pushState({hd:'editor'},'');}catch(e){} } return; }
+    const pm=document.getElementById('profileModal');
+    if(pm&&!pm.hidden&&_profileFromEd){ _closeProfile(); try{history.pushState({hd:'editor'},'');}catch(e){} return; }
     const om=document.querySelector('#galleryModal:not([hidden]),#bookmarkModal:not([hidden]),#searchModal:not([hidden]),#profileModal:not([hidden]),#noticeModal:not([hidden]),#appSetModal:not([hidden])');
     if(om){ om.hidden=true; document.getElementById('home').style.display=''; {var _bb=document.getElementById('bottomBar');if(_bb)_bb.style.display='';} try{setActiveNav('navHome');}catch(e){} try{history.pushState({hd:'home'},'');}catch(e){} return; }
     const now=Date.now();
@@ -1871,7 +1876,7 @@ var SPLASHES=[
   [diaryEdit,promptEdit,memoEdit].forEach(el=>el.addEventListener('blur',flushSave));
 
   document.querySelectorAll('[data-mode-btn]').forEach(b=>{b.onclick=()=>setMode(b.dataset.modeBtn);});
-  diaryEdit.oninput=()=>{day.diary=diaryEdit.innerHTML;scheduleSaveDay();};
+  diaryEdit.oninput=()=>{day.diary=diaryEdit.innerHTML;{const _h=htmlText(day.diary).trim();if(_h&&!day.diaryAt)day.diaryAt=Date.now();else if(!_h)day.diaryAt='';}scheduleSaveDay();updateDiaryHint();};
   promptEdit.oninput=()=>{if(day.mode==='morning')day.wish=promptEdit.innerHTML;else day.reflect=promptEdit.innerHTML;scheduleSaveDay();};
   memoEdit.oninput=()=>{day.memo=memoEdit.innerHTML;scheduleSaveDay();};
   /* 서식 시트 (오버레이) */
@@ -1935,7 +1940,7 @@ var SPLASHES=[
   document.getElementById('edCam').onclick=()=>{const pi=document.getElementById('photoInput');pi.setAttribute('capture','environment');pi.click();};
   document.getElementById('edGal').onclick=()=>{const pi=document.getElementById('photoInput');pi.removeAttribute('capture');pi.click();};
   document.getElementById('edSave').onclick=()=>{flushSave();toast('저장됐어요');document.getElementById('editor').hidden=true;{const _bb=document.getElementById('bottomBar');if(_bb)_bb.style.display='';}showHome();};
-  document.getElementById('edSet').onclick=()=>{flushSave();document.getElementById('editor').hidden=true;{const _bb=document.getElementById('bottomBar');if(_bb)_bb.style.display='';}document.querySelectorAll('.modal').forEach(m=>m.hidden=true);document.getElementById('home').style.display='none';document.getElementById('profileModal').hidden=false;renderProfile();};
+  document.getElementById('edSet').onclick=()=>{_profileFromEd=true;flushSave();document.getElementById('editor').hidden=true;{const _bb=document.getElementById('bottomBar');if(_bb)_bb.style.display='';}document.querySelectorAll('.modal').forEach(m=>m.hidden=true);document.getElementById('home').style.display='none';document.getElementById('profileModal').hidden=false;renderProfile();};
   document.getElementById('schedAdd').onclick=()=>{if(!Array.isArray(day.schedules))day.schedules=[];const c=SCHED_COLORS[day.schedules.length%SCHED_COLORS.length];day.schedules.push({text:'',color:c});renderSchedules();scheduleSaveDay();const ins=document.querySelectorAll('#schedList .sched-inp');if(ins.length)ins[ins.length-1].focus();};
   /* 포스트잇 */
   document.getElementById('postitAddBtn').onclick=()=>{
@@ -2290,9 +2295,10 @@ var SPLASHES=[
       c.onclick=()=>{document.getElementById('galleryModal').hidden=true;document.getElementById('home').style.display='';openEditor(new Date(it.ds+'T00:00:00'),'gallery');};
       list.appendChild(c);});
   }
-  document.getElementById('navProfile').onclick=()=>{document.querySelectorAll('.modal').forEach(m=>m.hidden=true);document.getElementById('profileModal').hidden=false;document.getElementById('home').style.display='none';renderProfile();setActiveNav('navProfile');};
-  document.getElementById('profileClose').onclick=()=>{document.getElementById('profileModal').hidden=true;document.getElementById('home').style.display='';};
-  document.getElementById('profileModal').onclick=(ev)=>{if(ev.target.id==='profileModal'){document.getElementById('profileModal').hidden=true;document.getElementById('home').style.display='';}};
+  function _closeProfile(){ document.getElementById('profileModal').hidden=true; if(_profileFromEd){ _profileFromEd=false; document.getElementById('home').style.display='none'; document.getElementById('editor').hidden=false; {const _bb=document.getElementById('bottomBar');if(_bb)_bb.style.display='none';} window.scrollTo(0,0); } else { document.getElementById('home').style.display=''; } }
+  document.getElementById('navProfile').onclick=()=>{_profileFromEd=false;document.querySelectorAll('.modal').forEach(m=>m.hidden=true);document.getElementById('profileModal').hidden=false;document.getElementById('home').style.display='none';renderProfile();setActiveNav('navProfile');};
+  document.getElementById('profileClose').onclick=()=>{_closeProfile();};
+  document.getElementById('profileModal').onclick=(ev)=>{if(ev.target.id==='profileModal'){_closeProfile();}};
   function renderProfile(){
     const av=document.getElementById('profileAvatar');if(av){av.src=_avatar||_fbPhoto||DEFAULT_AV;av.style.display='';}
     const nm=document.getElementById('profileName');if(nm)nm.textContent=_nick||_fbName||_fbEmail||'사용자';

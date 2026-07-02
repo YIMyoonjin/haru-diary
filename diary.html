@@ -519,7 +519,7 @@ var SPLASHES=[
   .loc-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;border:1.5px dashed var(--line);background:transparent;color:var(--ink-soft);border-radius:16px;padding:16px;cursor:pointer;font-family:var(--f-body);font-size:14px}
   .loc-btn svg{width:18px;height:18px}
   .loc-btn[hidden]{display:none}
-  .weather-info{display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--bg);border-radius:16px;padding:12px 16px}
+  .weather-info{display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid transparent;border-radius:16px;padding:12px 16px}
   .weather-info[hidden]{display:none}
   .wi-icon{display:inline-flex;color:var(--accent)} .wi-icon svg{width:20px;height:20px}
   .wi-main{display:flex;flex-direction:column;gap:2px;flex:1}
@@ -546,7 +546,8 @@ var SPLASHES=[
   .stat-bar{flex:1;background:#F0518B;border-radius:3px 3px 0 0;min-height:2px;opacity:.9}
   .tag-row{display:flex;align-items:center;gap:10px;margin-top:10px}
   .tag-rank{width:18px;color:var(--ink-soft);font-family:var(--f-body);font-size:14px;text-align:center}
-  .tag-name{flex:0 0 auto;font-family:var(--f-body);font-size:14px;color:var(--ink);width:72px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .tag-name{flex:0 0 auto;font-family:var(--f-body);font-size:14px;color:var(--ink);width:100px;white-space:normal;word-break:break-all;line-height:1.25}
+  .tag-name::selection{background:#F0518B;color:#fff} .tag-name::-moz-selection{background:#F0518B;color:#fff}
   .tag-bar{flex:1;height:10px;background:var(--surface-2);border-radius:6px;overflow:hidden}
   .tag-bar>span{display:block;height:100%;border-radius:6px}
   .tag-pct{width:42px;text-align:right;font-size:13px;color:var(--ink-soft);font-family:var(--f-body)}
@@ -2365,7 +2366,10 @@ var SPLASHES=[
     const _t0=Date.now();
     if(_isFirstVisit){
       splash.style.display='flex';
-      requestAnimationFrame(()=>{splash.style.opacity='1';splash.classList.add('sp-go');});
+      splash.style.opacity='1';
+      const _spGo=()=>{splash.classList.add('sp-go');};
+      if(document.fonts&&document.fonts.load){let _d=false;const _f=()=>{if(_d)return;_d=true;requestAnimationFrame(_spGo);};Promise.race([document.fonts.load("50px 'Nanum Pen Script'"),new Promise(r=>setTimeout(r,1200))]).then(_f,_f);}
+      else{requestAnimationFrame(_spGo);}
     }
 
     // Firebase 모듈이 로드될 때까지 대기

@@ -424,6 +424,33 @@ var SPLASHES=[
   .fd-edit:empty:before{content:attr(data-ph);color:var(--ink-soft)}
   .fd-foot{padding:10px 16px calc(env(safe-area-inset-bottom,0px) + 12px);display:flex;justify-content:flex-end;border-top:1px solid var(--line)}
   .fd-save{border:0;background:#fff;color:#111;font-family:var(--f-body);font-weight:700;font-size:16px;padding:11px 30px;border-radius:999px;cursor:pointer}
+  .fd-extra{padding:0 16px 6px;display:flex;flex-direction:column;gap:8px}
+  .fd-photos{display:flex;gap:6px;flex-wrap:wrap}
+  .fd-photos .fp{position:relative;width:56px;height:56px;border-radius:8px;overflow:hidden}
+  .fd-photos .fp img{width:100%;height:100%;object-fit:cover;display:block}
+  .fd-photos .fp button{position:absolute;top:1px;right:1px;background:rgba(0,0,0,.55);border:0;color:#fff;width:17px;height:17px;border-radius:50%;font-size:10px;line-height:17px;cursor:pointer;padding:0;text-align:center}
+  .fd-tagrow{display:flex;gap:6px;flex-wrap:wrap}
+  .fd-tagchip{background:var(--surface);border:1px solid var(--line);color:var(--accent);font-size:12px;padding:3px 6px 3px 9px;border-radius:999px;display:inline-flex;align-items:center;gap:3px}
+  .fd-tagchip button{border:0;background:transparent;color:var(--ink-soft);cursor:pointer;font-size:12px;padding:0 2px}
+  .fd-foot{padding:8px 14px calc(env(safe-area-inset-bottom,0px) + 10px);display:flex;align-items:center;justify-content:space-between;gap:8px;border-top:1px solid var(--line)}
+  .fd-tools{display:flex;align-items:center;gap:2px}
+  .fd-tool{border:0;background:transparent;color:var(--ink);height:40px;min-width:40px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-family:var(--f-body);font-size:14px;padding:0 6px}
+  .fd-tool svg{width:22px;height:22px}
+  .fd-tool.fd-tagbtn{color:var(--accent);font-weight:700;gap:2px}
+  .fd-sheet{position:absolute;left:0;right:0;bottom:0;background:var(--surface);border-top:1px solid var(--line);border-radius:18px 18px 0 0;padding:14px 16px calc(env(safe-area-inset-bottom,0px) + 16px);max-height:60%;overflow-y:auto;box-shadow:0 -10px 28px rgba(0,0,0,.4)}
+  .fd-sheet[hidden]{display:none}
+  .fd-sheet .fs-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+  .fd-sheet .fs-head b{font-family:var(--f-body);font-size:16px;font-weight:700;color:var(--ink)}
+  .fd-sheet .fs-x{border:0;background:transparent;color:var(--ink-soft);font-size:18px;cursor:pointer;padding:0 4px}
+  .fd-fontlist{display:flex;flex-direction:column;gap:6px}
+  .fd-fontlist button{text-align:left;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:10px;padding:11px 12px;font-size:17px;cursor:pointer}
+  .fd-fontlist button.on{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+  .fd-taginput-row{display:flex;gap:8px;align-items:center;margin-bottom:12px}
+  .fd-taginput{flex:1;border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:var(--bg);color:var(--ink);font-family:var(--f-ui);font-size:15px;outline:none}
+  .fd-tagadd{border:0;background:var(--accent);color:var(--on-accent,#fff);border-radius:10px;padding:10px 18px;font-weight:700;cursor:pointer;font-family:var(--f-body)}
+  .fd-sugg{display:flex;gap:6px;flex-wrap:wrap}
+  .fd-sugg button{border:1px solid var(--line);background:transparent;color:var(--ink-soft);border-radius:999px;padding:6px 11px;font-size:13px;cursor:pointer}
+  @media (min-width:761px){ #fullDiary .fd-head,#fullDiary .fd-edit,#fullDiary .fd-extra,#fullDiary .fd-foot{width:100%;max-width:720px;margin-left:auto;margin-right:auto} #fullDiary .fd-sheet{left:50%;right:auto;transform:translateX(-50%);width:100%;max-width:720px} }
   .profile-avatar{cursor:pointer}
   .nick-modal{z-index:120;align-items:center;justify-content:center;background:rgba(0,0,0,.55);padding:24px}
   .nick-card{width:100%;max-width:340px;background:var(--surface);border-radius:20px;padding:24px 22px;display:flex;flex-direction:column;align-items:center;gap:16px}
@@ -1412,6 +1439,7 @@ var SPLASHES=[
     });
   }
   function renderPhotos(){
+    try{if(typeof _fdOpen!=='undefined'&&_fdOpen)renderFdExtra();}catch(e){}
     const zone=document.getElementById('photoZone'),empty=document.getElementById('photoEmpty'),grid=document.getElementById('photoGrid');
     const photos=day.photos||[];
     grid.innerHTML='';
@@ -1869,9 +1897,12 @@ var SPLASHES=[
   document.getElementById('backBtn').onclick=()=>{ if(_edSource==='gallery'||_edSource==='bookmark'||_edSource==='search'){ returnToSource(); } else { showExitConfirm(); } };
   document.getElementById('exitStay').onclick=()=>{const m=document.getElementById('exitModal');if(m)m.hidden=true;};
   document.getElementById('exitGo').onclick=()=>{const m=document.getElementById('exitModal');if(m)m.hidden=true;if(_fdOpen){closeFullDiary();}else{doExit();}};
-  function openFullDiary(){ const fd=document.getElementById('fullDiary'),fe=document.getElementById('fdEdit'); {const _fs=document.getElementById('fdSave');if(_fs)_fs.onclick=saveFullDiary;const _fc=document.getElementById('fdClose');if(_fc)_fc.onclick=()=>{if(fe.innerHTML!==_fdSnap){showExitConfirm();}else{closeFullDiary();}};} fe.innerHTML=day.diary||''; try{const pf=FONTS.find(x=>x.id===secFont['diary']);fe.style.fontFamily=pf?pf.disp:'';}catch(e){} try{const d=date,dw=['일','월','화','수','목','금','토'][d.getDay()];document.getElementById('fdDate').textContent=(d.getMonth()+1)+'월 '+d.getDate()+'일 ('+dw+')';}catch(e){} _fdSnap=fe.innerHTML; _themeVars(fd); fd.classList.add('show'); _fdOpen=true; try{history.pushState({hd:'editor'},'');}catch(e){} setTimeout(()=>{try{fe.focus();const r=document.createRange();r.selectNodeContents(fe);r.collapse(false);const sel=window.getSelection();sel.removeAllRanges();sel.addRange(r);}catch(e){}},60); }
-  function closeFullDiary(){ const fd=document.getElementById('fullDiary'); fd.classList.remove('show'); _fdOpen=false; }
-  function saveFullDiary(){ const fe=document.getElementById('fdEdit'); day.diary=fe.innerHTML; diaryEdit.innerHTML=day.diary; {const _h=htmlText(day.diary).trim();if(_h&&!day.diaryAt)day.diaryAt=Date.now();else if(!_h)day.diaryAt='';} scheduleSaveDay(); try{updateDiaryHint();}catch(e){} closeFullDiary(); }
+  function openFullDiary(){ const fd=document.getElementById('fullDiary'),fe=document.getElementById('fdEdit'); {const _fs=document.getElementById('fdSave');if(_fs)_fs.onclick=saveFullDiary;const _fc=document.getElementById('fdClose');if(_fc)_fc.onclick=()=>{if(fe.innerHTML!==_fdSnap){showExitConfirm();}else{closeFullDiary();}};} try{fillIcons();}catch(e){} {const _c=document.getElementById('fdCam');if(_c)_c.onclick=()=>{const pi=document.getElementById('photoInput');pi.setAttribute('capture','environment');pi.click();};const _g=document.getElementById('fdGal');if(_g)_g.onclick=()=>{const pi=document.getElementById('photoInput');pi.removeAttribute('capture');pi.click();};const _ff=document.getElementById('fdFont');if(_ff)_ff.onclick=openFdFont;const _tb=document.getElementById('fdTagBtn');if(_tb)_tb.onclick=openFdTag;} {const _a=document.getElementById('fdFontSheet');if(_a)_a.hidden=true;const _b=document.getElementById('fdTagSheet');if(_b)_b.hidden=true;} fe.innerHTML=day.diary||''; try{const pf=FONTS.find(x=>x.id===secFont['diary']);fe.style.fontFamily=pf?pf.disp:'';}catch(e){} try{const d=date,dw=['일','월','화','수','목','금','토'][d.getDay()];document.getElementById('fdDate').textContent=(d.getMonth()+1)+'월 '+d.getDate()+'일 ('+dw+')';}catch(e){} _fdSnap=fe.innerHTML; _themeVars(fd); try{renderFdExtra();}catch(e){} fd.classList.add('show'); _fdOpen=true; try{history.pushState({hd:'editor'},'');}catch(e){} setTimeout(()=>{try{fe.focus();const r=document.createRange();r.selectNodeContents(fe);r.collapse(false);const sel=window.getSelection();sel.removeAllRanges();sel.addRange(r);}catch(e){}},60); }
+  function closeFullDiary(){ const fd=document.getElementById('fullDiary'); fd.classList.remove('show'); _fdOpen=false; {const _a=document.getElementById('fdFontSheet');if(_a)_a.hidden=true;const _b=document.getElementById('fdTagSheet');if(_b)_b.hidden=true;} }
+  function saveFullDiary(){ const fe=document.getElementById('fdEdit'); day.diary=fe.innerHTML; diaryEdit.innerHTML=day.diary; {const _h=htmlText(day.diary).trim();if(_h&&!day.diaryAt)day.diaryAt=Date.now();else if(!_h)day.diaryAt='';} try{updateDiaryHint();}catch(e){} try{flushSave();}catch(e){} try{_daySnap=JSON.stringify(day);}catch(e){} try{toast('일기가 저장됐어요');}catch(e){} closeFullDiary(); }
+  function renderFdExtra(){ const ex=document.getElementById('fdExtra'); if(!ex)return; let html=''; const ph=(day.photos||[]); if(ph.length){ html+='<div class="fd-photos">'; ph.forEach((p,i)=>{ html+='<div class="fp"><img src="'+p+'"><button data-fdp="'+i+'">✕</button></div>'; }); html+='</div>'; } const tg=(day.tags||[]); if(tg.length){ html+='<div class="fd-tagrow">'; tg.forEach((t,i)=>{ html+='<span class="fd-tagchip">#'+_esc(t)+'<button data-fdt="'+i+'">✕</button></span>'; }); html+='</div>'; } ex.innerHTML=html; ex.querySelectorAll('[data-fdp]').forEach(b=>{ b.onclick=()=>{ const i=+b.dataset.fdp; if(day.photos)day.photos.splice(i,1); try{renderPhotos();}catch(e){} renderFdExtra(); scheduleSaveDay(); }; }); ex.querySelectorAll('[data-fdt]').forEach(b=>{ b.onclick=()=>{ const i=+b.dataset.fdt; if(day.tags)day.tags.splice(i,1); try{renderTags();}catch(e){} renderFdExtra(); scheduleSaveDay(); }; }); }
+  function openFdFont(){ const t=document.getElementById('fdTagSheet'); if(t)t.hidden=true; const s=document.getElementById('fdFontSheet'); if(!s)return; let html='<div class="fs-head"><b>글씨체</b><button class="fs-x" id="fdFontX">✕</button></div><div class="fd-fontlist">'; FONTS.forEach(function(f){ html+='<button data-fdf="'+f.id+'" class="'+(((secFont['diary']||'')===f.id)?'on':'')+'" style="font-family:'+f.disp+'">가나다 '+f.name+'</button>'; }); html+='</div>'; s.innerHTML=html; s.hidden=false; s.querySelector('#fdFontX').onclick=()=>{s.hidden=true;}; s.querySelectorAll('[data-fdf]').forEach(function(b){ b.onclick=async()=>{ const id=b.dataset.fdf; secFont['diary']=id; try{applySecFont('diary',diaryEdit);}catch(e){} const ff=FONTS.find(x=>x.id===id); const fe=document.getElementById('fdEdit'); if(fe)fe.style.fontFamily=ff?ff.disp:''; try{await store.set('fmt',JSON.stringify(secFont));}catch(e){} s.querySelectorAll('[data-fdf]').forEach(x=>x.classList.remove('on')); b.classList.add('on'); }; }); }
+  function openFdTag(){ const fsh=document.getElementById('fdFontSheet'); if(fsh)fsh.hidden=true; const s=document.getElementById('fdTagSheet'); if(!s)return; const used=(day.tags||[]); let html='<div class="fs-head"><b># 태그 <span id="fdTagCount">'+used.length+'/5</span></b><button class="fs-x" id="fdTagX">✕</button></div>'; html+='<div class="fd-taginput-row"><input class="fd-taginput" id="fdTagInput" placeholder="태그 입력" maxlength="20"><button class="fd-tagadd" id="fdTagAdd">추가</button></div>'; html+='<div class="fd-sugg">'; TAG_SUGG.forEach(function(t){ html+='<button data-sug="'+t+'">#'+t+'</button>'; }); html+='</div>'; s.innerHTML=html; s.hidden=false; s.querySelector('#fdTagX').onclick=()=>{s.hidden=true;}; const inp=s.querySelector('#fdTagInput'); const doAdd=(v)=>{ const before=(day.tags||[]).length; addTag(v); if((day.tags||[]).length>before){ if(inp)inp.value=''; renderFdExtra(); const c=document.getElementById('fdTagCount'); if(c)c.textContent=(day.tags.length)+'/5'; } if(inp)inp.focus(); }; s.querySelector('#fdTagAdd').onclick=()=>doAdd(inp?inp.value:''); if(inp)inp.onkeydown=(e)=>{ if(e.key==='Enter'){e.preventDefault();doAdd(inp.value);} }; s.querySelectorAll('[data-sug]').forEach(function(b){ b.onclick=()=>doAdd(b.dataset.sug); }); setTimeout(()=>{if(inp)inp.focus();},50); }
   diaryEdit.addEventListener('click',()=>{ openFullDiary(); });
 
   /* 자동저장 보강: 화면 이탈 시 즉시 저장 */
@@ -2501,6 +2532,17 @@ var SPLASHES=[
 <div id="fullDiary">
   <div class="fd-head"><button id="fdClose" class="fd-x" aria-label="닫기"><span data-ic="close"></span></button><span id="fdDate" class="fd-date"></span></div>
   <div id="fdEdit" class="fd-edit" contenteditable="true" data-ph="무슨 일이 있었나요?"></div>
-  <div class="fd-foot"><button id="fdSave" class="fd-save">저장</button></div>
+  <div id="fdExtra" class="fd-extra"></div>
+  <div class="fd-foot">
+    <div class="fd-tools">
+      <button id="fdCam" class="fd-tool" aria-label="카메라"><span data-ic="camera"></span></button>
+      <button id="fdGal" class="fd-tool" aria-label="갤러리"><span data-ic="gallery"></span></button>
+      <button id="fdFont" class="fd-tool" aria-label="글씨체"><span data-ic="sliders"></span></button>
+      <button id="fdTagBtn" class="fd-tool fd-tagbtn"><b>#</b> 태그</button>
+    </div>
+    <button id="fdSave" class="fd-save">저장</button>
+  </div>
+  <div id="fdFontSheet" class="fd-sheet" hidden></div>
+  <div id="fdTagSheet" class="fd-sheet" hidden></div>
 </div>
 </body></html>

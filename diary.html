@@ -414,6 +414,16 @@ var SPLASHES=[
   .modal[hidden]{display:none}
   .app-ver{text-align:center;color:var(--ink-soft);font-size:11px;margin:2px 0 14px;font-family:var(--f-ui);opacity:.7}
   .exit-modal{align-items:flex-end;justify-content:center;background:rgba(0,0,0,.55);padding:0;z-index:130}
+  #fullDiary{position:fixed;inset:0;z-index:9200;background:var(--bg);display:none;flex-direction:column}
+  #fullDiary.show{display:flex}
+  .fd-head{display:flex;align-items:center;gap:10px;padding:calc(env(safe-area-inset-top,0px) + 12px) 14px 8px}
+  .fd-x{border:0;background:transparent;color:var(--ink);width:38px;height:38px;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0}
+  .fd-x svg{width:24px;height:24px}
+  .fd-date{font-family:var(--f-body);font-weight:700;font-size:17px;color:var(--ink)}
+  .fd-edit{flex:1;overflow-y:auto;padding:6px 20px 24px;font-family:var(--f-body);font-size:18px;line-height:34px;color:var(--ink);outline:none;-webkit-user-select:text;user-select:text;background-image:linear-gradient(transparent 33px,var(--line) 33px,var(--line) 34px,transparent 34px);background-size:100% 34px;background-attachment:local}
+  .fd-edit:empty:before{content:attr(data-ph);color:var(--ink-soft)}
+  .fd-foot{padding:10px 16px calc(env(safe-area-inset-bottom,0px) + 12px);display:flex;justify-content:flex-end;border-top:1px solid var(--line)}
+  .fd-save{border:0;background:#fff;color:#111;font-family:var(--f-body);font-weight:700;font-size:16px;padding:11px 30px;border-radius:999px;cursor:pointer}
   .profile-avatar{cursor:pointer}
   .nick-modal{z-index:120;align-items:center;justify-content:center;background:rgba(0,0,0,.55);padding:24px}
   .nick-card{width:100%;max-width:340px;background:var(--surface);border-radius:20px;padding:24px 22px;display:flex;flex-direction:column;align-items:center;gap:16px}
@@ -952,7 +962,7 @@ var SPLASHES=[
       <h3>일기 작성 취소</h3>
       <p>일기 작성을 취소할까요?<br>작성 중인 일기는 저장되지 않아요.</p>
       <div class="exit-btns">
-        <button id="exitStay" class="exit-stay">돌아가기</button>
+        <button id="exitStay" class="exit-stay">계속쓰기</button>
         <button id="exitGo" class="exit-go">작성 취소하기</button>
       </div>
     </div>
@@ -1004,7 +1014,7 @@ var SPLASHES=[
           <input type="file" id="photoInput" accept="image/*" multiple hidden>
         </div>
         <div class="sec-head"><span class="sec-lead"><span class="field">일기</span><span class="field-hint" id="diaryHint">(사진을 추가해서 일기를 써 보아요)</span></span><button class="sec-gear" id="gearDiary" data-ic="sliders" title="서식"></button></div>
-        <div class="editable" id="diaryEdit" contenteditable="true" data-ph=""></div>
+        <div class="editable" id="diaryEdit" contenteditable="false" data-ph="여기를 눌러 일기를 써보세요"></div>
         </div>
         <div id="diaryTags" class="diary-tags"></div>
         <div class="entry-foot">
@@ -1290,6 +1300,7 @@ var SPLASHES=[
 
   const diaryEdit=document.getElementById('diaryEdit'), promptEdit=document.getElementById('promptEdit'), memoEdit=document.getElementById('memoEdit');
   let _profileFromEd=false;
+  let _fdOpen=false,_fdSnap='';
 
   /* 서식 툴바 */
   function divider(){const d=document.createElement('span');d.className='tb-div';return d;}
@@ -1791,6 +1802,8 @@ var SPLASHES=[
     if(modal&&!modal.hidden){ modal.hidden=true; try{history.pushState({hd:'home'},'');}catch(e){} return; }
     const exm=document.getElementById('exitModal');
     if(exm&&!exm.hidden){ exm.hidden=true; try{history.pushState({hd:'editor'},'');}catch(e){} return; }
+    const _fd=document.getElementById('fullDiary');
+    if(_fd&&_fd.classList.contains('show')){ const _fe=document.getElementById('fdEdit'); if(_fe.innerHTML!==_fdSnap){ showExitConfirm(); } else { closeFullDiary(); } try{history.pushState({hd:'editor'},'');}catch(e){} return; }
     const nm=document.getElementById('nickModal');
     if(nm&&!nm.hidden){ nm.hidden=true; try{history.pushState({hd:'home'},'');}catch(e){} return; }
     const ed=document.getElementById('editor');
@@ -1855,7 +1868,13 @@ var SPLASHES=[
   })();
   document.getElementById('backBtn').onclick=()=>{ if(_edSource==='gallery'||_edSource==='bookmark'||_edSource==='search'){ returnToSource(); } else { showExitConfirm(); } };
   document.getElementById('exitStay').onclick=()=>{const m=document.getElementById('exitModal');if(m)m.hidden=true;};
-  document.getElementById('exitGo').onclick=()=>{const m=document.getElementById('exitModal');if(m)m.hidden=true;doExit();};
+  document.getElementById('exitGo').onclick=()=>{const m=document.getElementById('exitModal');if(m)m.hidden=true;if(_fdOpen){closeFullDiary();}else{doExit();}};
+  function openFullDiary(){ const fd=document.getElementById('fullDiary'),fe=document.getElementById('fdEdit'); fe.innerHTML=day.diary||''; try{const pf=FONTS.find(x=>x.id===secFont['diary']);fe.style.fontFamily=pf?pf.disp:'';}catch(e){} try{const d=date,dw=['일','월','화','수','목','금','토'][d.getDay()];document.getElementById('fdDate').textContent=(d.getMonth()+1)+'월 '+d.getDate()+'일 ('+dw+')';}catch(e){} _fdSnap=fe.innerHTML; _themeVars(fd); fd.classList.add('show'); _fdOpen=true; try{history.pushState({hd:'editor'},'');}catch(e){} setTimeout(()=>{try{fe.focus();const r=document.createRange();r.selectNodeContents(fe);r.collapse(false);const sel=window.getSelection();sel.removeAllRanges();sel.addRange(r);}catch(e){}},60); }
+  function closeFullDiary(){ const fd=document.getElementById('fullDiary'); fd.classList.remove('show'); _fdOpen=false; }
+  function saveFullDiary(){ const fe=document.getElementById('fdEdit'); day.diary=fe.innerHTML; diaryEdit.innerHTML=day.diary; {const _h=htmlText(day.diary).trim();if(_h&&!day.diaryAt)day.diaryAt=Date.now();else if(!_h)day.diaryAt='';} scheduleSaveDay(); try{updateDiaryHint();}catch(e){} closeFullDiary(); }
+  document.getElementById('fdSave').onclick=saveFullDiary;
+  document.getElementById('fdClose').onclick=()=>{ const fe=document.getElementById('fdEdit'); if(fe.innerHTML!==_fdSnap){ showExitConfirm(); } else { closeFullDiary(); } };
+  diaryEdit.addEventListener('click',()=>{ openFullDiary(); });
 
   /* 자동저장 보강: 화면 이탈 시 즉시 저장 */
   function flushSave(){try{
@@ -2480,5 +2499,10 @@ var SPLASHES=[
       </div>
     </div>
   </div>
+</div>
+<div id="fullDiary">
+  <div class="fd-head"><button id="fdClose" class="fd-x" aria-label="닫기"><span data-ic="close"></span></button><span id="fdDate" class="fd-date"></span></div>
+  <div id="fdEdit" class="fd-edit" contenteditable="true" data-ph="무슨 일이 있었나요?"></div>
+  <div class="fd-foot"><button id="fdSave" class="fd-save">저장</button></div>
 </div>
 </body></html>

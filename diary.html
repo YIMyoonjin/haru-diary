@@ -957,6 +957,16 @@ var SPLASHES=[
         <div class="set-row-l"><span class="set-ic">👤</span><div class="set-row-t"><strong id="accountEmail">로그인 중...</strong><small>구글 계정으로 연결됨</small></div></div>
         <button id="logoutBtn" style="font-size:13px;color:#c0392b;background:none;border:1px solid #c0392b;border-radius:8px;padding:4px 10px;cursor:pointer">로그아웃</button>
       </div>
+      <div class="set-group-label">백업</div>
+      <div class="set-row" id="rowExport">
+        <div class="set-row-l"><span class="set-ic">📤</span><div class="set-row-t"><strong>일기 내보내기</strong><small>모든 일기를 백업 파일로 저장해요</small></div></div>
+        <button id="exportBtn" style="font-size:13px;color:var(--accent);background:none;border:1px solid var(--line);border-radius:8px;padding:5px 12px;cursor:pointer;font-family:var(--f-body)">내보내기</button>
+      </div>
+      <div class="set-row" id="rowImport">
+        <div class="set-row-l"><span class="set-ic">📥</span><div class="set-row-t"><strong>백업 불러오기</strong><small>백업 파일에서 일기를 복원해요</small></div></div>
+        <button id="importBtn" style="font-size:13px;color:var(--accent);background:none;border:1px solid var(--line);border-radius:8px;padding:5px 12px;cursor:pointer;font-family:var(--f-body)">불러오기</button>
+      </div>
+      <input type="file" id="importInput" accept="application/json,.json" hidden>
       </div>
       </div>
     </div>
@@ -2089,6 +2099,39 @@ var SPLASHES=[
     await signOut(auth);
     document.getElementById('appSetModal').hidden=true;document.getElementById('profileModal').hidden=true;
   };
+  async function exportBackup(){
+    try{
+      const data={};
+      if(_fbUid && window._FB){ try{ const {collection,getDocs,db}=window._FB; const snap=await getDocs(collection(db,'users/'+_fbUid+'/data')); snap.forEach(d=>{ data[d.id]=d.data().v; }); }catch(e){} }
+      else { for(let i=0;i<localStorage.length;i++){ const k=localStorage.key(i); if(k&&k.indexOf('hd_')===0){ data[k.slice(3)]=localStorage.getItem(k); } } }
+      const cnt=Object.keys(data).filter(k=>k.indexOf('diary:')===0).length;
+      const backup={ app:'오늘의 Diary', version:1, exportedAt:new Date().toISOString(), account:(_fbEmail||''), entryCount:cnt, data:data };
+      const blob=new Blob([JSON.stringify(backup,null,2)],{type:'application/json'});
+      const url=URL.createObjectURL(blob);
+      const a=document.createElement('a'); a.href=url; a.download='haru-diary-backup-'+ymd(new Date())+'.json'; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(url),2000);
+      toast('일기 '+cnt+'개를 백업 파일로 저장했어요');
+    }catch(e){ toast('내보내기에 실패했어요'); }
+  }
+  async function importBackup(file){
+    try{
+      const text=await file.text();
+      const backup=JSON.parse(text);
+      const data=(backup&&backup.data)?backup.data:backup;
+      const keys=Object.keys(data||{});
+      if(!keys.length){ toast('복원할 데이터가 없어요'); return; }
+      const dcnt=keys.filter(k=>k.indexOf('diary:')===0).length;
+      if(!confirm('백업을 복원할까요?\n일기 '+dcnt+'개를 포함해 현재 데이터에 덮어씁니다.')) return;
+      let n=0;
+      for(const k of keys){ try{ await store.set(k, data[k]); if(k.indexOf('diary:')===0){ try{_dayCache[k]=JSON.parse(data[k]);}catch(_){ } } n++; }catch(e){} }
+      try{ await loadSettings(); }catch(e){} try{applyFont(curFont);applyTheme(curTheme);applyPalette();applyInk();}catch(e){}
+      try{ await loadRoutines(); }catch(e){} try{renderRoutines();}catch(e){}
+      try{renderCalendar();refreshTodayCard();showYesterday();renderStats();}catch(e){}
+      toast(n+'개 항목을 복원했어요');
+    }catch(e){ toast('복원 실패: 올바른 백업 파일인지 확인해주세요'); }
+  }
+  {const _e=document.getElementById('exportBtn'); if(_e)_e.onclick=exportBackup;}
+  {const _i=document.getElementById('importBtn'); if(_i)_i.onclick=()=>{const inp=document.getElementById('importInput'); if(inp)inp.click();};}
+  {const _ii=document.getElementById('importInput'); if(_ii)_ii.onchange=(e)=>{ const ff=e.target.files&&e.target.files[0]; if(ff)importBackup(ff); e.target.value=''; };}
   function refreshDmodeBtns(){document.querySelectorAll('[data-dmode]').forEach(b=>b.classList.toggle('active',b.dataset.dmode===defaultMode));}
   document.querySelectorAll('[data-dmode]').forEach(b=>{
     b.onclick=async()=>{

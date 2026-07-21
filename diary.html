@@ -595,6 +595,11 @@ var SPLASHES=[
   .tag-bar>span{display:block;height:100%;border-radius:6px}
   .tag-pct{width:42px;text-align:right;font-size:13px;color:var(--ink-soft);font-family:var(--f-body)}
   .stat-empty{font-size:13px;color:var(--ink-soft);font-family:var(--f-body);margin-top:8px}
+  .rstat-row{display:flex;align-items:center;gap:10px;margin-top:10px}
+  .rstat-name{flex:0 0 auto;width:100px;font-family:var(--f-body);font-size:14px;color:var(--ink);white-space:normal;word-break:break-all;line-height:1.25}
+  .rstat-bar{flex:1;height:10px;background:var(--surface-2);border-radius:6px;overflow:hidden}
+  .rstat-bar>span{display:block;height:100%;border-radius:6px;min-width:3px}
+  .rstat-n{width:42px;text-align:right;font-size:13px;color:var(--ink-soft);font-family:var(--f-body)}
   #home .stats-wrap, #home .stats-wrap *{font-family:var(--f-ui) !important}
   #home .weather-card, #home .weather-card *{font-family:var(--f-ui) !important}
   .yday-card{margin-top:14px;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px 18px;cursor:pointer}
@@ -847,6 +852,11 @@ var SPLASHES=[
         <div class="stat-sub">이번 주 일기 쓴 날</div>
         <div class="streak-week" id="streakWeek"></div>
         <div class="streak-count" id="streakCount"></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-title">✅ 루틴</div>
+        <div class="stat-sub" id="routineStatSub">이번 달 루틴 실천</div>
+        <div id="routineStatList"></div>
       </div>
       <div class="stat-card">
         <div class="stat-title">월간 통계</div>
@@ -1568,6 +1578,32 @@ var SPLASHES=[
     const tr=document.getElementById('tagRank');
     if(tr){tr.innerHTML='';if(!ranked.length){tr.innerHTML='<div class="stat-empty">아직 태그가 없어요.</div>';}
       else ranked.forEach((p,i)=>{const pct=Math.round(p[1]/tt*100);const color=SCHED_COLORS[i%SCHED_COLORS.length];const row=document.createElement('div');row.className='tag-row';row.innerHTML='<span class="tag-rank">'+(i+1)+'</span><span class="tag-name">'+_esc(p[0])+'</span><span class="tag-bar"><span style="width:'+pct+'%;background:'+color+'"></span></span><span class="tag-pct">'+pct+'%</span>';tr.appendChild(row);});}
+    try{renderRoutineStats();}catch(e){}
+  }
+  function renderRoutineStats(){
+    const wrap=document.getElementById('routineStatList'); if(!wrap) return;
+    const sub=document.getElementById('routineStatSub');
+    const daysIn=new Date(calYear,calMonth+1,0).getDate();
+    const today=ymd(new Date());
+    const counts={};
+    for(let d=1;d<=daysIn;d++){
+      const ds=ymd(new Date(calYear,calMonth,d));
+      if(ds>today) break;
+      let dd=_dayCache['diary:'+ds]; if(!dd){ try{dd=JSON.parse(localStorage.getItem('hd_diary:'+ds));}catch(e){} }
+      if(dd && dd.done){ for(const id in dd.done){ if(dd.done[id]) counts[id]=(counts[id]||0)+1; } }
+    }
+    const items=(routines||[]).filter(rt=>rt.text && rt.text.trim()).map(rt=>({name:rt.text.trim(), n:counts[rt.id]||0}));
+    if(sub) sub.textContent=calYear+'년 '+(calMonth+1)+'월 · 루틴 실천';
+    wrap.innerHTML='';
+    if(!items.length){ wrap.innerHTML='<div class="stat-empty">아직 루틴이 없어요.</div>'; return; }
+    items.sort((a,b)=>b.n-a.n);
+    items.forEach((it,i)=>{
+      const pct=Math.round(it.n/daysIn*100);
+      const color=SCHED_COLORS[i%SCHED_COLORS.length];
+      const row=document.createElement('div'); row.className='rstat-row';
+      row.innerHTML='<span class="rstat-name">'+_esc(it.name)+'</span><span class="rstat-bar"><span style="width:'+Math.max(pct,3)+'%;background:'+color+'"></span></span><span class="rstat-n">'+it.n+'일</span>';
+      wrap.appendChild(row);
+    });
   }
   function closePops(except){document.querySelectorAll('.pop.open,.pop-panel.open,.stk-pop.open').forEach(p=>{if(p!==except)p.classList.remove('open');});}
 

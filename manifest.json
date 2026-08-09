@@ -1,7 +1,7 @@
 {
   "id": "/haru-diary/diary.html",
-  "name": "오늘Diary",
-  "short_name": "오늘Diary",
+  "name": "오늘의 Diary",
+  "short_name": "오늘의 Diary",
   "description": "나만의 그림일기 — 하루를 사진과 글로 기록하는 다이어리",
   "start_url": "/haru-diary/diary.html",
   "scope": "/haru-diary/",

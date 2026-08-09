@@ -720,6 +720,7 @@ var SPLASHES=[
   .fmt-ctrls{display:flex;flex-wrap:wrap;gap:9px;align-items:center}
   .fmt-body .sw{width:30px;height:30px}
   .fmt-body .hl{width:34px;height:26px}
+  .fmt-ctrls .sw.active,.fmt-ctrls .hl.active{box-shadow:0 0 0 2px var(--surface),0 0 0 4px #F0518B;border-color:#F0518B}
   .fmt-body .tb-btn{padding:9px 14px;font-size:15px}
   .fmt-body .tb-sel{padding:10px 12px;font-size:15px;width:100%;max-width:240px}
   .fmt-body .fontpick{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:10px;padding:9px 13px;cursor:pointer;font-size:16px}
@@ -1268,11 +1269,11 @@ var SPLASHES=[
   let curFont='gaegu', curTheme='gold', curInk='', secFont={diary:'',prompt:'',memo:''}, secBg={diary:'',prompt:'',memo:''};
   function applyFont(id){const f=FONTS.find(x=>x.id===id)||FONTS[0];curFont=f.id;app.style.setProperty('--f-body',f.disp);document.querySelectorAll('#fontList button').forEach(b=>b.classList.toggle('active',b.dataset.f===f.id));try{localStorage.setItem('hd_font',curFont);}catch(e){}}
   function applyPalette(){const t=THEMES[curTheme]||THEMES.gold;const m={'--bg':t.bg,'--surface':t.surface,'--surface-2':t.s2,'--ink':t.ink,'--ink-soft':t.inkSoft,'--line':t.line,'--accent':t.accent,'--accent-soft':t.accentSoft,'--on-accent':t.on};for(const k in m)app.style.setProperty(k,m[k]);try{document.body.style.background=t.bg;}catch(e){}}
-  function applyInk(){ const i=curInk?INKS.find(x=>x.id===curInk):null; app.style.setProperty('--ink-edit',(i&&i.c)?i.c:'var(--ink)'); document.querySelectorAll('#inkList button').forEach(b=>b.classList.toggle('active',b.dataset.i===curInk)); }
+  function applyInk(){ const i=curInk?INKS.find(x=>x.id===curInk):null; app.style.setProperty('--ink-edit',(i&&i.c)?i.c:'var(--ink)'); document.querySelectorAll('#inkList button').forEach(b=>b.classList.toggle('active',b.dataset.i===curInk)); try{styleLogCards();}catch(e){} }
   function applyTheme(id){if(THEMES[id])curTheme=id;applyPalette();applyInk();document.querySelectorAll('#themeList button').forEach(b=>b.classList.toggle('active',b.dataset.t===curTheme));try{localStorage.setItem('hd_theme',curTheme);}catch(e){}}
-  function applySecFont(section,edit){if(section==='postit'){const pf=FONTS.find(x=>x.id===secFont['postit']);document.querySelectorAll('#postitContainer .editable').forEach(el=>{el.style.fontFamily=pf?pf.disp:'';});return;}const id=secFont[section];const f=FONTS.find(x=>x.id===id);edit.style.fontFamily=f?f.disp:'';}
+  function applySecFont(section,edit){if(section==='postit'){const pf=FONTS.find(x=>x.id===secFont['postit']);document.querySelectorAll('#postitContainer .editable').forEach(el=>{el.style.fontFamily=pf?pf.disp:'';});return;}const id=secFont[section];const f=FONTS.find(x=>x.id===id);edit.style.fontFamily=f?f.disp:'';if(section==='diary'){try{styleLogCards();}catch(e){}}}
   function cardOf(section){return document.getElementById(section==='diary'?'cardDiary':section==='prompt'?'cardPrompt':section==='postit'?'cardPostit':'cardMemo');}
-  function applySecBg(section){const c=SECBGS.find(x=>x.id===secBg[section]);const col=(c&&c.c)?c.c:'';if(section==='postit'){document.querySelectorAll('#postitContainer .card').forEach(card=>{card.style.background=col;});return;}const card=cardOf(section);if(card)card.style.background=col;if(section==='diary'){const pz=document.getElementById('photoZone');if(pz)pz.style.background=col;}}
+  function applySecBg(section){const c=SECBGS.find(x=>x.id===secBg[section]);const col=(c&&c.c)?c.c:'';if(section==='postit'){document.querySelectorAll('#postitContainer .card').forEach(card=>{card.style.background=col;});return;}const card=cardOf(section);if(card)card.style.background=col;if(section==='diary'){const pz=document.getElementById('photoZone');if(pz)pz.style.background=col;try{styleLogCards();}catch(e){}}}
   function _fillFontList(fl){if(!fl)return;fl.innerHTML='';['기본 글씨','굵은 글씨','손글씨'].forEach(cat=>{const fs=FONTS.filter(f=>f.cat===cat);if(!fs.length)return;const h=document.createElement('div');h.className='fgroup-h';h.textContent=cat;fl.appendChild(h);fs.forEach(f=>{const b=document.createElement('button');b.dataset.f=f.id;b.style.fontFamily=f.disp;b.textContent='가나다 '+f.name;b.onclick=async()=>{applyFont(f.id);await store.set('font',f.id);};fl.appendChild(b);});});}
   function buildSettings(){
     _fillFontList(document.getElementById('fontList'));
@@ -1399,15 +1400,20 @@ var SPLASHES=[
     FONTS.forEach(f=>c1.appendChild(fontBtn(f.id,f.name,f.disp)));
     /* 글씨 색상 */
     const c2=row('✏️ 글씨 색상');
-    TEXTCOLORS.forEach(c=>{const b=document.createElement('button');b.className='sw';b.style.background=c;b.title='글자색';b.onmousedown=e=>e.preventDefault();b.onclick=()=>{edit.focus();try{document.execCommand('styleWithCSS',false,true);}catch(e){}document.execCommand('foreColor',false,c);saveSection(section,edit);};c2.appendChild(b);});
+    TEXTCOLORS.forEach(c=>{const b=document.createElement('button');b.className='sw';b.dataset.col=c;b.style.background=c;b.title='글자색';b.onmousedown=e=>e.preventDefault();b.onclick=()=>{edit.focus();try{document.execCommand('styleWithCSS',false,true);}catch(e){}document.execCommand('foreColor',false,c);saveSection(section,edit);c2.querySelectorAll('.sw').forEach(x=>x.classList.remove('active'));b.classList.add('active');};c2.appendChild(b);});
     /* 형광펜 */
     const c3=row('🖍️ 형광펜');
-    const hc=document.createElement('button');hc.className='hl hl-none';hc.title='형광펜 없음';hc.onmousedown=e=>e.preventDefault();hc.onclick=()=>{edit.focus();try{document.execCommand('styleWithCSS',false,true);}catch(e){}document.execCommand('hiliteColor',false,'transparent');saveSection(section,edit);};c3.appendChild(hc);
-    HILITES.forEach(c=>{const b=document.createElement('button');b.className='hl';b.style.background=c;b.title='형광펜';b.onmousedown=e=>e.preventDefault();b.onclick=()=>{edit.focus();try{document.execCommand('styleWithCSS',false,true);}catch(e){}document.execCommand('hiliteColor',false,c);saveSection(section,edit);};c3.appendChild(b);});
+    const hc=document.createElement('button');hc.className='hl hl-none';hc.title='형광펜 없음';hc.onmousedown=e=>e.preventDefault();hc.onclick=()=>{edit.focus();try{document.execCommand('styleWithCSS',false,true);}catch(e){}document.execCommand('hiliteColor',false,'transparent');saveSection(section,edit);c3.querySelectorAll('.hl').forEach(x=>x.classList.remove('active'));hc.classList.add('active');};c3.appendChild(hc);
+    HILITES.forEach(c=>{const b=document.createElement('button');b.className='hl';b.dataset.hl=c;b.style.background=c;b.title='형광펜';b.onmousedown=e=>e.preventDefault();b.onclick=()=>{edit.focus();try{document.execCommand('styleWithCSS',false,true);}catch(e){}document.execCommand('hiliteColor',false,c);saveSection(section,edit);c3.querySelectorAll('.hl').forEach(x=>x.classList.remove('active'));b.classList.add('active');};c3.appendChild(b);});
     const er=document.createElement('button');er.className='tb-btn';er.textContent='서식 지움';er.title='서식 지움';er.onmousedown=e=>e.preventDefault();er.onclick=()=>{edit.focus();document.execCommand('removeFormat');saveSection(section,edit);};c3.appendChild(er);
     /* 칸 색상 */
     const c4=row('🎨 칸 색상');
-    SECBGS.forEach(s=>{const b=document.createElement('button');b.className='sw';b.style.background=s.c||'var(--surface)';b.title='칸 색상 · '+s.n;b.onmousedown=e=>e.preventDefault();b.onclick=async()=>{secBg[section]=s.id;applySecBg(section);await store.set('secbg',JSON.stringify(secBg));};c4.appendChild(b);});
+    SECBGS.forEach(s=>{const b=document.createElement('button');b.className='sw'+(((secBg[section]||'')===s.id)?' active':'');b.style.background=s.c||'var(--surface)';b.title='칸 색상 · '+s.n;b.onmousedown=e=>e.preventDefault();b.onclick=async()=>{secBg[section]=s.id;applySecBg(section);await store.set('secbg',JSON.stringify(secBg));c4.querySelectorAll('.sw').forEach(x=>x.classList.remove('active'));b.classList.add('active');};c4.appendChild(b);});
+    /* 선택 위치의 글자색·형광펜을 스와치에 표시 */
+    function _hex2(x){ if(!x)return ''; x=(''+x).trim(); if(x[0]==='#'){ if(x.length===4)return ('#'+x[1]+x[1]+x[2]+x[2]+x[3]+x[3]).toUpperCase(); return x.toUpperCase(); } const m=x.match(/\d+/g); if(!m||m.length<3)return ''; return '#'+m.slice(0,3).map(n=>(+n).toString(16).padStart(2,'0')).join('').toUpperCase(); }
+    function syncFmtActive(){ try{ const fc=_hex2(document.queryCommandValue('foreColor')); c2.querySelectorAll('.sw').forEach(x=>x.classList.toggle('active',!!x.dataset.col&&_hex2(x.dataset.col)===fc)); let bcRaw=''; try{bcRaw=document.queryCommandValue('hiliteColor');}catch(e){} if(!bcRaw||bcRaw==='transparent'||bcRaw==='rgba(0, 0, 0, 0)'){try{bcRaw=document.queryCommandValue('backColor');}catch(e){}} const bc=_hex2(bcRaw); let matched=false; c3.querySelectorAll('.hl').forEach(x=>{ if(x.dataset.hl){const on=_hex2(x.dataset.hl)===bc; x.classList.toggle('active',on); if(on)matched=true;} }); const nb=c3.querySelector('.hl-none'); if(nb)nb.classList.toggle('active',!matched); }catch(e){} }
+    if(edit._fmtSync){edit.removeEventListener('keyup',edit._fmtSync);edit.removeEventListener('mouseup',edit._fmtSync);}
+    edit._fmtSync=syncFmtActive; edit.addEventListener('keyup',syncFmtActive); edit.addEventListener('mouseup',syncFmtActive); setTimeout(syncFmtActive,0);
     /* 스티커 */
     const c5=row('⭐ 스티커');
     const sBtn=document.createElement('button');sBtn.className='tb-btn';sBtn.innerHTML='스티커 고르기 '+STK_STAR;sBtn.title='스티커';
@@ -1524,6 +1530,16 @@ var SPLASHES=[
     document.querySelectorAll('#weatherPop .wopt').forEach(o=>o.classList.toggle('on',o.dataset.w===day.weather));
   }
   function reflectBookmark(){const b=document.getElementById('bmBtn');if(b){b.classList.toggle('on',!!day.bookmarked);b.innerHTML=day.bookmarked?ICON.bookmarkfill:ICON.bookmark;}}
+  function styleLogCards(){
+    const cd=document.getElementById('cardDiary'),de=document.getElementById('diaryEdit');
+    if(!cd||!de)return;
+    const cs=getComputedStyle(cd),es=getComputedStyle(de);
+    let bg=cs.backgroundColor; if(!bg||bg==='rgba(0, 0, 0, 0)'||bg==='transparent')bg='#FFFFFF';
+    document.querySelectorAll('#logList .log-card').forEach(card=>{
+      card.style.background=bg;card.style.borderColor='rgba(0,0,0,.08)';
+      const led=card.querySelector('.log-edit'); if(led){led.style.fontFamily=es.fontFamily;led.style.color=es.color;}
+    });
+  }
   function renderLogs(){
     const wrap=document.getElementById('logList');if(!wrap)return;wrap.innerHTML='';
     (day.logs||[]).forEach((lg,i)=>{

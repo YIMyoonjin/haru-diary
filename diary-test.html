@@ -596,7 +596,7 @@ var SPLASHES=[
   .tag-pct{width:42px;text-align:right;font-size:13px;color:var(--ink-soft);font-family:var(--f-body)}
   .stat-empty{font-size:13px;color:var(--ink-soft);font-family:var(--f-body);margin-top:8px}
   .rt-chk{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:6px;background:#F0518B;color:#fff;font-size:13px;line-height:1;vertical-align:middle;margin-right:3px}
-  .rstat-group{font-family:var(--f-body);font-size:12.5px;font-weight:700;color:var(--ink-soft);margin-top:16px;letter-spacing:.3px}
+  .rstat-group{font-family:var(--f-body);font-size:12.5px;font-weight:700;color:#F0518B;margin-top:16px;letter-spacing:.3px}
   .rstat-group:first-child{margin-top:6px}
   .rstat-row{display:flex;align-items:center;gap:10px;margin-top:10px}
   .rstat-name{flex:0 0 auto;width:100px;font-family:var(--f-body);font-size:14px;color:var(--ink);white-space:normal;word-break:break-all;line-height:1.25}
@@ -858,7 +858,7 @@ var SPLASHES=[
       </div>
       <div class="stat-card">
         <div class="stat-title"><span class="rt-chk">✓</span> 루틴</div>
-        <div class="stat-sub" id="routineStatSub">루틴 실천 · 이번 달 &amp; 전체</div>
+        <div class="stat-sub" id="routineStatSub">루틴 실천</div>
         <div id="routineStatList"></div>
       </div>
       <div class="stat-card">
@@ -1611,7 +1611,7 @@ var SPLASHES=[
     const tCounts={};
     try{ _allDiaryDates().forEach(ds=>{ let dd=_dayCache['diary:'+ds]; if(!dd){ try{dd=JSON.parse(localStorage.getItem('hd_diary:'+ds));}catch(e){} } if(dd && dd.done){ for(const id in dd.done){ if(dd.done[id]) tCounts[id]=(tCounts[id]||0)+1; } } }); }catch(e){}
     const rts=(routines||[]).filter(rt=>rt.text && rt.text.trim());
-    if(sub) sub.textContent='루틴 실천 · 이번 달 & 전체';
+    if(sub) sub.textContent='루틴 실천';
     wrap.innerHTML='';
     if(!rts.length){ wrap.innerHTML='<div class="stat-empty">아직 루틴이 없어요.</div>'; return; }
     function group(title, counts, denom){

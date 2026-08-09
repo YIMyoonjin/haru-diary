@@ -1531,6 +1531,15 @@ var SPLASHES=[
       const del=document.createElement('button');del.className='log-del';del.innerHTML=ICON.close;del.title='기록 삭제';
       del.onclick=()=>{day.logs.splice(i,1);renderLogs();scheduleSaveDay();};
       card.append(ed,del);
+      /* 추가 일기 카드도 메인 일기와 동일한 배경·폰트·글자색으로 맞춤 */
+      try{
+        const _cd=document.getElementById('cardDiary'),_de=document.getElementById('diaryEdit');
+        const _cs=_cd?getComputedStyle(_cd):null,_es=_de?getComputedStyle(_de):null;
+        let _bg=_cs?_cs.backgroundColor:'';
+        if(!_bg||_bg==='rgba(0, 0, 0, 0)'||_bg==='transparent')_bg='#FFFFFF';
+        card.style.background=_bg;card.style.borderColor='rgba(0,0,0,.08)';
+        if(_es){ed.style.fontFamily=_es.fontFamily;ed.style.color=_es.color;}
+      }catch(e){card.style.background='#FFFFFF';ed.style.color='#2B2A26';}
       if(!Array.isArray(lg.photos))lg.photos=[];
       const pr=document.createElement('div');pr.className='log-photos';
       lg.photos.forEach((ph,pi)=>{const cell=document.createElement('div');cell.className='lp';const im=document.createElement('img');im.src=ph;im.onclick=()=>{document.getElementById('imgBig').src=ph;document.getElementById('imgModal').hidden=false;};const rm=document.createElement('button');rm.className='lprm';rm.innerHTML=ICON.close;rm.onclick=(e)=>{e.stopPropagation();lg.photos.splice(pi,1);renderLogs();scheduleSaveDay();};cell.append(im,rm);pr.appendChild(cell);});

@@ -574,7 +574,7 @@ var SPLASHES=[
   .stats-wrap{margin-top:18px;display:flex;flex-direction:column;gap:14px}
   .stat-card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px 18px}
   .stat-title{font-family:var(--f-body);font-size:16px;font-weight:700;color:var(--ink)}
-  .stat-sub{font-size:13px;color:var(--ink-soft);font-family:var(--f-body);margin-top:2px}
+  .stat-sub{font-size:13px;color:var(--ink-soft);font-family:var(--f-body);margin-top:7px}
   .streak-week{display:flex;justify-content:space-between;gap:4px;margin-top:12px}
   .streak-day{display:flex;flex-direction:column;align-items:center;gap:5px;flex:1}
   .streak-dow{font-size:12px;color:var(--ink-soft);font-family:var(--f-body)}
@@ -595,6 +595,9 @@ var SPLASHES=[
   .tag-bar>span{display:block;height:100%;border-radius:6px}
   .tag-pct{width:42px;text-align:right;font-size:13px;color:var(--ink-soft);font-family:var(--f-body)}
   .stat-empty{font-size:13px;color:var(--ink-soft);font-family:var(--f-body);margin-top:8px}
+  .rt-chk{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:6px;background:#F0518B;color:#fff;font-size:13px;line-height:1;vertical-align:middle;margin-right:3px}
+  .rstat-group{font-family:var(--f-body);font-size:12.5px;font-weight:700;color:#F0518B;margin-top:16px;letter-spacing:.3px}
+  .rstat-group:first-child{margin-top:6px}
   .rstat-row{display:flex;align-items:center;gap:10px;margin-top:10px}
   .rstat-name{flex:0 0 auto;width:100px;font-family:var(--f-body);font-size:14px;color:var(--ink);white-space:normal;word-break:break-all;line-height:1.25}
   .rstat-bar{flex:1;height:10px;background:var(--surface-2);border-radius:6px;overflow:hidden}
@@ -849,13 +852,13 @@ var SPLASHES=[
     <div class="stats-wrap">
       <div class="stat-card">
         <div class="stat-title">🔥 연속 기록</div>
-        <div class="stat-sub">이번 주 일기 쓴 날</div>
+        <div class="stat-sub" id="streakSub">이번 주 일기 쓴 날</div>
         <div class="streak-week" id="streakWeek"></div>
         <div class="streak-count" id="streakCount"></div>
       </div>
       <div class="stat-card">
-        <div class="stat-title">✅ 루틴</div>
-        <div class="stat-sub" id="routineStatSub">이번 달 루틴 실천</div>
+        <div class="stat-title"><span class="rt-chk">✓</span> 루틴</div>
+        <div class="stat-sub" id="routineStatSub">루틴 실천</div>
         <div id="routineStatList"></div>
       </div>
       <div class="stat-card">
@@ -1570,11 +1573,13 @@ var SPLASHES=[
   function _drawBars(id,arr,maxv){const el=document.getElementById(id);if(!el)return;el.innerHTML='';let mx=maxv||1;arr.forEach(v=>{if(v>mx)mx=v;});mx=mx||1;arr.forEach(v=>{const b=document.createElement('div');b.className='stat-bar';b.style.height=Math.max(2,Math.round(v/mx*100))+'%';el.appendChild(b);});}
   function renderStats(){
     const today=new Date(),todayS=ymd(today);
-    const wk=document.getElementById('streakWeek');
+    const wk=document.getElementById('streakWeek');let wkCount=0;
     if(wk){wk.innerHTML='';const dow=['월','화','수','목','금','토','일'];const mon=new Date(today);const wd=(mon.getDay()+6)%7;mon.setDate(mon.getDate()-wd);
-      for(let i=0;i<7;i++){const dd=new Date(mon);dd.setDate(mon.getDate()+i);const ds=ymd(dd);const cell=document.createElement('div');cell.className='streak-day';const lab=document.createElement('div');lab.className='streak-dow';lab.textContent=dow[i];const dot=document.createElement('div');dot.className='streak-dot';if(_recordedOn(ds)){dot.classList.add('on');dot.textContent='✓';}if(ds===todayS)dot.classList.add('today');cell.append(lab,dot);wk.appendChild(cell);}}
+      for(let i=0;i<7;i++){const dd=new Date(mon);dd.setDate(mon.getDate()+i);const ds=ymd(dd);const cell=document.createElement('div');cell.className='streak-day';const lab=document.createElement('div');lab.className='streak-dow';lab.textContent=dow[i];const dot=document.createElement('div');dot.className='streak-dot';if(_recordedOn(ds)){dot.classList.add('on');dot.textContent='✓';wkCount++;}if(ds===todayS)dot.classList.add('today');cell.append(lab,dot);wk.appendChild(cell);}}
+    const ssub=document.getElementById('streakSub');if(ssub)ssub.textContent='이번 주 일기 쓴 날 · '+wkCount+'일';
     let streak=0;const cur=new Date(today);if(!_recordedOn(ymd(cur)))cur.setDate(cur.getDate()-1);while(_recordedOn(ymd(cur))){streak++;cur.setDate(cur.getDate()-1);}
-    const sc=document.getElementById('streakCount');if(sc)sc.innerHTML='지금 <b>'+streak+'</b>일 연속 기록 중!';
+    let total=0;try{_allDiaryDates().forEach(ds=>{if(_recordedOn(ds))total++;});}catch(e){}
+    const sc=document.getElementById('streakCount');if(sc)sc.innerHTML='<b>'+streak+'</b>일 연속 기록 중 · 지금까지 <b>'+total+'</b>일';
     const daysIn=new Date(calYear,calMonth+1,0).getDate();let mRec=0;const wkB=[0,0,0,0,0,0];
     for(let d=1;d<=daysIn;d++){if(_recordedOn(ymd(new Date(calYear,calMonth,d)))){mRec++;wkB[Math.floor((d-1)/7)]++;}}
     const mPct=Math.round(mRec/daysIn*100);const ms=document.getElementById('monthStatSub');if(ms)ms.textContent=calYear+'년 '+(calMonth+1)+'월 · '+mRec+'/'+daysIn+'일 기록';
@@ -1594,25 +1599,35 @@ var SPLASHES=[
     const sub=document.getElementById('routineStatSub');
     const daysIn=new Date(calYear,calMonth+1,0).getDate();
     const today=ymd(new Date());
-    const counts={};
+    // 이번 달 실천 카운트
+    const mCounts={};
     for(let d=1;d<=daysIn;d++){
       const ds=ymd(new Date(calYear,calMonth,d));
       if(ds>today) break;
       let dd=_dayCache['diary:'+ds]; if(!dd){ try{dd=JSON.parse(localStorage.getItem('hd_diary:'+ds));}catch(e){} }
-      if(dd && dd.done){ for(const id in dd.done){ if(dd.done[id]) counts[id]=(counts[id]||0)+1; } }
+      if(dd && dd.done){ for(const id in dd.done){ if(dd.done[id]) mCounts[id]=(mCounts[id]||0)+1; } }
     }
-    const items=(routines||[]).filter(rt=>rt.text && rt.text.trim()).map(rt=>({name:rt.text.trim(), n:counts[rt.id]||0}));
-    if(sub) sub.textContent=calYear+'년 '+(calMonth+1)+'월 · 루틴 실천';
+    // 전체(전체 기간) 실천 카운트
+    const tCounts={};
+    try{ _allDiaryDates().forEach(ds=>{ let dd=_dayCache['diary:'+ds]; if(!dd){ try{dd=JSON.parse(localStorage.getItem('hd_diary:'+ds));}catch(e){} } if(dd && dd.done){ for(const id in dd.done){ if(dd.done[id]) tCounts[id]=(tCounts[id]||0)+1; } } }); }catch(e){}
+    const rts=(routines||[]).filter(rt=>rt.text && rt.text.trim());
+    if(sub) sub.textContent='루틴 실천';
     wrap.innerHTML='';
-    if(!items.length){ wrap.innerHTML='<div class="stat-empty">아직 루틴이 없어요.</div>'; return; }
-    items.sort((a,b)=>b.n-a.n);
-    items.forEach((it,i)=>{
-      const pct=Math.round(it.n/daysIn*100);
-      const color=SCHED_COLORS[i%SCHED_COLORS.length];
-      const row=document.createElement('div'); row.className='rstat-row';
-      row.innerHTML='<span class="rstat-name">'+_esc(it.name)+'</span><span class="rstat-bar"><span style="width:'+Math.max(pct,3)+'%;background:'+color+'"></span></span><span class="rstat-n">'+it.n+'일</span>';
-      wrap.appendChild(row);
-    });
+    if(!rts.length){ wrap.innerHTML='<div class="stat-empty">아직 루틴이 없어요.</div>'; return; }
+    function group(title, counts, denom){
+      const h=document.createElement('div'); h.className='rstat-group'; h.textContent=title; wrap.appendChild(h);
+      const items=rts.map((rt,idx)=>({name:rt.text.trim(), n:counts[rt.id]||0, idx})).sort((a,b)=>b.n-a.n);
+      const mx=denom||Math.max(1,...items.map(x=>x.n));
+      items.forEach((it)=>{
+        const pct=Math.round(it.n/mx*100);
+        const color=SCHED_COLORS[it.idx%SCHED_COLORS.length];
+        const row=document.createElement('div'); row.className='rstat-row';
+        row.innerHTML='<span class="rstat-name">'+_esc(it.name)+'</span><span class="rstat-bar"><span style="width:'+Math.max(pct,3)+'%;background:'+color+'"></span></span><span class="rstat-n">'+it.n+'일</span>';
+        wrap.appendChild(row);
+      });
+    }
+    group(calYear+'년 '+(calMonth+1)+'월 (이번 달)', mCounts, daysIn);
+    group('전체 기간', tCounts, null);
   }
   function closePops(except){document.querySelectorAll('.pop.open,.pop-panel.open,.stk-pop.open').forEach(p=>{if(p!==except)p.classList.remove('open');});}
 
